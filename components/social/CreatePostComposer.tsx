@@ -11,8 +11,10 @@ const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
 import { uploadSocialVideo } from '@/lib/supabase/storage';
 import { Video, Smile } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?: () => void }) {
+  const router = useRouter();
   const [content, setContent] = useState('');
   const [type, setType] = useState('kabar');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,6 +103,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
         removeMedia();
         setShowEmoji(false);
         if (onSuccess) onSuccess();
+        router.refresh();
       }
     } catch (err) {
       console.error('[CREATE_POST_CLIENT_EXCEPTION]', err);

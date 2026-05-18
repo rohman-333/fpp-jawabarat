@@ -42,7 +42,8 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
           comments_count:social_comments(count)
         `)
         .is('deleted_at', null)
-        .or('status.eq.active,status.is.null')
+        .or('status.eq.active,status.eq.published,status.is.null')
+        .or('visibility.eq.public,visibility.is.null')
         .order('created_at', { ascending: false })
         .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 
@@ -90,7 +91,10 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
 
       const { data, error } = await query;
       
-      if (error) throw error;
+      if (error) {
+        console.error('[FEED_FETCH_ERROR]', error);
+        throw error;
+      }
 
       if (data && data.length > 0) {
         // Fetch user interactions if logged in
@@ -133,15 +137,19 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
           setHasMore(false);
         }
       } else if (data && data.length === 0) {
-        if (isReset) setPosts([]);
-        setHasMore(false);
+        if (isReset) {
+          setPosts([]);
+          setHasMore(false);
+          // Temporary debug when fetching initial page and it's empty
+          console.log('[DEBUG_FEED_EMPTY] Filter used - activeTab:', activeTab, 'targetUserId:', targetUserId);
+        }
       }
-    } catch (err) {
-      console.error('Error fetching posts:', err);
+    } catch (error) {
+      console.error('[FEED_FETCH_ERROR]', error);
     } finally {
       setLoading(false);
     }
-  }, [activeTab, supabase]);
+  }, [supabase, targetUserId, activeTab, currentUser?.id]);
 
   // Reset and fetch on tab change or refresh
   useEffect(() => {
