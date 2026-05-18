@@ -96,8 +96,14 @@ export default async function PublicProfilePage({
         <div className="max-w-[1080px] mx-auto w-full">
           {/* Profile Header */}
           <div className="bg-white border-b border-slate-200">
-            {/* Cover photo placeholder */}
-            <div className="h-32 md:h-48 bg-gradient-to-r from-emerald-800 to-emerald-600"></div>
+            {/* Cover photo */}
+            <div className="h-32 md:h-64 bg-slate-200 relative overflow-hidden">
+              {profile.cover_url ? (
+                <img src={resolveMediaUrl(profile.cover_url)!} alt="Cover" className="w-full h-full object-cover" />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-800 to-emerald-600 opacity-80" />
+              )}
+            </div>
             
             <div className="px-4 sm:px-8 max-w-[800px] mx-auto pb-6 -mt-12 md:-mt-16 relative z-10">
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 justify-between">
@@ -137,15 +143,18 @@ export default async function PublicProfilePage({
                 )}
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
-                {profile.bio && (
-                  <p className="w-full text-slate-700 leading-relaxed mb-2">{profile.bio}</p>
-                )}
+              {profile.bio && (
+                <p className="mt-4 text-slate-700 whitespace-pre-wrap">{profile.bio}</p>
+              )}
+
+              <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
                 {profile.location && (
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-emerald-600" />
-                    <span>{profile.location}</span>
-                  </div>
+                  <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {profile.location}</span>
+                )}
+                {profile.website && (
+                  <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-blue-600 hover:underline">
+                    <span className="w-4 h-4 text-slate-400">🌐</span> {profile.website.replace(/^https?:\/\//, '')}
+                  </a>
                 )}
               </div>
 

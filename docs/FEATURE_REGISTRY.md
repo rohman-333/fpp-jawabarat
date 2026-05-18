@@ -9,6 +9,7 @@ Dokumen ini melacak seluruh fitur utama dari sistem legacy PHP Hostinger yang te
 | **Social Feed** | `/feed`, `/post/[id]` | ✅ Done | Public, User | Posting, like, komen |
 | **Saved / Bookmark** | `/feed/saved` | 🚧 Placeholder | User | Menyimpan feed |
 | **Following** | `/feed/following` | 🚧 Placeholder | User | Feed dari orang yg diikuti |
+| **Pencarian Global** | `/search` | ✅ MVP | Public | Cari agregat user/postingan/dll |
 | **Marketplace (Umum)** | `/marketplace`, `/marketplace/[slug]` | ✅ Done | Public | Etalase produk |
 | **Toko Saya (Seller)** | `/dashboard/seller`, `/dashboard/products` | ✅ Partial | Seller | CRUD produk (placeholder) |
 | **Keranjang Belanja** | `/cart` | 🚧 Placeholder | User | Pembelian produk |

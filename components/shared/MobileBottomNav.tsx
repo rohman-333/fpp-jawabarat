@@ -24,7 +24,7 @@ export function MobileBottomNav() {
 
   const links = [
     { name: 'Beranda', href: isAuthenticated ? '/feed' : '/', icon: Home },
-    { name: 'Cari', href: '/pesantren', icon: Search },
+    { name: 'Cari', href: '/search', icon: Search },
     { 
       name: 'Posting', 
       href: isAuthenticated ? '/feed?compose=true' : '/login', 
