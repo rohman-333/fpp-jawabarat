@@ -38,8 +38,10 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
           *,
           profiles:author_id(name, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified, username, followers:social_follows!social_follows_following_id_fkey(count)),
           likes_count:social_likes(count),
+          reactions:social_reactions(reaction_type, user_id),
           comments_count:social_comments(count)
         `)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
         .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 

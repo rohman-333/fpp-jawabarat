@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, BadgeCheck, Store, Gift } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, BadgeCheck, Store, Gift, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -9,7 +9,7 @@ import { getProfileUrl } from '@/lib/routes/profile';
 
 import { FollowButton } from './FollowButton';
 import { CommentBox } from './CommentBox';
-import { toggleLike, toggleSave, hidePost } from '@/app/(social)/feed/actions';
+import { toggleSave, hidePost, deletePost, setReaction, removeReaction } from '@/app/(social)/feed/actions';
 import { getDisplayRole } from '@/lib/auth/roles';
 import { ReportPostDialog } from './ReportPostDialog';
 import { Flag, EyeOff, Link as LinkIcon, X } from 'lucide-react';
@@ -17,8 +17,22 @@ import { Flag, EyeOff, Link as LinkIcon, X } from 'lucide-react';
 export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: string }) {
   const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: id });
   
-  const [isLiked, setIsLiked] = useState(post.has_liked || false);
-  const [likesCount, setLikesCount] = useState(post.likes_count?.[0]?.count || 0);
+  const myReactionObj = post.reactions?.find((r: any) => r.user_id === currentUserId);
+  const initialReaction = myReactionObj ? myReactionObj.reaction_type : (post.has_liked ? 'like' : null);
+  
+  const [currentReaction, setCurrentReaction] = useState<string | null>(initialReaction);
+  const [reactionsCount, setReactionsCount] = useState(Math.max(post.reactions?.length || 0, post.likes_count?.[0]?.count || 0));
+
+  const getReactionSummary = () => {
+    if (!post.reactions || post.reactions.length === 0) return null;
+    const counts: Record<string, number> = {};
+    post.reactions.forEach((r: any) => {
+      counts[r.reaction_type] = (counts[r.reaction_type] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  };
+  const reactionSummary = getReactionSummary();
+
   const [isSaved, setIsSaved] = useState(post.has_saved || false);
   const [showComments, setShowComments] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
@@ -28,21 +42,59 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
   const [showMenu, setShowMenu] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
+  const [showReactionPicker, setShowReactionPicker] = useState(false);
+  let reactionTimeout: NodeJS.Timeout;
+
+  const REACTION_EMOJIS: Record<string, string> = {
+    like: '👍',
+    love: '❤️',
+    haha: '😆',
+    wow: '😮',
+    sad: '😢',
+    angry: '😡',
+    pray: '🤲'
+  };
 
   if (isHidden) return null;
 
-  const handleLike = async () => {
+  const handleToggleLike = async () => {
+    if (!currentUserId || isLiking) return;
+    if (currentReaction) {
+      await handleRemoveReaction();
+    } else {
+      await handleSetReaction('like');
+    }
+  };
+
+  const handleSetReaction = async (type: string) => {
     if (!currentUserId || isLiking) return;
     setIsLiking(true);
-    // Optimistic UI
-    setIsLiked(!isLiked);
-    setLikesCount((prev: number) => isLiked ? prev - 1 : prev + 1);
+    setShowReactionPicker(false);
     
-    const res = await toggleLike(post.id);
+    const prev = currentReaction;
+    setCurrentReaction(type);
+    if (!prev) setReactionsCount((p: number) => p + 1);
+    
+    const res = await setReaction(post.id, type);
     if (res?.error) {
-      // Revert on error
-      setIsLiked(isLiked);
-      setLikesCount((prev: number) => isLiked ? prev + 1 : prev - 1);
+      setCurrentReaction(prev);
+      if (!prev) setReactionsCount((p: number) => p - 1);
+    }
+    setIsLiking(false);
+  };
+
+  const handleRemoveReaction = async () => {
+    if (!currentUserId || isLiking) return;
+    setIsLiking(true);
+    
+    const prev = currentReaction;
+    setCurrentReaction(null);
+    setReactionsCount((p: number) => Math.max(0, p - 1));
+    
+    const res = await removeReaction(post.id);
+    if (res?.error) {
+      setCurrentReaction(prev);
+      setReactionsCount((p: number) => p + 1);
     }
     setIsLiking(false);
   };
@@ -169,29 +221,47 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
                   Salin Link
                 </button>
                 
-                {currentUserId && currentUserId !== post.author_id && (
+                {currentUserId && (
                   <>
-                    <button 
-                      onClick={async () => {
-                        setShowMenu(false);
-                        const res = await hidePost(post.id);
-                        if (!res?.error) setIsHidden(true);
-                      }}
-                      className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
-                    >
-                      <EyeOff className="w-4 h-4 text-slate-400" />
-                      Sembunyikan dari Feed
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setShowMenu(false);
-                        setShowReportDialog(true);
-                      }}
-                      className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
-                    >
-                      <Flag className="w-4 h-4 text-red-500" />
-                      Laporkan Postingan
-                    </button>
+                    {currentUserId === post.author_id && (
+                      <button 
+                        onClick={async () => {
+                          if (!confirm('Apakah Anda yakin ingin menghapus postingan ini?')) return;
+                          setShowMenu(false);
+                          const res = await deletePost(post.id);
+                          if (!res?.error) setIsHidden(true);
+                        }}
+                        className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                        Hapus Postingan
+                      </button>
+                    )}
+                    {currentUserId !== post.author_id && (
+                      <>
+                        <button 
+                          onClick={async () => {
+                            setShowMenu(false);
+                            const res = await hidePost(post.id);
+                            if (!res?.error) setIsHidden(true);
+                          }}
+                          className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                        >
+                          <EyeOff className="w-4 h-4 text-slate-400" />
+                          Sembunyikan dari Feed
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setShowMenu(false);
+                            setShowReportDialog(true);
+                          }}
+                          className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
+                        >
+                          <Flag className="w-4 h-4 text-red-500" />
+                          Laporkan Postingan
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -235,15 +305,53 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
 
       {/* Post Stats/Actions */}
       <div className="px-2 sm:px-4 py-2 flex items-center justify-between border-t border-slate-100 bg-slate-50/50">
-        <div className="flex items-center gap-1 sm:gap-2">
-          <button 
-            onClick={handleLike}
-            disabled={isLiking}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all group ${isLiked ? 'text-red-500 bg-red-50' : 'text-slate-500 hover:text-red-500 hover:bg-red-50'}`}
+        <div className="flex items-center gap-1 sm:gap-2 relative">
+          
+          <div 
+            className="relative"
+            onMouseEnter={() => {
+              reactionTimeout = setTimeout(() => setShowReactionPicker(true), 300);
+            }}
+            onMouseLeave={() => {
+              clearTimeout(reactionTimeout);
+              setTimeout(() => setShowReactionPicker(false), 200);
+            }}
           >
-            <Heart className={`w-5 h-5 group-active:scale-90 transition-transform ${isLiked ? 'fill-current' : ''}`} />
-            <span className="text-xs font-bold">{likesCount}</span>
-          </button>
+            <button 
+              onClick={handleToggleLike}
+              disabled={isLiking}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all group ${currentReaction ? 'text-emerald-600 bg-emerald-50' : 'text-slate-500 hover:text-emerald-600 hover:bg-emerald-50'}`}
+            >
+              {currentReaction ? (
+                <span className="text-lg group-active:scale-90 transition-transform">{REACTION_EMOJIS[currentReaction]}</span>
+              ) : (
+                <Heart className={`w-5 h-5 group-active:scale-90 transition-transform ${currentReaction ? 'fill-current' : ''}`} />
+              )}
+              <span className="text-xs font-bold">{reactionsCount}</span>
+              {reactionSummary && reactionSummary.length > 0 && (
+                <div className="hidden sm:flex ml-1 -space-x-1">
+                  {reactionSummary.map(([type]) => (
+                    <span key={type} className="text-[10px]">{REACTION_EMOJIS[type]}</span>
+                  ))}
+                </div>
+              )}
+            </button>
+
+            {/* Reaction Picker */}
+            {showReactionPicker && (
+              <div className="absolute bottom-full left-0 mb-2 bg-white rounded-full shadow-xl border border-slate-200 p-1 flex gap-1 z-50 animate-in fade-in slide-in-from-bottom-2">
+                {Object.entries(REACTION_EMOJIS).map(([type, emoji]) => (
+                  <button
+                    key={type}
+                    onClick={() => handleSetReaction(type)}
+                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-slate-100 rounded-full hover:scale-125 transition-all"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           
           <button 
             onClick={() => setShowComments(!showComments)}

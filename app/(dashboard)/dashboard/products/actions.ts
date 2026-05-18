@@ -16,14 +16,19 @@ export async function saveProduct(formData: FormData) {
     .from('pesantren')
     .select('id')
     .eq('profile_id', user.id)
-    .single();
+    .maybeSingle();
 
   const id = formData.get('id') as string;
+  
+  let category_id = formData.get('category_id') as string;
+  if (!category_id || category_id === '') {
+    category_id = null as any;
+  }
   
   const payload = {
     name: formData.get('name') as string,
     slug: formData.get('slug') as string,
-    category_id: formData.get('category_id') as string || null,
+    category_id: category_id,
     description: formData.get('description') as string,
     price: parseFloat(formData.get('price') as string) || 0,
     stock: parseInt(formData.get('stock') as string) || 0,
@@ -33,18 +38,29 @@ export async function saveProduct(formData: FormData) {
     status: formData.get('status') as string || 'pending'
   };
 
-  if (id) {
-    const { error } = await supabase
-      .from('products')
-      .update(payload)
-      .eq('id', id)
-      .eq('seller_id', user.id); // Protect RLS
-    if (error) throw new Error(error.message);
-  } else {
-    const { error } = await supabase
-      .from('products')
-      .insert([payload]);
-    if (error) throw new Error(error.message);
+  try {
+    if (id) {
+      const { error } = await supabase
+        .from('products')
+        .update(payload)
+        .eq('id', id)
+        .eq('seller_id', user.id); // Protect RLS
+      if (error) {
+        console.error('[UPDATE_PRODUCT_ERROR]', error);
+        throw new Error(error.message);
+      }
+    } else {
+      const { error } = await supabase
+        .from('products')
+        .insert([payload]);
+      if (error) {
+        console.error('[CREATE_PRODUCT_ERROR]', error);
+        throw new Error(error.message);
+      }
+    }
+  } catch (err) {
+    console.error('[SAVE_PRODUCT_EXCEPTION]', err);
+    throw err;
   }
 
   revalidatePath('/dashboard/products');

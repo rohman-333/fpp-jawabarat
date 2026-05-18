@@ -30,7 +30,7 @@ export default async function NewProductPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <DashboardSidebar 
-        isAdmin={profile?.role === 'admin' || profile?.role === 'operator'} 
+        isAdmin={profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'superadmin'} 
         userName={profile?.name || 'User'} 
         avatarUrl={profile?.avatar_url}
       />
@@ -38,7 +38,26 @@ export default async function NewProductPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <DashboardTopbar title="Tambah Produk" userName={profile?.name || 'User'} avatarUrl={profile?.avatar_url} />
 
-        <main className="p-4 md:p-8">
+        {(!profile?.is_seller && profile?.role !== 'superadmin' && profile?.role !== 'admin') ? (
+          <main className="p-4 md:p-8 flex-1 flex items-center justify-center">
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 text-center max-w-md w-full">
+              <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              </div>
+              <h2 className="text-xl font-bold text-slate-800 mb-2">Anda Belum Menjadi Seller</h2>
+              <p className="text-slate-500 mb-6">Silakan ajukan pembukaan toko terlebih dahulu untuk mulai berjualan di Marketplace FPP JAWABARAT.</p>
+              <div className="space-y-3">
+                <Link href="/dashboard/seller/apply" className="block w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-200">
+                  Ajukan Buka Toko
+                </Link>
+                <Link href="/dashboard" className="block w-full bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">
+                  Kembali ke Dashboard
+                </Link>
+              </div>
+            </div>
+          </main>
+        ) : (
+          <main className="p-4 md:p-8">
           <div className="max-w-3xl mx-auto">
             <Link href="/dashboard/products" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-emerald-600 mb-6 transition-colors">
               <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Katalog
@@ -159,7 +178,8 @@ export default async function NewProductPage() {
               </form>
             </div>
           </div>
-        </main>
+          </main>
+        )}
       </div>
     </div>
   );
