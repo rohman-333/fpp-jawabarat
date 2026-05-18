@@ -156,8 +156,8 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
 
   const badge = getTypeLabel(post.type);
 
-  const authorUrl = getProfileUrl({ id: post.author_id, username: post.profiles?.username });
-  const followersCount = post.profiles?.followers?.[0]?.count || 0;
+  const authorUrl = getProfileUrl({ id: post.author_id, username: post.author?.username });
+  const followersCount = post.author?.followers?.[0]?.count || 0;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4 relative">
@@ -165,19 +165,19 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
       <div className="p-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
           <Link href={authorUrl} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-100 overflow-hidden shrink-0 border border-slate-200 flex items-center justify-center">
-            {post.profiles?.avatar_url ? (
-              <img src={post.profiles.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+            {post.author?.avatar_url ? (
+              <img src={post.author.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
             ) : (
               <span className="font-bold text-slate-400 uppercase text-sm sm:text-base">
-                {(post.profiles?.name || 'U').charAt(0)}
+                {(post.author?.name || 'U').charAt(0)}
               </span>
             )}
           </Link>
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <Link href={authorUrl} className="font-bold text-slate-800 text-[15px] hover:underline hover:text-emerald-600 transition-colors flex items-center gap-1">
-                {post.profiles?.name || 'User'}
-                {post.profiles?.is_verified && <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />}
+                {post.author?.name || 'User'}
+                {post.author?.is_verified && <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />}
               </Link>
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badge.bg} ${badge.text}`}>
                 {badge.label}
@@ -189,7 +189,7 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
               )}
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              {getDisplayRole(post.profiles)} • {followersCount} Pengikut • {timeAgo}
+              {getDisplayRole(post.author)} • {followersCount} Pengikut • {timeAgo}
             </p>
           </div>
         </div>

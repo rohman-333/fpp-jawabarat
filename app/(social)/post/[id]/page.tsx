@@ -59,6 +59,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
 
   const enrichedPost = {
     ...post,
+    author: post.profiles,
     has_liked,
     has_saved,
     author_followed

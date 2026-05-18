@@ -8,7 +8,7 @@ import { SuggestedUsers } from './SuggestedUsers';
 import { SuggestedProducts } from './SuggestedProducts';
 import { SuggestedPrograms } from './SuggestedPrograms';
 
-export function FeedContainer({ user, initialTab = 'semua' }: { user: any, initialTab?: string }) {
+export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { user: any, initialTab?: string, initialPosts?: any[] }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -35,7 +35,7 @@ export function FeedContainer({ user, initialTab = 'semua' }: { user: any, initi
         <SuggestedPrograms />
       </div>
 
-      <InfiniteFeed activeTab={activeTab} currentUser={user} refreshKey={refreshKey} />
+      <InfiniteFeed activeTab={activeTab} currentUser={user} refreshKey={refreshKey} initialPosts={initialPosts} />
 
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { FeedCard } from './FeedCard';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -8,9 +8,9 @@ import { Users, Loader2 } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import { FeedProductCard } from './FeedProductCard';
 
-export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUserId }: { activeTab: string, currentUser?: any, refreshKey?: number, targetUserId?: string }) {
+export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUserId, initialPosts }: { activeTab: string, currentUser?: any, refreshKey?: number, targetUserId?: string, initialPosts?: any[] }) {
   const supabase = createClient();
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>(initialPosts || []);
   const [banners, setBanners] = useState<any[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
   const [page, setPage] = useState(0);
@@ -36,7 +36,6 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
         .from('social_posts')
         .select(`
           *,
-          profiles:author_id(name, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified, username, followers:social_follows!social_follows_following_id_fkey(count)),
           likes_count:social_likes(count),
           reactions:social_reactions(reaction_type, user_id),
           comments_count:social_comments(count)
@@ -97,17 +96,36 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
       }
 
       if (data && data.length > 0) {
+        console.log('[FEED_POSTS_COUNT]', data.length);
+        console.log('[FEED_FIRST_POST]', data[0]);
+
+        // Fetch authors separately to avoid complex nested join issues
+        const authorIds = Array.from(new Set(data.map(p => p.author_id).filter(Boolean)));
+        let profilesById: Record<string, any> = {};
+
+        if (authorIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, name, username, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified, followers:social_follows!social_follows_following_id_fkey(count)')
+            .in('id', authorIds);
+
+          if (profiles) {
+            profiles.forEach(p => {
+              profilesById[p.id] = p;
+            });
+          }
+        }
+
         // Fetch user interactions if logged in
         let userInteractions = { likes: new Set(), saves: new Set(), follows: new Set() };
         
         if (currentUser?.id) {
           const postIds = data.map(p => p.id);
-          const authorIds = Array.from(new Set(data.map(p => p.author_id)));
-
+          
           const [likesRes, savesRes, followsRes] = await Promise.all([
             supabase.from('social_likes').select('post_id').in('post_id', postIds).eq('user_id', currentUser.id),
             supabase.from('social_saves').select('post_id').in('post_id', postIds).eq('user_id', currentUser.id),
-            supabase.from('social_follows').select('following_id').in('following_id', authorIds).eq('follower_id', currentUser.id)
+            authorIds.length > 0 ? supabase.from('social_follows').select('following_id').in('following_id', authorIds).eq('follower_id', currentUser.id) : Promise.resolve({ data: null })
           ]);
 
           if (likesRes.data) likesRes.data.forEach(l => userInteractions.likes.add(l.post_id));
@@ -117,6 +135,13 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
 
         const enrichedData = data.map(post => ({
           ...post,
+          author: profilesById[post.author_id] || {
+            id: post.author_id,
+            name: 'Pengguna FPP',
+            username: 'pengguna',
+            avatar_url: null,
+            role: 'member'
+          },
           has_liked: userInteractions.likes.has(post.id),
           has_saved: userInteractions.saves.has(post.id),
           author_followed: userInteractions.follows.has(post.author_id)
@@ -151,13 +176,19 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
     }
   }, [supabase, targetUserId, activeTab, currentUser?.id]);
 
+  const initialMount = useRef(true);
+
   // Reset and fetch on tab change or refresh
   useEffect(() => {
+    if (initialMount.current && initialPosts && initialPosts.length > 0) {
+      initialMount.current = false;
+      return;
+    }
     setPosts([]);
     setPage(0);
     setHasMore(true);
     fetchPosts(0, true);
-  }, [activeTab, fetchPosts, refreshKey]);
+  }, [activeTab, fetchPosts, refreshKey, initialPosts]);
 
   // Load more on scroll
   useEffect(() => {
