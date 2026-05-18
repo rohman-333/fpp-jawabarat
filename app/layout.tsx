@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthDebug } from "@/components/shared/AuthDebug";
@@ -12,6 +12,14 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  themeColor: "#064e3b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "FPP JAWABARAT",
   description: "Platform Digital Pesantren Jawa Barat",
@@ -20,7 +28,14 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     apple: "/icons/apple-touch-icon.png",
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "FPP JABAR",
+  },
 };
+
+import { MobileBottomNav } from "@/components/shared/MobileBottomNav";
 
 export default function RootLayout({
   children,
@@ -32,8 +47,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 pb-20 md:pb-0">
         {children}
+        <MobileBottomNav />
         <AuthDebug />
       </body>
     </html>

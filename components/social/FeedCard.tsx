@@ -5,10 +5,14 @@ import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, BadgeCheck, Sto
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { getProfileUrl } from '@/lib/routes/profile';
 
 import { FollowButton } from './FollowButton';
 import { CommentBox } from './CommentBox';
-import { toggleLike, toggleSave } from '@/app/(social)/feed/actions';
+import { toggleLike, toggleSave, hidePost } from '@/app/(social)/feed/actions';
+import { getDisplayRole } from '@/lib/auth/roles';
+import { ReportPostDialog } from './ReportPostDialog';
+import { Flag, EyeOff, Link as LinkIcon, X } from 'lucide-react';
 
 export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: string }) {
   const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: id });
@@ -21,6 +25,11 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
   const [isSaving, setIsSaving] = useState(false);
   const [shareText, setShareText] = useState('Bagikan');
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+
+  if (isHidden) return null;
 
   const handleLike = async () => {
     if (!currentUserId || isLiking) return;
@@ -95,14 +104,17 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
 
   const badge = getTypeLabel(post.type);
 
+  const authorUrl = getProfileUrl({ id: post.author_id, username: post.profiles?.username });
+  const followersCount = post.profiles?.followers?.[0]?.count || 0;
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4 relative">
       {/* Post Header */}
       <div className="p-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <Link href={`/profile/${post.author_id}`} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-100 overflow-hidden shrink-0 border border-slate-200 flex items-center justify-center">
+          <Link href={authorUrl} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-100 overflow-hidden shrink-0 border border-slate-200 flex items-center justify-center">
             {post.profiles?.avatar_url ? (
-              <img src={post.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+              <img src={post.profiles.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
             ) : (
               <span className="font-bold text-slate-400 uppercase text-sm sm:text-base">
                 {(post.profiles?.name || 'U').charAt(0)}
@@ -111,7 +123,7 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
           </Link>
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <Link href={`/profile/${post.author_id}`} className="font-bold text-slate-800 text-[15px] hover:underline hover:text-emerald-600 transition-colors flex items-center gap-1">
+              <Link href={authorUrl} className="font-bold text-slate-800 text-[15px] hover:underline hover:text-emerald-600 transition-colors flex items-center gap-1">
                 {post.profiles?.name || 'User'}
                 {post.profiles?.is_verified && <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />}
               </Link>
@@ -125,19 +137,66 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
               )}
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              {post.profiles?.account_type ? post.profiles.account_type.replace('_', ' ') : post.profiles?.role} • {timeAgo}
+              {getDisplayRole(post.profiles)} • {followersCount} Pengikut • {timeAgo}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 relative">
           {currentUserId && currentUserId !== post.author_id && (
             <div className="sm:hidden">
               <FollowButton targetUserId={post.author_id} isFollowingInitial={post.author_followed} />
             </div>
           )}
-          <button className="text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-50 transition-colors shrink-0">
+          <button 
+            onClick={() => setShowMenu(!showMenu)}
+            className="text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-50 transition-colors shrink-0"
+          >
             <MoreHorizontal className="w-5 h-5" />
           </button>
+
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-[98]" onClick={() => setShowMenu(false)}></div>
+              <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-xl shadow-xl border border-slate-100 z-[99] overflow-hidden py-1">
+                <button 
+                  onClick={() => {
+                    handleShareOption('copy');
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                >
+                  <LinkIcon className="w-4 h-4 text-slate-400" />
+                  Salin Link
+                </button>
+                
+                {currentUserId && currentUserId !== post.author_id && (
+                  <>
+                    <button 
+                      onClick={async () => {
+                        setShowMenu(false);
+                        const res = await hidePost(post.id);
+                        if (!res?.error) setIsHidden(true);
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                    >
+                      <EyeOff className="w-4 h-4 text-slate-400" />
+                      Sembunyikan dari Feed
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setShowMenu(false);
+                        setShowReportDialog(true);
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
+                    >
+                      <Flag className="w-4 h-4 text-red-500" />
+                      Laporkan Postingan
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -164,7 +223,7 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
       {/* Post Media */}
       {post.image_url && post.media_type !== 'video' && (
         <div className="w-full border-t border-b border-slate-100 bg-slate-50">
-          <img src={post.image_url} alt="Post Attachment" className="w-full max-h-[500px] object-contain sm:object-cover" />
+          <img src={post.image_url} alt="Post Attachment" className="w-full max-h-[500px] object-contain sm:object-cover" loading="lazy" decoding="async" />
         </div>
       )}
 
@@ -237,6 +296,15 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
         <div className="border-t border-slate-100 bg-slate-50/30 p-4">
           <CommentBox postId={post.id} currentUserId={currentUserId} />
         </div>
+      )}
+
+      {currentUserId && (
+        <ReportPostDialog 
+          isOpen={showReportDialog} 
+          onClose={() => setShowReportDialog(false)} 
+          postId={post.id} 
+          currentUserId={currentUserId} 
+        />
       )}
     </div>
   );

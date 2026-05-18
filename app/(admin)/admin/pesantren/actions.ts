@@ -24,13 +24,25 @@ export async function setPesantrenStatus(formData: FormData) {
     .eq('id', user.id)
     .single();
 
-  if (!profile || (profile.role !== 'admin' && profile.role !== 'operator')) {
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'operator' && profile.role !== 'superadmin')) {
     throw new Error('Akses ditolak. Anda bukan admin atau operator.');
+  }
+
+  const payload: any = { 
+    status,
+    reviewed_by: user.id,
+    reviewed_at: new Date().toISOString()
+  };
+
+  if (status === 'rejected') {
+    payload.rejection_reason = formData.get('rejection_reason') as string;
+  } else {
+    payload.rejection_reason = null;
   }
 
   const { error } = await supabase
     .from('pesantren')
-    .update({ status })
+    .update(payload)
     .eq('id', id);
 
   if (error) {

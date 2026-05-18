@@ -5,6 +5,8 @@ import { CreatePostComposer } from './CreatePostComposer';
 import { FeedTabs } from './FeedTabs';
 import { InfiniteFeed } from './InfiniteFeed';
 import { SuggestedUsers } from './SuggestedUsers';
+import { SuggestedProducts } from './SuggestedProducts';
+import { SuggestedPrograms } from './SuggestedPrograms';
 
 export function FeedContainer({ user }: { user: any }) {
   const [activeTab, setActiveTab] = useState('semua');
@@ -27,8 +29,10 @@ export function FeedContainer({ user }: { user: any }) {
         <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
-      <div className="xl:hidden mb-6">
+      <div className="xl:hidden mb-6 space-y-4">
         <SuggestedUsers currentUserId={user.id} />
+        <SuggestedProducts />
+        <SuggestedPrograms />
       </div>
 
       <InfiniteFeed activeTab={activeTab} currentUser={user} refreshKey={refreshKey} />

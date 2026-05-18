@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { SocialSidebar } from '@/components/social/SocialSidebar';
 import { RightRail } from '@/components/social/RightRail';
+import { InstallAppPrompt } from '@/components/shared/InstallAppPrompt';
 
 export default async function SocialLayout({
   children,
@@ -39,6 +40,8 @@ export default async function SocialLayout({
           </div>
         </div>
       </div>
+      
+      <InstallAppPrompt />
     </div>
   );
 }

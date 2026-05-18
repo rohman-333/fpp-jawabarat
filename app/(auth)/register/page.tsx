@@ -22,7 +22,7 @@ export default async function RegisterPage({
 
   return (
     <div className="min-h-screen bg-emerald-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-emerald-900/30 border border-emerald-800 rounded-3xl p-8 backdrop-blur-sm">
+      <div className="w-full max-w-lg bg-emerald-900/30 border border-emerald-800 rounded-3xl p-6 sm:p-8 backdrop-blur-sm">
         <div className="flex flex-col items-center mb-8">
           <BrandLogo variant="icon" isDark={true} className="mb-4" />
           <h1 className="text-2xl font-bold text-white mb-2">Daftar Pesantren</h1>

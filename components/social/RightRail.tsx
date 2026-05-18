@@ -4,6 +4,8 @@ import { TrendingUp, Users, BadgeCheck } from 'lucide-react';
 import Link from 'next/link';
 
 import { SuggestedUsers } from './SuggestedUsers';
+import { SuggestedProducts } from './SuggestedProducts';
+import { SuggestedPrograms } from './SuggestedPrograms';
 
 export function RightRail({ currentUserId }: { currentUserId?: string }) {
   return (
@@ -39,6 +41,8 @@ export function RightRail({ currentUserId }: { currentUserId?: string }) {
       </div>
 
       <SuggestedUsers currentUserId={currentUserId} />
+      <SuggestedProducts />
+      <SuggestedPrograms />
 
       <div className="mt-8 text-[11px] text-slate-400 flex flex-wrap gap-x-3 gap-y-2">
         <Link href="#" className="hover:underline hover:text-slate-600">Tentang FPP</Link>

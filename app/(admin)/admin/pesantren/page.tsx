@@ -7,8 +7,9 @@ import { AdminPesantrenTable } from '@/components/admin/AdminPesantrenTable';
 export default async function AdminPesantrenPage({
   searchParams,
 }: {
-  searchParams: { q?: string; status?: string };
+  searchParams: Promise<{ q?: string; status?: string }>;
 }) {
+  const { q, status } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -26,8 +27,8 @@ export default async function AdminPesantrenPage({
     redirect('/dashboard');
   }
 
-  const query = searchParams.q || '';
-  const statusFilter = searchParams.status || 'all';
+  const query = q || '';
+  const statusFilter = status || 'all';
 
   let supabaseQuery = supabase
     .from('pesantren')

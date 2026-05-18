@@ -56,6 +56,24 @@ export async function toggleLike(postId: string) {
     // Like
     const { error } = await supabase.from('social_likes').insert([{ post_id: postId, user_id: user.id }]);
     if (error) return { error: error.message };
+    
+    // Fetch post author to send notification
+    const { data: post } = await supabase.from('social_posts').select('author_id, content').eq('id', postId).single();
+    if (post && post.author_id !== user.id) {
+      const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
+      const actorName = actor?.name || 'Seseorang';
+      
+      // Upsert notification or just insert (better insert unique or just insert)
+      await supabase.from('notifications').insert([{
+        user_id: post.author_id,
+        actor_id: user.id,
+        type: 'like',
+        title: `${actorName} menyukai kiriman Anda`,
+        message: post.content ? (post.content.length > 30 ? post.content.substring(0, 30) + '...' : post.content) : 'Kiriman Anda mendapat suka baru.',
+        target_url: `/post/${postId}`
+      }]);
+    }
+    
     return { liked: true };
   }
 }
@@ -74,6 +92,23 @@ export async function createComment(postId: string, content: string) {
     .single();
 
   if (error) return { error: error.message };
+
+  // Notify post author
+  const { data: post } = await supabase.from('social_posts').select('author_id').eq('id', postId).single();
+  if (post && post.author_id !== user.id) {
+    const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
+    const actorName = actor?.name || 'Seseorang';
+    
+    await supabase.from('notifications').insert([{
+      user_id: post.author_id,
+      actor_id: user.id,
+      type: 'comment',
+      title: `${actorName} mengomentari kiriman Anda`,
+      message: content.length > 50 ? content.substring(0, 50) + '...' : content,
+      target_url: `/post/${postId}`
+    }]);
+  }
+
   return { success: true, comment: data };
 }
 
@@ -107,6 +142,20 @@ export async function toggleFollow(targetUserId: string) {
   } else {
     const { error } = await supabase.from('social_follows').insert([{ follower_id: user.id, following_id: targetUserId }]);
     if (error) return { error: error.message };
+    
+    // Notify followed user
+    const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
+    const actorName = actor?.name || 'Seseorang';
+    
+    await supabase.from('notifications').insert([{
+      user_id: targetUserId,
+      actor_id: user.id,
+      type: 'follow',
+      title: `${actorName} mulai mengikuti Anda`,
+      message: 'Lihat profil pengikut baru Anda.',
+      target_url: `/profile/${user.id}`
+    }]);
+    
     return { following: true };
   }
 }
@@ -132,4 +181,20 @@ export async function toggleSave(postId: string) {
     if (error) return { error: error.message };
     return { saved: true };
   }
+}
+
+export async function hidePost(postId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Not authenticated' };
+
+  // Update status to 'hidden' where author is the current user
+  const { error } = await supabase
+    .from('social_posts')
+    .update({ status: 'hidden' })
+    .eq('id', postId)
+    .eq('author_id', user.id);
+
+  if (error) return { error: error.message };
+  return { success: true };
 }

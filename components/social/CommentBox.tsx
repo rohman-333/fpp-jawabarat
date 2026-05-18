@@ -6,8 +6,10 @@ import { createClient } from '@/lib/supabase/client';
 import { createComment, deleteComment as deleteCommentAction } from '@/app/(social)/feed/actions';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { getProfileUrl } from '@/lib/routes/profile';
 import Link from 'next/link';
-import EmojiPicker from 'emoji-picker-react';
+import dynamic from 'next/dynamic';
+const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
 export function CommentBox({ postId, currentUserId }: { postId: string, currentUserId?: string }) {
   const [comment, setComment] = useState('');
@@ -23,7 +25,7 @@ export function CommentBox({ postId, currentUserId }: { postId: string, currentU
         .from('social_comments')
         .select(`
           *,
-          profiles:author_id(name, avatar_url, role, account_type, is_verified)
+          profiles:author_id(name, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified)
         `)
         .eq('post_id', postId)
         .order('created_at', { ascending: true });
@@ -74,9 +76,11 @@ export function CommentBox({ postId, currentUserId }: { postId: string, currentU
         ) : comments.length === 0 ? (
           <p className="text-xs text-center text-slate-400 italic py-2">Belum ada komentar. Jadilah yang pertama!</p>
         ) : (
-          comments.map(c => (
+          comments.map(c => {
+            const userUrl = getProfileUrl({ id: c.author_id, username: c.profiles?.username });
+            return (
             <div key={c.id} className="flex gap-2 group">
-              <Link href={`/profile/${c.author_id}`} className="w-7 h-7 rounded-full bg-slate-200 shrink-0 overflow-hidden border border-slate-300 flex items-center justify-center">
+              <Link href={userUrl} className="w-7 h-7 rounded-full bg-slate-200 shrink-0 overflow-hidden border border-slate-300 flex items-center justify-center">
                 {c.profiles?.avatar_url ? (
                   <img src={c.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -86,7 +90,7 @@ export function CommentBox({ postId, currentUserId }: { postId: string, currentU
               <div className="flex-1">
                 <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-none px-3 py-2">
                   <div className="flex items-center gap-1 mb-1">
-                    <Link href={`/profile/${c.author_id}`} className="font-bold text-slate-800 text-[13px] hover:underline">
+                    <Link href={userUrl} className="font-bold text-slate-800 text-[13px] hover:underline">
                       {c.profiles?.name || 'User'}
                     </Link>
                     {c.profiles?.is_verified && <BadgeCheck className="w-3 h-3 text-blue-500" />}
@@ -105,7 +109,8 @@ export function CommentBox({ postId, currentUserId }: { postId: string, currentU
                 </div>
               </div>
             </div>
-          ))
+          );
+        })
         )}
       </div>
 

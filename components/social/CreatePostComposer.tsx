@@ -6,7 +6,9 @@ import { createPost } from '@/app/(social)/feed/actions';
 import { uploadPostImage } from '@/lib/supabase/storage';
 
 import TextareaAutosize from 'react-textarea-autosize';
-import EmojiPicker from 'emoji-picker-react';
+import dynamic from 'next/dynamic';
+const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
+
 import { uploadSocialVideo } from '@/lib/supabase/storage';
 import { Video, Smile } from 'lucide-react';
 
@@ -133,7 +135,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                 {mediaType === 'image' ? (
                   <img src={mediaPreview} alt="Preview" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain" />
                 ) : (
-                  <video src={mediaPreview} controls playsInline className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain"></video>
+                  <video src={mediaPreview} controls playsInline preload="metadata" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain"></video>
                 )}
                 <button 
                   type="button" 

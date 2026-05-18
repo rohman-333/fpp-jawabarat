@@ -6,6 +6,7 @@ import { StatCard } from '@/components/shared/StatCard';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, Star, MessageSquare, Landmark, PenSquare, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { LegacyPasswordBanner } from '@/components/shared/LegacyPasswordBanner';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -58,6 +59,11 @@ export default async function DashboardPage() {
 
         <main className="p-4 md:p-8">
           <div className="max-w-6xl mx-auto">
+            <LegacyPasswordBanner 
+              legacyUserId={profile.legacy_user_id} 
+              passwordChangedAt={profile.password_changed_at} 
+            />
+
             {/* Welcome Banner */}
             <div className="bg-emerald-950 rounded-2xl p-6 md:p-8 mb-8 relative overflow-hidden shadow-lg border border-emerald-900">
               <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>

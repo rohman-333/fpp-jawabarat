@@ -60,19 +60,17 @@ export default async function ProductsPage() {
               </Link>
             </div>
 
-            {!pesantren || pesantren.status !== 'verified' ? (
+            {(!pesantren || pesantren.status !== 'verified') && (!profile?.is_seller || profile?.seller_status !== 'approved') ? (
               <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl mb-8 shadow-sm flex items-start gap-4">
                 <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
                   <ShoppingBag className="w-6 h-6 text-amber-600" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-amber-900 mb-1">Akses Terbatas</h2>
-                  <p className="text-amber-700/80 text-sm mb-3">Produk Anda mungkin tidak akan tampil di Marketplace publik hingga status pesantren Anda terverifikasi oleh Admin.</p>
-                  {!pesantren && (
-                    <Link href="/dashboard/pesantren/edit">
-                      <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white border-none">Isi Profil Pesantren</Button>
-                    </Link>
-                  )}
+                  <p className="text-amber-700/80 text-sm mb-3">Produk Anda mungkin tidak akan tampil di Marketplace publik hingga status pesantren atau toko Anda terverifikasi.</p>
+                  <Link href="/dashboard/seller/apply">
+                    <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white border-none">Ajukan Buka Toko</Button>
+                  </Link>
                 </div>
               </div>
             ) : null}

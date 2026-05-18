@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, ShoppingBag, MessageSquare, Settings, LogOut, Home, User, FolderHeart, Landmark } from 'lucide-react';
+import { LayoutDashboard, Users, ShoppingBag, MessageSquare, Settings, LogOut, Home, User, FolderHeart, Landmark, ShieldCheck, Store, Truck } from 'lucide-react';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 
 interface SidebarProps {
@@ -20,18 +20,26 @@ export function DashboardSidebar({ isAdmin = false, userName, avatarUrl }: Sideb
     { name: 'Marketplace', href: '/admin/marketplace', icon: ShoppingBag },
     { name: 'Forum', href: '/admin/forum', icon: MessageSquare },
     { name: 'Program', href: '/admin/program', icon: FolderHeart },
+    { name: 'Pengajuan Toko', href: '/admin/seller-applications', icon: Store },
+    { name: 'Pengajuan Kurir', href: '/admin/courier-applications', icon: Truck },
     { name: 'Pengguna', href: '/admin/users', icon: Users },
+    { name: 'Manajemen Team', href: '/admin/team', icon: ShieldCheck },
+    { name: 'Moderasi Konten', href: '/admin/moderation', icon: ShieldCheck },
     { name: 'Pengaturan', href: '/admin/settings', icon: Settings },
   ];
 
   const memberLinks = [
     { name: 'Beranda Sosial', href: '/feed', icon: Home },
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Pesanan Saya', href: '/orders', icon: ShoppingBag },
     { name: 'Pesantren', href: '/dashboard/pesantren', icon: Landmark },
-    { name: 'Marketplace', href: '/dashboard/products', icon: ShoppingBag },
+    { name: 'Toko Saya', href: '/dashboard/seller', icon: Store },
+    { name: 'Pesanan Toko', href: '/dashboard/orders', icon: ShoppingBag },
+    { name: 'Kurir Saya', href: '/dashboard/courier', icon: Truck },
     { name: 'Forum', href: '/forum', icon: MessageSquare },
     { name: 'Program', href: '/dashboard/program', icon: FolderHeart },
     { name: 'Profil Akun', href: '/dashboard/profile', icon: Settings },
+    { name: 'Keamanan Akun', href: '/dashboard/security', icon: ShieldCheck },
   ];
 
   const links = isAdmin ? adminLinks : memberLinks;
@@ -47,7 +55,7 @@ export function DashboardSidebar({ isAdmin = false, userName, avatarUrl }: Sideb
     { name: 'Feed', href: '/feed', icon: Home },
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Pesantren', href: '/dashboard/pesantren', icon: Landmark },
-    { name: 'Pasar', href: '/dashboard/products', icon: ShoppingBag },
+    { name: 'Toko', href: '/dashboard/seller', icon: Store },
     { name: 'Profil', href: '/dashboard/profile', icon: User },
   ];
 
@@ -104,28 +112,6 @@ export function DashboardSidebar({ isAdmin = false, userName, avatarUrl }: Sideb
           </button>
         </div>
       </aside>
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-2 py-2 flex justify-between items-center z-50 shadow-[0_-5px_20px_-10px_rgba(0,0,0,0.1)] pb-safe">
-        {bottomNavLinks.map((link) => {
-          const isActive = pathname === link.href || (link.href !== '/dashboard' && link.href !== '/admin' && pathname.startsWith(link.href));
-          const Icon = link.icon;
-          return (
-            <Link 
-              key={link.href} 
-              href={link.href}
-              className={`flex flex-col items-center justify-center w-16 h-12 rounded-xl transition-all ${
-                isActive ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <div className={`flex items-center justify-center p-1 rounded-full mb-1 transition-all ${isActive ? 'bg-emerald-50 text-emerald-600' : ''}`}>
-                <Icon className={`w-5 h-5 ${isActive ? 'fill-emerald-600/20' : ''}`} />
-              </div>
-              <span className={`text-[9px] font-bold tracking-wide ${isActive ? 'text-emerald-700' : ''}`}>{link.name}</span>
-            </Link>
-          );
-        })}
-      </nav>
     </>
   );
 }

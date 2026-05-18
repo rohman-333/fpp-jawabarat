@@ -8,7 +8,7 @@ import { Users, Loader2 } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import { FeedProductCard } from './FeedProductCard';
 
-export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0 }: { activeTab: string, currentUser?: any, refreshKey?: number }) {
+export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUserId }: { activeTab: string, currentUser?: any, refreshKey?: number, targetUserId?: string }) {
   const supabase = createClient();
   const [posts, setPosts] = useState<any[]>([]);
   const [page, setPage] = useState(0);
@@ -24,18 +24,20 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0 }: { activ
         .from('social_posts')
         .select(`
           *,
-          profiles:author_id(name, avatar_url, role, account_type, is_verified),
+          profiles:author_id(name, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified, username, followers:social_follows!social_follows_following_id_fkey(count)),
           likes_count:social_likes(count),
           comments_count:social_comments(count)
         `)
         .order('created_at', { ascending: false })
         .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 
-      if (activeTab !== 'semua' && activeTab !== 'mengikuti') {
+      if (targetUserId) {
+        query = query.eq('author_id', targetUserId);
+      } else if (activeTab !== 'semua' && activeTab !== 'mengikuti') {
         query = query.eq('type', activeTab);
       }
 
-      if (activeTab === 'mengikuti' && currentUser?.id) {
+      if (!targetUserId && activeTab === 'mengikuti' && currentUser?.id) {
         // Fetch following IDs first
         const { data: followsData } = await supabase
           .from('social_follows')

@@ -109,7 +109,7 @@ export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] })
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Lokasi</th>
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Tgl Daftar</th>
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Verifikasi</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -148,20 +148,29 @@ export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] })
                       {p.status === 'rejected' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 uppercase tracking-wider border border-red-200"><XCircle className="w-3 h-3"/> Rejected</span>}
                     </td>
                     <td className="py-4 px-6 text-right">
-                      <div className="inline-flex bg-white p-1 rounded-lg border border-slate-200 shadow-sm relative">
-                        <select 
-                          value={p.status}
-                          onChange={(e) => handleStatusChange(p.id, e.target.value)}
-                          disabled={isPending}
-                          className="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer pl-2 pr-4 py-1 appearance-none z-10 w-full disabled:opacity-50"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="verified">Verified</option>
-                          <option value="rejected">Rejected</option>
-                        </select>
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                           <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="inline-flex bg-white p-1 rounded-lg border border-slate-200 shadow-sm relative">
+                          <select 
+                            value={p.status}
+                            onChange={(e) => handleStatusChange(p.id, e.target.value)}
+                            disabled={isPending}
+                            className="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer pl-2 pr-6 py-1 appearance-none z-10 w-full disabled:opacity-50"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="verified">Verified</option>
+                            <option value="rejected">Rejected</option>
+                          </select>
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                             <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                          </div>
                         </div>
+                        <button
+                          onClick={() => router.push(`/admin/pesantren/${p.id}`)}
+                          className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors border border-slate-200 shadow-sm"
+                          title="Detail"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
                       </div>
                     </td>
                   </tr>
