@@ -57,7 +57,24 @@ export function MobileDashboardDrawer({
 
   const canAccessAdmin = isAdmin || isTeam;
 
-  const links = [
+  const adminLinks = [
+    { name: 'Beranda Sosial', href: '/feed', icon: Home, show: true },
+    { name: 'Overview', href: '/admin', icon: LayoutDashboard, show: true },
+    { name: 'Pesantren', href: '/admin/pesantren', icon: Landmark, show: true },
+    { name: 'Marketplace', href: '/admin/marketplace', icon: ShoppingBag, show: true },
+    { name: 'Pesanan Masuk', href: '/admin/orders', icon: ShoppingBag, show: true },
+    { name: 'Komisi Platform', href: '/admin/commission', icon: Landmark, show: true },
+    { name: 'Pengajuan Toko', href: '/admin/seller-applications', icon: Store, show: true },
+    { name: 'Pengajuan Kurir', href: '/admin/courier-applications', icon: Truck, show: true },
+    { name: 'Banner/Iklan', href: '/admin/banners', icon: Landmark, show: true },
+    { name: 'Forum', href: '/admin/forum', icon: MessageSquare, show: true },
+    { name: 'Program', href: '/admin/program', icon: FolderHeart, show: true },
+    { name: 'Pengguna', href: '/admin/users', icon: User, show: true },
+    { name: 'Pengaturan', href: '/admin/settings', icon: Settings, show: true },
+    { name: 'Member Panel', href: '/dashboard', icon: LayoutDashboard, show: true },
+  ];
+
+  const memberLinks = [
     { name: 'Beranda Sosial', href: '/feed', icon: Home, show: true },
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, show: true },
     { name: 'Pesanan Saya', href: '/orders', icon: ShoppingBag, show: true },
@@ -71,6 +88,8 @@ export function MobileDashboardDrawer({
     { name: 'Keamanan Akun', href: '/dashboard/security', icon: Settings, show: true },
     { name: 'Admin Panel', href: '/admin', icon: LayoutDashboard, show: canAccessAdmin },
   ].filter(l => l.show);
+
+  const links = (isAdmin || isTeam) ? (pathname.startsWith('/admin') ? adminLinks : memberLinks) : memberLinks;
 
   let displayRole = 'Member';
   if (role === 'superadmin') displayRole = 'Superadmin';

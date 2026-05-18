@@ -25,13 +25,37 @@ export default async function AdminSellerApplicationsPage() {
     );
   }
 
-  const { data: applications } = await supabase
+  const { data: applications, error } = await supabase
     .from('seller_applications')
     .select(`
       *,
       profiles:user_id(name, email)
     `)
     .order('created_at', { ascending: false });
+
+  let combinedApplications = applications || [];
+
+  // Fallback if seller_applications is somehow missing entries for pending profiles
+  const { data: pendingProfiles } = await supabase
+    .from('profiles')
+    .select('id, name, email, created_at')
+    .eq('seller_status', 'pending');
+
+  if (pendingProfiles && pendingProfiles.length > 0) {
+    const existingUserIds = combinedApplications.map(a => a.user_id);
+    const fallbackApps = pendingProfiles
+      .filter(p => !existingUserIds.includes(p.id))
+      .map(p => ({
+        id: `fallback-${p.id}`,
+        user_id: p.id,
+        shop_name: p.name || 'Toko Baru',
+        status: 'pending',
+        created_at: p.created_at,
+        profiles: { name: p.name, email: p.email }
+      }));
+    
+    combinedApplications = [...combinedApplications, ...fallbackApps];
+  }
 
   return (
     <div className="space-y-6">
@@ -42,7 +66,7 @@ export default async function AdminSellerApplicationsPage() {
         <p className="text-slate-500 text-sm mt-1">Kelola permohonan pembukaan toko oleh pengguna (Seller).</p>
       </div>
 
-      <SellerApplicationList initialData={applications || []} />
+      <SellerApplicationList initialData={combinedApplications} />
     </div>
   );
 }

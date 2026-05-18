@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import { DashboardSidebar } from '@/components/shared/DashboardSidebar';
 import { DashboardTopbar } from '@/components/shared/DashboardTopbar';
 import { StatCard } from '@/components/shared/StatCard';
-import { Users, Building2, ShoppingCart, AlertCircle, ShoppingBag, Landmark, MessageSquare, FolderHeart } from 'lucide-react';
+import { Users, Building2, ShoppingCart, AlertCircle, ShoppingBag, Landmark, MessageSquare, FolderHeart, Store, Truck } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default async function AdminPage() {
@@ -32,6 +33,11 @@ export default async function AdminPage() {
   const { count: programCount } = await supabase.from('programs').select('*', { count: 'exact', head: true });
   const { count: donationCount } = await supabase.from('donations').select('*', { count: 'exact', head: true });
   
+  const { count: pendingPesantrenCount } = await supabase.from('pesantren').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  const { count: pendingSellerCount } = await supabase.from('seller_applications').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  const { count: pendingCourierCount } = await supabase.from('courier_business_model').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  const { count: pendingReportsCount } = await supabase.from('post_reports').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+
   const { data: pendingPesantren } = await supabase
     .from('pesantren')
     .select('*')
@@ -155,27 +161,38 @@ export default async function AdminPage() {
 
             <div className="space-y-6">
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h2 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-3">Moderasi Konten</h2>
+                <h2 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-3">Tugas Tertunda (Pending)</h2>
                 <div className="space-y-3">
+                  <div className="p-4 rounded-xl border border-slate-100 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <Store className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-800">Pengajuan Toko</h3>
+                      <p className="text-xs text-slate-500 mb-2">{pendingSellerCount || 0} pengajuan menunggu</p>
+                      <Link href="/admin/seller-applications" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Tinjau Toko &rarr;</Link>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-slate-100 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                      <Truck className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-800">Pengajuan Kurir</h3>
+                      <p className="text-xs text-slate-500 mb-2">{pendingCourierCount || 0} pengajuan menunggu</p>
+                      <Link href="/admin/courier-applications" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Tinjau Kurir &rarr;</Link>
+                    </div>
+                  </div>
+
                   <div className="p-4 rounded-xl border border-slate-100 flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
                       <AlertCircle className="w-4 h-4 text-amber-600" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-slate-800">Laporan Forum</h3>
-                      <p className="text-xs text-slate-500 mb-2">3 post dilaporkan oleh komunitas</p>
-                      <button className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Tinjau Laporan &rarr;</button>
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 rounded-xl border border-slate-100 flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                      <ShoppingCart className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-800">Review Produk</h3>
-                      <p className="text-xs text-slate-500 mb-2">12 produk menunggu persetujuan</p>
-                      <button className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Tinjau Produk &rarr;</button>
+                      <h3 className="text-sm font-bold text-slate-800">Laporan Konten</h3>
+                      <p className="text-xs text-slate-500 mb-2">{pendingReportsCount || 0} laporan masuk</p>
+                      <Link href="/admin/moderation" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Tinjau Laporan &rarr;</Link>
                     </div>
                   </div>
                 </div>

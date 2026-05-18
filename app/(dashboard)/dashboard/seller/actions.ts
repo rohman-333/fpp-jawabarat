@@ -42,6 +42,11 @@ export async function submitSellerApplication(formData: FormData) {
     return { error: 'Gagal mengirim pengajuan: ' + error.message };
   }
 
+  await supabase
+    .from('profiles')
+    .update({ seller_status: 'pending' })
+    .eq('id', user.id);
+
   redirect('/dashboard/seller');
 }
 
@@ -51,18 +56,58 @@ export async function updateSellerApplicationStatus(applicationId: string, newSt
   
   if (!user) return { error: 'Not authenticated' };
 
-  const { error } = await supabase
-    .from('seller_applications')
-    .update({ 
-      status: newStatus,
-      reviewed_by: user.id,
-      reviewed_at: new Date().toISOString()
-    })
-    .eq('id', applicationId);
+  const isFallback = applicationId.startsWith('fallback-');
+  let realApplicationId = applicationId;
+  let targetUserId = null;
 
-  if (error) {
-    return { error: 'Gagal memperbarui status: ' + error.message };
+  if (isFallback) {
+    targetUserId = applicationId.replace('fallback-', '');
+    // Insert into seller_applications first to have a record
+    const { data: newApp, error: insertError } = await supabase
+      .from('seller_applications')
+      .insert({
+        user_id: targetUserId,
+        shop_name: 'Toko FPP',
+        status: newStatus,
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString()
+      })
+      .select('id')
+      .single();
+      
+    if (insertError) return { error: 'Failed to create fallback application record' };
+    realApplicationId = newApp.id;
+  } else {
+    const { data: application, error: fetchError } = await supabase
+      .from('seller_applications')
+      .select('user_id')
+      .eq('id', applicationId)
+      .single();
+
+    if (fetchError || !application) return { error: 'Application not found' };
+    targetUserId = application.user_id;
+
+    const { error } = await supabase
+      .from('seller_applications')
+      .update({ 
+        status: newStatus,
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', applicationId);
+
+    if (error) {
+      return { error: 'Gagal memperbarui status: ' + error.message };
+    }
   }
+
+  await supabase
+    .from('profiles')
+    .update({ 
+      is_seller: newStatus === 'approved',
+      seller_status: newStatus 
+    })
+    .eq('id', targetUserId);
 
   return { success: true };
 }
