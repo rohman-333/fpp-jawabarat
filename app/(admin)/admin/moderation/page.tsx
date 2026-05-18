@@ -29,7 +29,7 @@ export default async function ModerationPage() {
     .from('post_reports')
     .select(`
       *,
-      reporter:reporter_id(name, email),
+      reporter:reporter_id(name),
       post:post_id(content, type, status, author:author_id(name))
     `)
     .order('created_at', { ascending: false });
@@ -72,7 +72,7 @@ export default async function ModerationPage() {
                   <tr key={report.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-medium text-slate-800">{report.reporter?.name || 'Anonim'}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{report.reporter?.email}</div>
+                      {/* Email removed as profiles no longer contain email */}
                       <div className="text-[10px] text-slate-400 mt-1">{new Date(report.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                     </td>
                     <td className="px-6 py-4">

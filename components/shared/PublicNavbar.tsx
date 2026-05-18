@@ -31,7 +31,7 @@ export function PublicNavbar({ transparent = false }: PublicNavbarProps) {
           </Link>
           <Link href="/register">
             <Button className="bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 text-emerald-950 font-bold border-none rounded-full px-6 shadow-sm">
-              Daftar Pesantren
+              Daftar
             </Button>
           </Link>
         </div>

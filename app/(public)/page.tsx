@@ -77,25 +77,25 @@ export default async function LandingPage() {
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-900/60 border border-emerald-800 text-yellow-400 text-sm font-semibold mb-8 shadow-inner">
                 <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
-                Platform Pendataan & Sinergi Pondok Pesantren
+                Sosial Media & Komunitas Jawa Barat
               </div>
               
               <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-4 leading-[1.1]">
-                FPP <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200">JAWABARAT</span>
+                Terhubung dengan <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200">Komunitas</span> Pesantren
               </h1>
               
               <p className="text-xl md:text-2xl text-emerald-100 font-medium mb-6">
-                Platform Digital Pesantren Jawa Barat
+                FPP JAWABARAT
               </p>
               
               <p className="text-lg text-emerald-200/80 mb-10 leading-relaxed max-w-xl">
-                Satu platform terpadu untuk kolaborasi, informasi, dan pemberdayaan pesantren. Terhubung dengan marketplace, forum musyawarah, dan layanan digital pendukung lainnya.
+                Bagikan kabar, ikuti pesantren favorit, temukan program, dan belanja produk komunitas dalam satu platform.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <Link href="/register" className="w-full sm:w-auto">
                   <Button size="lg" className="w-full h-14 px-8 text-lg bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 text-emerald-950 font-bold rounded-xl shadow-[0_0_30px_-5px_rgba(234,179,8,0.4)] transition-all hover:-translate-y-1">
-                    Mulai Bergabung <ArrowRight className="ml-2 w-5 h-5" />
+                    Buat Akun Gratis <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
                 <Link href="/marketplace" className="w-full sm:w-auto">
@@ -227,8 +227,8 @@ export default async function LandingPage() {
       <section className="py-24 bg-slate-50 relative">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-emerald-950 mb-4">Layanan Terpadu Platform</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto text-lg">Infrastruktur digital lengkap untuk mendukung operasional dan pengembangan pondok pesantren secara holistik.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-emerald-950 mb-4">Layanan Terpadu Komunitas</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto text-lg">Platform interaktif untuk mendukung sinergi masyarakat, pengelola pesantren, dan donatur dalam satu wadah digital.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

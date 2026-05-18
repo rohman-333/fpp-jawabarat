@@ -55,7 +55,7 @@ export default async function DashboardPage() {
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <DashboardTopbar title="Dashboard Pesantren" userName={profile.name || 'Pesantren'} avatarUrl={profile.avatar_url} />
+        <DashboardTopbar title="Dashboard Akun" userName={profile.name || 'Pengguna'} avatarUrl={profile.avatar_url} />
 
         <main className="p-4 md:p-8">
           <div className="max-w-6xl mx-auto">
@@ -69,18 +69,11 @@ export default async function DashboardPage() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
               <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Ahlan wa Sahlan, {profile.name}!</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Halo, {profile.name}!</h2>
                   <p className="text-emerald-100/80 max-w-xl text-sm md:text-base">
-                    Kelola data pesantren, pasarkan produk di marketplace, dan berinteraksi di forum musyawarah FPP JAWABARAT.
+                    Selamat datang di pusat kontrol akun Anda. Anda dapat berinteraksi di Feed, berbelanja, atau melengkapi peran Anda di FPP JAWABARAT.
                   </p>
                 </div>
-                {!pesantren && (
-                  <Link href="/dashboard/pesantren/edit">
-                    <Button className="bg-yellow-500 hover:bg-yellow-400 text-emerald-950 font-bold whitespace-nowrap">
-                      <Landmark className="w-4 h-4 mr-2" /> Lengkapi Data
-                    </Button>
-                  </Link>
-                )}
               </div>
             </div>
 
@@ -159,13 +152,51 @@ export default async function DashboardPage() {
                       <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
                         <Landmark className="w-8 h-8 text-slate-300" />
                       </div>
-                      <p className="text-slate-500 text-sm mb-4">Anda belum melengkapi profil pesantren.</p>
-                      <Link href="/dashboard/pesantren/edit">
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Lengkapi Sekarang</Button>
+                      <p className="text-slate-500 text-sm mb-4">Akun Anda belum terafiliasi dengan data Pesantren.</p>
+                      <Link href="/dashboard/pesantren/apply">
+                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Ajukan Pesantren</Button>
                       </Link>
                     </div>
                   )}
                 </div>
+
+                {/* Lengkapi Peran Anda Section */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                  <h2 className="text-lg font-bold text-slate-800 mb-6 border-b border-slate-100 pb-4">Lengkapi Peran Anda</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {!profile.has_pesantren && (
+                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-emerald-500 hover:shadow-md transition-all">
+                        <Landmark className="w-8 h-8 text-emerald-600 mx-auto mb-3" />
+                        <h3 className="font-bold text-slate-800 mb-1">Punya Pesantren?</h3>
+                        <p className="text-xs text-slate-500 mb-4 line-clamp-2">Daftarkan pesantren Anda ke direktori FPP.</p>
+                        <Link href="/dashboard/pesantren/apply" className="block w-full py-2 bg-slate-100 hover:bg-emerald-50 text-emerald-700 font-semibold rounded-lg text-sm transition-colors">
+                          Ajukan Pesantren
+                        </Link>
+                      </div>
+                    )}
+                    {!profile.is_seller && (
+                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-emerald-500 hover:shadow-md transition-all">
+                        <ShoppingBag className="w-8 h-8 text-emerald-600 mx-auto mb-3" />
+                        <h3 className="font-bold text-slate-800 mb-1">Ingin Berjualan?</h3>
+                        <p className="text-xs text-slate-500 mb-4 line-clamp-2">Buka toko dan mulai jual produk di marketplace.</p>
+                        <Link href="/dashboard/seller/apply" className="block w-full py-2 bg-slate-100 hover:bg-emerald-50 text-emerald-700 font-semibold rounded-lg text-sm transition-colors">
+                          Ajukan Buka Toko
+                        </Link>
+                      </div>
+                    )}
+                    {!profile.is_courier && (
+                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-emerald-500 hover:shadow-md transition-all">
+                        <svg className="w-8 h-8 text-emerald-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <h3 className="font-bold text-slate-800 mb-1">Menjadi Kurir?</h3>
+                        <p className="text-xs text-slate-500 mb-4 line-clamp-2">Bergabung sebagai kurir untuk pengiriman lokal.</p>
+                        <Link href="/dashboard/courier/apply" className="block w-full py-2 bg-slate-100 hover:bg-emerald-50 text-emerald-700 font-semibold rounded-lg text-sm transition-colors">
+                          Lamar Jadi Kurir
+                        </Link>
+                      </div>
+                    )}
+                  </div>
               </div>
 
               {/* Right Column: Quick Actions */}

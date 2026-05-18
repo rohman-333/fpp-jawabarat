@@ -224,6 +224,22 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
                 
                 {currentUserId && (
                   <>
+                    {/* Sembunyikan dari Feed: only for admins */}
+                    {['superadmin', 'admin', 'team'].includes(currentUser?.role) && (
+                      <button 
+                        onClick={async () => {
+                          setShowMenu(false);
+                          const res = await hidePost(post.id);
+                          if (!res?.error) setIsHidden(true);
+                        }}
+                        className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                      >
+                        <EyeOff className="w-4 h-4 text-slate-400" />
+                        Sembunyikan dari Feed
+                      </button>
+                    )}
+
+                    {/* Hapus Postingan: author or admins */}
                     {(currentUserId === post.author_id || ['superadmin', 'admin', 'team'].includes(currentUser?.role)) && (
                       <button 
                         onClick={async () => {
@@ -238,30 +254,19 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
                         Hapus Postingan
                       </button>
                     )}
+
+                    {/* Laporkan Postingan: not author */}
                     {currentUserId !== post.author_id && (
-                      <>
-                        <button 
-                          onClick={async () => {
-                            setShowMenu(false);
-                            const res = await hidePost(post.id);
-                            if (!res?.error) setIsHidden(true);
-                          }}
-                          className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
-                        >
-                          <EyeOff className="w-4 h-4 text-slate-400" />
-                          Sembunyikan dari Feed
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setShowMenu(false);
-                            setShowReportDialog(true);
-                          }}
-                          className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
-                        >
-                          <Flag className="w-4 h-4 text-red-500" />
-                          Laporkan Postingan
-                        </button>
-                      </>
+                      <button 
+                        onClick={() => {
+                          setShowMenu(false);
+                          setShowReportDialog(true);
+                        }}
+                        className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
+                      >
+                        <Flag className="w-4 h-4 text-red-500" />
+                        Laporkan Postingan
+                      </button>
                     )}
                   </>
                 )}

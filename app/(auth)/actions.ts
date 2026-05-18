@@ -65,7 +65,7 @@ export async function register(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/login?message=Pendaftaran berhasil, silakan cek email untuk verifikasi (jika diaktifkan) atau langsung masuk.')
+  redirect('/feed')
 }
 
 export async function signOutAction() {

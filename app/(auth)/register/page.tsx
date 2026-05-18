@@ -25,8 +25,8 @@ export default async function RegisterPage({
       <div className="w-full max-w-lg bg-emerald-900/30 border border-emerald-800 rounded-3xl p-6 sm:p-8 backdrop-blur-sm">
         <div className="flex flex-col items-center mb-8">
           <BrandLogo variant="icon" isDark={true} className="mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Daftar Pesantren</h1>
-          <p className="text-emerald-200/70 text-center text-sm">Bergabunglah dengan ekosistem FPP JAWABARAT</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Buat Akun FPP JAWABARAT</h1>
+          <p className="text-emerald-200/70 text-center text-sm px-2">Bergabung untuk berbagi kabar, mengikuti pesantren, berbelanja, dan terhubung dengan komunitas.</p>
         </div>
         
         {error && (
@@ -37,23 +37,23 @@ export default async function RegisterPage({
 
         <form action={register} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-emerald-100">Nama Pesantren</label>
+            <label className="text-sm font-medium text-emerald-100">Nama Lengkap</label>
             <input 
               name="name"
               type="text" 
               required
               className="w-full bg-emerald-950/50 border border-emerald-800 rounded-lg px-4 py-3 text-white placeholder-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
-              placeholder="Contoh: Pondok Pesantren Al-Hidayah"
+              placeholder="Masukkan nama lengkap Anda"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-emerald-100">Email Resmi</label>
+            <label className="text-sm font-medium text-emerald-100">Email</label>
             <input 
               name="email"
               type="email" 
               required
               className="w-full bg-emerald-950/50 border border-emerald-800 rounded-lg px-4 py-3 text-white placeholder-emerald-700 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all"
-              placeholder="nama@pesantren.com"
+              placeholder="nama@email.com"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -81,7 +81,7 @@ export default async function RegisterPage({
           
           <div className="pt-2">
             <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-400 text-emerald-950 font-bold h-12 mt-4">
-              Buat Akun Pesantren
+              Buat Akun
             </Button>
           </div>
         </form>

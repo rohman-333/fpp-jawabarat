@@ -56,6 +56,7 @@ export function ReportPostDialog({ isOpen, onClose, postId, currentUserId }: Rep
         setDetails('');
       }, 2000);
     } catch (err: any) {
+      console.error('[REPORT_POST_ERROR]', err);
       setError(err.message || 'Terjadi kesalahan saat melaporkan postingan.');
     } finally {
       setIsSubmitting(false);
