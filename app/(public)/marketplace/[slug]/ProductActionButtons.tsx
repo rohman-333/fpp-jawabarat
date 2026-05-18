@@ -52,7 +52,7 @@ export function ProductActionButtons({ product, currentUserId }: { product: any,
     }
     
     await handleAddToCart();
-    router.push('/cart');
+    router.push('/checkout');
   };
 
   return (
