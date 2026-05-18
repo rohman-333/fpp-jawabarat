@@ -54,15 +54,15 @@ export function MobileDashboardDrawer({
   const links = [
     { name: 'Beranda Sosial', href: '/feed', icon: Home, show: true },
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, show: true },
-    { name: 'Pesanan Saya', href: '/dashboard/orders', icon: ShoppingBag, show: true },
+    { name: 'Pesanan Saya', href: '/orders', icon: ShoppingBag, show: true },
     { name: 'Pesantren', href: hasPesantren ? '/dashboard/pesantren' : '/dashboard/pesantren/apply', icon: Landmark, show: true },
-    { name: 'Toko Saya', href: isSeller ? '/dashboard/seller' : '/dashboard/seller/apply', icon: Store, show: true },
-    { name: 'Pesanan Toko', href: '/dashboard/products', icon: ShoppingBag, show: isSeller },
+    { name: 'Toko Saya', href: isSeller ? '/dashboard/products' : '/dashboard/seller/apply', icon: Store, show: true },
+    { name: 'Pesanan Toko', href: '/dashboard/orders', icon: ShoppingBag, show: isSeller },
     { name: 'Kurir Saya', href: isCourier ? '/dashboard/courier' : '/dashboard/courier/apply', icon: Truck, show: true },
     { name: 'Forum', href: '/forum', icon: MessageSquare, show: true },
-    { name: 'Program', href: '/dashboard/program', icon: FolderHeart, show: true },
+    { name: 'Program', href: '/program', icon: FolderHeart, show: true },
     { name: 'Profil Akun', href: '/dashboard/profile', icon: User, show: true },
-    { name: 'Keamanan', href: '/dashboard/security', icon: Settings, show: true },
+    { name: 'Keamanan Akun', href: '/dashboard/security', icon: Settings, show: true },
     { name: 'Admin Panel', href: '/admin', icon: LayoutDashboard, show: canAccessAdmin },
   ].filter(l => l.show);
 
@@ -84,17 +84,19 @@ export function MobileDashboardDrawer({
       {/* Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 transition-opacity"
+          className="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-[9998] transition-opacity"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Drawer */}
       <div 
-        className={`fixed top-0 left-0 h-full w-[280px] bg-emerald-950 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed top-0 left-0 bottom-0 h-full w-[82vw] max-w-[340px] bg-emerald-950 opacity-100 shadow-2xl border-r border-emerald-900 z-[9999] transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="flex items-center justify-between p-4 border-b border-emerald-900/50">
-          <BrandLogo className="scale-90 origin-left" />
+          <div className="bg-white rounded-lg px-2 py-1 opacity-100">
+            <BrandLogo className="scale-90 origin-left" />
+          </div>
           <button 
             onClick={() => setIsOpen(false)}
             className="p-2 text-emerald-400 hover:text-white rounded-full hover:bg-emerald-900/50 transition-colors"
@@ -128,6 +130,7 @@ export function MobileDashboardDrawer({
               <Link
                 key={link.name}
                 href={link.href}
+                onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium ${
                   isActive 
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/20' 
@@ -144,6 +147,8 @@ export function MobileDashboardDrawer({
         <div className="p-4 border-t border-emerald-900/50">
           <Link 
             href="/auth/signout" 
+            prefetch={false}
+            onClick={() => setIsOpen(false)}
             className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors text-sm font-bold"
           >
             <LogOut className="w-4 h-4" /> Keluar Akun

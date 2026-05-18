@@ -36,7 +36,7 @@ export function TopbarUserMenu({ userName, avatarUrl }: TopbarUserMenuProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-50 py-1">
+        <div className="absolute right-0 mt-2 w-48 bg-white opacity-100 rounded-xl shadow-xl border border-slate-100 overflow-hidden z-[9999] py-1">
           <div className="px-4 py-2 border-b border-slate-100">
             <p className="text-sm font-bold text-slate-800 truncate">{userName}</p>
           </div>
@@ -47,7 +47,7 @@ export function TopbarUserMenu({ userName, avatarUrl }: TopbarUserMenuProps) {
             <Settings className="w-4 h-4" /> Keamanan Akun
           </Link>
           <div className="border-t border-slate-100 my-1"></div>
-          <Link href="/auth/signout" onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors font-medium">
+          <Link href="/auth/signout" prefetch={false} onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors font-medium">
             <LogOut className="w-4 h-4" /> Keluar Akun
           </Link>
         </div>
