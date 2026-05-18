@@ -11,6 +11,7 @@ const publicRoutes = [
   '/library',
   '/donations',
   '/ai',
+  '/assistance',
   '/cart',
   '/checkout',
   '/orders',
@@ -37,7 +38,7 @@ const allRoutes = {
   admin: adminRoutes
 };
 
-const appDir = path.join(__dirname, 'app');
+const appDir = path.join(__dirname, '..', 'app');
 
 function createMissingRoutes(groupName, routes) {
   routes.forEach(route => {
