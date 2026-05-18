@@ -46,15 +46,18 @@ CREATE POLICY "Users can create mentions for their own posts"
 ON public.post_mentions FOR INSERT
 WITH CHECK (auth.uid() = created_by);
 
+-- Drop view before recreation because PostgreSQL doesn't allow changing column order/types with REPLACE
+DROP VIEW IF EXISTS public.public_profiles;
+
 -- Recreate view to include new fields
-CREATE OR REPLACE VIEW public.public_profiles AS
+CREATE VIEW public.public_profiles AS
 SELECT
   id,
   name,
   username,
   avatar_url,
-  bio,
   cover_url,
+  bio,
   location,
   website,
   role,
