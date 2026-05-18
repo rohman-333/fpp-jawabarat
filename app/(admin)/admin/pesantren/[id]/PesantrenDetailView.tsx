@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Clock, XCircle, FileText, Users, Target, MapPin, Building2, Smartphone } from 'lucide-react';
 import { setPesantrenStatus } from '@/app/(admin)/admin/pesantren/actions';
+import { resolveMediaUrl } from '@/lib/media/resolveMediaUrl';
 
 export function PesantrenDetailView({ pesantren }: { pesantren: any }) {
   const router = useRouter();
@@ -43,7 +44,7 @@ export function PesantrenDetailView({ pesantren }: { pesantren: any }) {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-              {pesantren.logo_url ? <img src={pesantren.logo_url} alt="Logo" className="w-full h-full object-cover" /> : <Building2 className="w-8 h-8 text-slate-400" />}
+              {resolveMediaUrl(pesantren.logo_url) ? <img src={resolveMediaUrl(pesantren.logo_url)!} alt="Logo" className="w-full h-full object-cover" /> : <Building2 className="w-8 h-8 text-slate-400" />}
             </div>
             <div>
               <h2 className="text-2xl font-bold text-slate-800">{pesantren.name}</h2>
@@ -244,13 +245,13 @@ export function PesantrenDetailView({ pesantren }: { pesantren: any }) {
             </div>
           </div>
 
-          {pesantren.foto_url && (
+          {resolveMediaUrl(pesantren.foto_url) && (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
                 <h3 className="font-bold text-slate-800">Foto Fasilitas</h3>
               </div>
               <div className="p-4">
-                <img src={pesantren.foto_url} alt="Fasilitas" className="w-full h-auto rounded-xl" />
+                <img src={resolveMediaUrl(pesantren.foto_url)!} alt="Fasilitas" className="w-full h-auto rounded-xl" />
               </div>
             </div>
           )}

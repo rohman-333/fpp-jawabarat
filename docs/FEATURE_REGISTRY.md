@@ -1,44 +1,36 @@
-# FEATURE REGISTRY: FPP JAWABARAT
+# FPP JAWABARAT - Feature Registry
 
-## Public Routes
-| Legacy Feature | Next.js Route | Status | Role Access | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| Landing Page | `/` | Done | Public | Modern UI, responsive |
-| Login / Auth | `/login`, `/register` | Done | Public | Supabase Auth |
-| Social Feed | `/feed`, `/feed/saved`, `/feed/following`, `/post/[id]` | Done | Public, Authenticated | Infinite scroll, comments |
-| Public Profile | `/u/[username]`, `/[username]` | Done | Public | RLS view bypass |
-| Pesantren Directory | `/pesantren`, `/pesantren/[id]` | Done | Public | Modern layout |
-| Marketplace | `/marketplace`, `/marketplace/[slug]` | Done | Public | Real-time search, filters |
-| Forum | `/forum` | Placeholder | Public | To be implemented |
-| Program | `/program` | Placeholder | Public | To be implemented |
-| Articles | `/articles` | Placeholder | Public | To be implemented |
-| News | `/news` | Placeholder | Public | To be implemented |
-| Documents | `/documents` | Placeholder | Public | To be implemented |
-| Library | `/library` | Placeholder | Public | To be implemented |
-| Donations | `/donations` | Placeholder | Public | To be implemented |
-| AI Chat | `/ai` | Placeholder | Public | To be implemented |
-| Cart & Checkout | `/cart`, `/checkout`, `/orders` | Done | Authenticated | Split orders, real-time |
-| Notifications | `/notifications` | Placeholder | Authenticated | Notification system pending |
+Dokumen ini melacak seluruh fitur utama dari sistem legacy PHP Hostinger yang telah atau sedang dimigrasikan ke arsitektur modern Next.js + Supabase.
 
-## Dashboard (User) Routes
-| Feature | Next.js Route | Status | Role Access | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| Dashboard Home | `/dashboard` | Done | User | Overview stats |
-| Edit Profile | `/dashboard/profile`, `/dashboard/security` | Done | User | Password & metadata update |
-| Pesantren Apply/Edit | `/dashboard/pesantren/apply`, `/dashboard/pesantren/edit` | Done | User | Full 6-step form implemented |
-| Seller Center | `/dashboard/seller`, `/dashboard/seller/apply` | Done | User | Marketplace apply flow |
-| Product Management | `/dashboard/products`, `/dashboard/products/new` | Done | User (is_seller) | CRUD Products |
-| Seller Orders | `/dashboard/orders` | Done | User (is_seller) | Manage incoming orders |
-| Courier Center | `/dashboard/courier`, `/dashboard/courier/apply` | Done | User | Courier apply flow |
+| Modul/Fitur | Route Next.js | Status | Role Akses | Catatan |
+|---|---|---|---|---|
+| **Autentikasi & Akun** | `/login`, `/register`, `/auth/signout` | ✅ Done | Public, Authenticated | Sistem SSR terpusat |
+| **Profil Publik** | `/u/[username]`, `/[username]` | ✅ Done | Public | Support vanity URL `/rohman` |
+| **Social Feed** | `/feed`, `/post/[id]` | ✅ Done | Public, User | Posting, like, komen |
+| **Saved / Bookmark** | `/feed/saved` | 🚧 Placeholder | User | Menyimpan feed |
+| **Following** | `/feed/following` | 🚧 Placeholder | User | Feed dari orang yg diikuti |
+| **Marketplace (Umum)** | `/marketplace`, `/marketplace/[slug]` | ✅ Done | Public | Etalase produk |
+| **Toko Saya (Seller)** | `/dashboard/seller`, `/dashboard/products` | ✅ Partial | Seller | CRUD produk (placeholder) |
+| **Keranjang Belanja** | `/cart` | 🚧 Placeholder | User | Pembelian produk |
+| **Checkout** | `/checkout` | 🚧 Placeholder | User | Proses bayar |
+| **Pesanan Saya** | `/orders` | 🚧 Placeholder | User | Status pesanan pembeli |
+| **Manajemen Pesanan** | `/dashboard/orders` | 🚧 Placeholder | Seller | Status pesanan toko |
+| **Kurir / Logistik** | `/dashboard/courier`, `/admin/courier-applications` | 🚧 Placeholder | Courier, Admin | Pengajuan dan status |
+| **Direktori Pesantren** | `/pesantren`, `/pesantren/[id]` | ✅ Done | Public | Database pesantren se-Jabar |
+| **Kelola Pesantren** | `/dashboard/pesantren`, `/dashboard/pesantren/edit` | ✅ Partial | Pesantren Admin | Data detail dan logo |
+| **Forum Komunitas** | `/forum`, `/admin/forum` | 🚧 Placeholder | Public, Admin | Diskusi terbuka |
+| **Kabar / Berita** | `/news` | 🚧 Placeholder | Public | Berita seputar santri |
+| **Artikel / Dakwah** | `/articles` | 🚧 Placeholder | Public | Tulisan dakwah/kajian |
+| **Program** | `/program`, `/admin/program` | 🚧 Placeholder | Public, Admin | Program unggulan lembaga |
+| **Donasi** | `/donations`, `/admin/donations` | 🚧 Placeholder | Public, Admin | Galang dana/sedekah |
+| **Dokumen / Library** | `/documents`, `/library` | 🚧 Placeholder | Public | Unduh file dan pedoman |
+| **Ruang AI** | `/ai` | 🚧 Placeholder | User | Asisten cerdas |
+| **Bantuan / Support** | `/assistance` | 🚧 Placeholder | User | Laporan dan tiket |
+| **Moderasi & Laporan** | `/admin/moderation`, `/admin/reports` | ✅ Partial | Admin | Laporkan postingan |
+| **Notifikasi** | `/notifications` | 🚧 Placeholder | User | Pusat pemberitahuan |
+| **Admin Dashboard** | `/admin`, `/admin/users`, `/admin/settings` | ✅ Partial | Admin, Superadmin | Pusat kontrol aplikasi |
 
-## Admin Routes
-| Feature | Next.js Route | Status | Role Access | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| Admin Home | `/admin` | Done | Admin, Superadmin | Stats overview |
-| User Management | `/admin/users` | Done | Admin, Superadmin | Manage platform users |
-| Team Management | `/admin/team`, `/admin/team/invite` | Done | Superadmin | Team invite flow |
-| Pesantren Verification | `/admin/pesantren`, `/admin/pesantren/[id]` | Done | Admin, Superadmin | Verify new pesantren |
-| Marketplace Admin | `/admin/marketplace`, `/admin/seller-applications` | Done | Admin, Superadmin | Seller verification |
-| Courier Verification | `/admin/courier-applications` | Done | Admin, Superadmin | Courier verification |
-| Content Moderation | `/admin/moderation` | Done | Admin, Superadmin | Post reports & moderation |
-| Other Admin Modules | `/admin/forum`, `/admin/program`, `/admin/donations`, `/admin/documents`, `/admin/reports` | Placeholders | Admin, Superadmin | Feature scaling pending |
+## Keterangan
+- **Done**: Fitur sudah fungsional dan terkoneksi ke database.
+- **Partial**: Sebagian fitur sudah berjalan (misalnya form pengajuan), tapi menu lain (seperti edit/tambah detail) masih dalam proses.
+- **Placeholder**: Route sudah dibuat agar tidak 404, menggunakan komponen profesional `FeaturePlaceholder`.

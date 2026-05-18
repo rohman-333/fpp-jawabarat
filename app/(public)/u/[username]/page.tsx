@@ -7,6 +7,7 @@ import { PublicFooter } from '@/components/shared/PublicFooter';
 import { FollowButton } from '@/components/social/FollowButton';
 import { InfiniteFeed } from '@/components/social/InfiniteFeed';
 import Link from 'next/link';
+import { resolveMediaUrl } from '@/lib/media/resolveMediaUrl';
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
@@ -177,8 +178,8 @@ export default async function PublicProfilePage({
                     </h3>
                     <Link href={`/pesantren/${profile.pesantren.id}`} className="group flex items-center gap-3 p-2 -m-2 rounded-xl hover:bg-slate-50 transition-colors">
                       <div className="w-12 h-12 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 overflow-hidden">
-                        {profile.pesantren.logo_url ? (
-                          <img src={profile.pesantren.logo_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        {resolveMediaUrl(profile.pesantren.logo_url) ? (
+                          <img src={resolveMediaUrl(profile.pesantren.logo_url)!} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                         ) : (
                           <Landmark className="w-6 h-6 text-emerald-600" />
                         )}

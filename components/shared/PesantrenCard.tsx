@@ -1,6 +1,7 @@
 import { MapPin, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { resolveMediaUrl } from '@/lib/media/resolveMediaUrl';
 
 interface PesantrenCardProps {
   pesantren: {
@@ -19,8 +20,8 @@ export function PesantrenCard({ pesantren }: PesantrenCardProps) {
     <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm hover:shadow-xl border border-slate-100 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full">
       <div className="flex items-center sm:items-start gap-4 mb-4 sm:mb-5">
         <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 border border-emerald-100 flex items-center justify-center shrink-0 shadow-inner overflow-hidden">
-          {pesantren.logo_url ? (
-            <img src={pesantren.logo_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          {resolveMediaUrl(pesantren.logo_url) ? (
+            <img src={resolveMediaUrl(pesantren.logo_url)!} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
           ) : (
             <span className="text-emerald-600 font-bold text-xl sm:text-2xl">{pesantren.name.charAt(0)}</span>
           )}

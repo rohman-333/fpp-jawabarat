@@ -6,6 +6,7 @@ import { PesantrenActionButtons } from './PesantrenActionButtons';
 import { MapPin, Phone, Mail, Users, Library, CheckCircle2, TrendingUp, Lightbulb, Link as LinkIcon, Building2, ShoppingBag, Store } from 'lucide-react';
 import Link from 'next/link';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { resolveMediaUrl } from '@/lib/media/resolveMediaUrl';
 
 export default async function PesantrenPublicProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -58,8 +59,8 @@ export default async function PesantrenPublicProfilePage({ params }: { params: P
       <main className="flex-1 pb-20">
         {/* Banner Section */}
         <div className="relative h-[250px] sm:h-[350px] w-full bg-emerald-950">
-          {pesantren.foto_url ? (
-            <img src={pesantren.foto_url} alt="Banner Pesantren" className="w-full h-full object-cover opacity-60" />
+          {resolveMediaUrl(pesantren.foto_url) ? (
+            <img src={resolveMediaUrl(pesantren.foto_url)!} alt="Banner Pesantren" className="w-full h-full object-cover opacity-60" />
           ) : (
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] mix-blend-overlay"></div>
           )}
@@ -70,8 +71,8 @@ export default async function PesantrenPublicProfilePage({ params }: { params: P
             <div className="container mx-auto px-4 pb-8 sm:pb-12 flex flex-col md:flex-row gap-6 items-start md:items-end">
               {/* Logo */}
               <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-2xl shadow-xl border-4 border-white flex items-center justify-center text-4xl sm:text-6xl font-black text-emerald-600 shrink-0 overflow-hidden transform translate-y-4 md:translate-y-16">
-                {pesantren.logo_url ? (
-                  <img src={pesantren.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                {resolveMediaUrl(pesantren.logo_url) ? (
+                  <img src={resolveMediaUrl(pesantren.logo_url)!} alt="Logo" className="w-full h-full object-cover" />
                 ) : pesantren.name.charAt(0)}
               </div>
               
