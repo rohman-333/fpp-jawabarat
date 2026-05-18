@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FPP JAWABARAT - Platform Digital Pesantren Jawa Barat
 
+Platform digital untuk pendataan, sinergi program, forum komunitas, dan marketplace pesantren di seluruh Jawa Barat. Dibangun menggunakan Next.js (App Router), Tailwind CSS, shadcn/ui, dan Supabase.
+
+## Supabase Database Setup
+
+Sistem ini membutuhkan setup database Supabase yang benar agar semua fitur (Auth, Profiles, Marketplace, Pesantren) berjalan dengan baik. Terdapat 2 opsi untuk mengatur database, tergantung kondisi project Supabase Anda:
+
+### Opsi 1: Setup untuk Database Kosong (Proyek Baru)
+Jika Anda baru membuat proyek Supabase dan databasenya masih kosong (belum ada tabel `profiles` atau tabel buatan sendiri), jalankan file schema lengkap:
+1. Buka Supabase Dashboard > SQL Editor
+2. Copy seluruh isi file `supabase/schema.sql`
+3. Paste di SQL Editor dan jalankan (Run).
+
+### Opsi 2: Patch Database yang Sudah Ada (Penting!)
+Jika Anda mendapatkan error `relation "profiles" already exists` atau sebelumnya sudah membuat tabel secara manual, JANGAN jalankan `schema.sql`. Gunakan file migrasi yang dirancang khusus agar aman (idempotent):
+1. Buka Supabase Dashboard > SQL Editor
+2. Copy seluruh isi file `supabase/migrations/001_patch_existing_database.sql`
+3. Paste di SQL Editor dan jalankan (Run).
+
+*File migrasi `001_patch_existing_database.sql` akan secara otomatis menambahkan kolom-kolom yang belum ada (seperti `avatar_url`, `pesantren_id`, dll), membuat tabel baru yang kurang, dan memperbaiki Trigger Auth serta RLS Policy tanpa menghapus data Anda yang sudah ada.*
+
+### Opsi 3: Update Fitur Baru (Storage, Marketplace, Social Feed)
+Seiring perkembangan aplikasi, terdapat fitur-fitur baru yang memerlukan update struktur database. Jalankan file migrasi berikut secara berurutan di Supabase SQL Editor jika Anda belum melakukannya:
+1. `supabase/migrations/002_storage_pesantren.sql` (Untuk bucket storage gambar)
+2. `supabase/migrations/003_marketplace_products.sql` (Untuk perbaikan skema Marketplace)
+3. `supabase/migrations/004_social_feed.sql` (Untuk skema ekosistem Unified Social Feed)
+
+*Semua file migrasi di atas bersifat **idempotent**, artinya aman dijalankan berulang kali tanpa khawatir merusak data yang sudah ada.*
 ## Getting Started
 
-First, run the development server:
+1. Copy `.env.example` menjadi `.env.local` dan isi URL serta Anon Key Supabase Anda.
+2. Jalankan development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000) dengan browser Anda.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Arsitektur & Fitur Utama
+- **Public Area**: Landing Page, Direktori Pesantren, Marketplace Eksternal, Forum Komunitas.
+- **Member Dashboard**: Pengelolaan profil pesantren, tambah produk marketplace, buat topik forum.
+- **Admin Dashboard**: Verifikasi pendaftaran pesantren, moderasi forum, dan laporan statistik.
