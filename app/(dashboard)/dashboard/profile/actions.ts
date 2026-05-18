@@ -11,9 +11,27 @@ export async function saveProfile(formData: FormData) {
     throw new Error('Not authenticated');
   }
 
+  const instagram = formData.get('instagram') as string;
+  const facebook = formData.get('facebook') as string;
+  const tiktok = formData.get('tiktok') as string;
+
+  const social_links = {
+    ...(instagram && { instagram }),
+    ...(facebook && { facebook }),
+    ...(tiktok && { tiktok }),
+  };
+
   const payload = {
     name: formData.get('name') as string,
     avatar_url: formData.get('avatar_url') as string || null,
+    cover_url: formData.get('cover_url') as string || null,
+    bio: formData.get('bio') as string || null,
+    location: formData.get('location') as string || null,
+    website: formData.get('website') as string || null,
+    birth_date: formData.get('birth_date') as string || null,
+    phone: formData.get('phone') as string || null,
+    social_links,
+    profile_completed: true,
   };
 
   const { error } = await supabase

@@ -22,11 +22,15 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
 }
 
 export default async function PublicProfilePage({
-  params
+  params,
+  searchParams
 }: {
-  params: Promise<{ username: string }>
+  params: Promise<{ username: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { username } = await params;
+  const resolvedSearchParams = await searchParams;
+  const activeTab = resolvedSearchParams.tab || 'postingan';
   const supabase = await createClient();
   
   const { data: { user: currentUser } } = await supabase.auth.getUser();
@@ -156,6 +160,16 @@ export default async function PublicProfilePage({
                     <span className="w-4 h-4 text-slate-400">🌐</span> {profile.website.replace(/^https?:\/\//, '')}
                   </a>
                 )}
+                {profile.social_links?.instagram && (
+                  <a href={`https://instagram.com/${profile.social_links.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-pink-600 hover:underline">
+                    <span>📸</span> {profile.social_links.instagram}
+                  </a>
+                )}
+                {profile.social_links?.tiktok && (
+                  <a href={`https://tiktok.com/@${profile.social_links.tiktok}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-slate-800 hover:underline">
+                    <span>🎵</span> {profile.social_links.tiktok}
+                  </a>
+                )}
               </div>
 
               <div className="mt-4 flex gap-6">
@@ -171,11 +185,86 @@ export default async function PublicProfilePage({
             </div>
           </div>
 
-          <div className="px-4 sm:px-8 max-w-[800px] mx-auto py-8">
+            {/* TABS */}
+            <div className="flex border-b border-slate-200 mb-8 overflow-x-auto hide-scrollbar gap-6 text-sm font-bold">
+              <Link href={`/u/${username}?tab=postingan`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'postingan' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                Postingan
+              </Link>
+              <Link href={`/u/${username}?tab=tentang`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'tentang' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                Tentang
+              </Link>
+              {products.length > 0 && (
+                <Link href={`/u/${username}?tab=produk`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'produk' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                  Produk Toko
+                </Link>
+              )}
+              {profile.has_pesantren && profile.pesantren && (
+                <Link href={`/u/${username}?tab=pesantren`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'pesantren' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                  Pesantren
+                </Link>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-8 items-start">
               <div className="min-w-0">
-                <h3 className="font-bold text-lg text-slate-800 mb-4">Postingan</h3>
-                <InfiniteFeed activeTab="semua" currentUser={currentUser} targetUserId={profile.id} />
+                {activeTab === 'postingan' && (
+                  <>
+                    <h3 className="font-bold text-lg text-slate-800 mb-4">Postingan Terbaru</h3>
+                    <InfiniteFeed activeTab="semua" currentUser={currentUser} targetUserId={profile.id} />
+                  </>
+                )}
+                {activeTab === 'tentang' && (
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                    <h3 className="font-bold text-lg text-slate-800 border-b border-slate-100 pb-3">Tentang {profile.name}</h3>
+                    <div className="space-y-4 text-sm text-slate-600">
+                      {profile.bio && (
+                        <div>
+                          <strong className="block text-slate-800 mb-1">Bio</strong>
+                          <p className="whitespace-pre-wrap">{profile.bio}</p>
+                        </div>
+                      )}
+                      {profile.location && (
+                        <div>
+                          <strong className="block text-slate-800 mb-1">Lokasi</strong>
+                          <p>{profile.location}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {activeTab === 'produk' && products.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {products.map(p => (
+                      <Link key={p.id} href={`/marketplace/${p.slug}`} className="group bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="aspect-square bg-slate-100">
+                          {p.image_url && <img src={p.image_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />}
+                        </div>
+                        <div className="p-3">
+                          <h4 className="font-bold text-slate-800 text-sm line-clamp-1">{p.name}</h4>
+                          <p className="text-emerald-600 font-bold text-xs mt-1">Rp {p.price?.toLocaleString('id-ID')}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {activeTab === 'pesantren' && profile.pesantren && (
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-start gap-4">
+                    <div className="w-20 h-20 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
+                       {profile.pesantren.logo_url ? (
+                         <img src={resolveMediaUrl(profile.pesantren.logo_url)!} className="w-full h-full object-cover" />
+                       ) : (
+                         <Landmark className="w-8 h-8 m-auto mt-6 text-slate-400" />
+                       )}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg text-slate-800">{profile.pesantren.name}</h3>
+                      <p className="text-slate-500 text-sm mt-1 mb-3">{profile.pesantren.city}</p>
+                      <Link href={`/pesantren/${profile.pesantren.id}`}>
+                        <Button size="sm" variant="outline" className="rounded-lg">Lihat Profil Pesantren</Button>
+                      </Link>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-6">

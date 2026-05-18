@@ -38,7 +38,25 @@ export default async function NewProductPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <DashboardTopbar title="Tambah Produk" userName={profile?.name || 'User'} avatarUrl={profile?.avatar_url} />
 
-        {(!profile?.is_seller && profile?.role !== 'superadmin' && profile?.role !== 'admin') ? (
+        {!profile?.is_seller && (profile?.role === 'superadmin' || profile?.role === 'admin') ? (
+          <main className="p-4 md:p-8 flex-1 flex items-center justify-center">
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 text-center max-w-md w-full">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <h2 className="text-xl font-bold text-slate-800 mb-2">Akses Administrator</h2>
+              <p className="text-slate-500 mb-6">Akun Anda belum terdaftar sebagai Seller, namun Anda memiliki hak akses Administrator untuk mengelola seluruh Marketplace.</p>
+              <div className="space-y-3">
+                <Link href="/admin/marketplace/products/new" className="block w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                  Tambah Produk dari Admin
+                </Link>
+                <Link href="/admin/marketplace" className="block w-full bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">
+                  Kelola Marketplace
+                </Link>
+              </div>
+            </div>
+          </main>
+        ) : !profile?.is_seller ? (
           <main className="p-4 md:p-8 flex-1 flex items-center justify-center">
             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 text-center max-w-md w-full">
               <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -92,17 +110,10 @@ export default async function NewProductPage() {
                       type="text" 
                       className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
                       placeholder="Contoh: Madu Hutan Asli 500ml" 
-                      onChange={(e) => {
-                        const slugInput = document.getElementById('slugInput') as HTMLInputElement;
-                        if (slugInput) {
-                          slugInput.value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Math.floor(Math.random() * 1000);
-                        }
-                      }}
                     />
                   </div>
 
-                  {/* Hidden slug */}
-                  <input type="hidden" name="slug" id="slugInput" />
+                  {/* Hidden slug will be generated in actions.ts if not provided */}
 
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700">Kategori <span className="text-red-500">*</span></label>

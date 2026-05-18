@@ -6,6 +6,7 @@ import { Shield, Lock, Eye, EyeOff, CheckCircle2, AlertCircle, Loader2 } from 'l
 import { useRouter } from 'next/navigation';
 
 export function ChangePasswordForm() {
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +15,7 @@ export function ChangePasswordForm() {
   const [success, setSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isLegacy, setIsLegacy] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -24,12 +26,17 @@ export function ChangePasswordForm() {
       if (user) {
         setUserEmail(user.email ?? null);
         setUserId(user.id);
+        const { data: profile } = await supabase.from('profiles').select('legacy_user_id, password_changed_at').eq('id', user.id).single();
+        if (profile?.legacy_user_id && !profile?.password_changed_at) {
+          setIsLegacy(true);
+        }
       }
     }
     getUser();
   }, []);
 
   const validatePassword = () => {
+    if (!currentPassword) return 'Password saat ini harus diisi';
     if (newPassword.length < 8) return 'Password minimal 8 karakter';
     if (!/[A-Za-z]/.test(newPassword)) return 'Password harus mengandung minimal satu huruf';
     if (!/[0-9]/.test(newPassword)) return 'Password harus mengandung minimal satu angka';
@@ -52,6 +59,16 @@ export function ChangePasswordForm() {
     setLoading(true);
 
     try {
+      if (userEmail) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: userEmail,
+          password: currentPassword
+        });
+        if (signInError) {
+          throw new Error('Password saat ini salah');
+        }
+      }
+
       const { error: updateAuthError } = await supabase.auth.updateUser({
         password: newPassword
       });
@@ -61,17 +78,14 @@ export function ChangePasswordForm() {
       }
 
       if (userId) {
-        const { error: updateProfileError } = await supabase
+        await supabase
           .from('profiles')
           .update({ password_changed_at: new Date().toISOString() })
           .eq('id', userId);
-        
-        if (updateProfileError) {
-          console.error("Failed to update profile password_changed_at", updateProfileError);
-        }
       }
 
       setSuccess(true);
+      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       
@@ -117,6 +131,30 @@ export function ChangePasswordForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700">Password Saat Ini {isLegacy && '(Password Sementara)'}</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="w-5 h-5 text-slate-400" />
+              </div>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Masukkan password saat ini"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Password Baru</label>
             <div className="relative">

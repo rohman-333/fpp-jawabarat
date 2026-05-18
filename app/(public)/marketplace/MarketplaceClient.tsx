@@ -102,8 +102,8 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
       </div>
 
       {/* Categories Horizontal */}
-      <div className="mb-8 overflow-x-auto hide-scrollbar pb-2">
-        <div className="flex gap-3">
+      <div className="mb-8 overflow-x-auto hide-scrollbar pb-2 snap-x snap-mandatory scroll-pl-4">
+        <div className="flex gap-3 px-4 sm:px-0">
           {CATEGORIES.map(c => {
             const Icon = c.icon;
             const isActive = category === c.id;
@@ -111,7 +111,7 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
               <button 
                 key={c.id} 
                 onClick={() => setCategory(c.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border whitespace-nowrap transition-all duration-300 text-sm font-medium ${
+                className={`snap-center flex items-center gap-2 px-4 py-2.5 rounded-full border whitespace-nowrap transition-all duration-300 text-sm font-medium ${
                   isActive 
                     ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20' 
                     : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50'
@@ -159,8 +159,28 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
             <ProductCard 
               key={product.id} 
               product={product} 
-              onAddToCart={(p) => {
-                alert('Fungsi keranjang akan segera hadir!');
+              onAddToCart={async (p) => {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                  alert('Silakan login terlebih dahulu untuk berbelanja.');
+                  window.location.href = '/login?redirect=/marketplace';
+                  return;
+                }
+                
+                const { error } = await supabase
+                  .from('cart_items')
+                  .insert({
+                    user_id: user.id,
+                    product_id: p.id,
+                    quantity: 1
+                  });
+                  
+                if (error) {
+                  console.error(error);
+                  alert('Gagal menambahkan ke keranjang: ' + error.message);
+                } else {
+                  alert('Berhasil ditambahkan ke keranjang!');
+                }
               }}
             />
           ))}

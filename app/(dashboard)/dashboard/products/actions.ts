@@ -27,7 +27,7 @@ export async function saveProduct(formData: FormData) {
   
   const payload = {
     name: formData.get('name') as string,
-    slug: formData.get('slug') as string,
+    slug: formData.get('slug') as string || (formData.get('name') as string).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 1000),
     category_id: category_id,
     description: formData.get('description') as string,
     price: parseFloat(formData.get('price') as string) || 0,
