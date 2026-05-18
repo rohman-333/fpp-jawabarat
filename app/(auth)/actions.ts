@@ -53,7 +53,7 @@ export async function register(formData: FormData) {
     options: {
       data: {
         name: formData.get('name') as string,
-        role: 'pesantren'
+        role: 'user'
       }
     }
   }
@@ -66,4 +66,11 @@ export async function register(formData: FormData) {
 
   revalidatePath('/', 'layout')
   redirect('/login?message=Pendaftaran berhasil, silakan cek email untuk verifikasi (jika diaktifkan) atau langsung masuk.')
+}
+
+export async function signOutAction() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
+  redirect('/login')
 }

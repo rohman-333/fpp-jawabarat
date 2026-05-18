@@ -124,19 +124,42 @@ export default async function PesantrenPublicProfilePage({ params }: { params: P
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-sm">
                   <div>
                     <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-1">Pengasuh Saat Ini</span>
-                    <p className="font-bold text-slate-800 text-base">{pesantren.pengasuh || '-'}</p>
+                    <p className="font-bold text-slate-800 text-base">{pesantren.pengasuh || 'Belum diisi'}</p>
                   </div>
                   <div>
                     <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-1">Pendiri Pesantren</span>
-                    <p className="font-medium text-slate-700 text-base">{pesantren.pendiri || '-'}</p>
+                    <p className="font-medium text-slate-700 text-base">{pesantren.pendiri || 'Belum diisi'}</p>
                   </div>
                   <div>
                     <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-1">Tahun Berdiri</span>
-                    <p className="font-medium text-slate-700 text-base">{pesantren.tahun_berdiri ? `${pesantren.tahun_berdiri} Masehi` : '-'}</p>
+                    <p className="font-medium text-slate-700 text-base">{pesantren.tahun_berdiri ? `${pesantren.tahun_berdiri} Masehi` : 'Belum diisi'}</p>
                   </div>
                   <div>
                     <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-1">Afiliasi / Jenis</span>
-                    <p className="font-medium text-slate-700 text-base capitalize">{pesantren.jenis_pesantren || '-'}</p>
+                    <p className="font-medium text-slate-700 text-base capitalize">{pesantren.jenis_pesantren || 'Belum diisi'}</p>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-slate-100">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-3">Program Pendidikan Unggulan</span>
+                  <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
+                    <p className="font-medium text-emerald-900 leading-relaxed text-sm whitespace-pre-wrap">
+                      {pesantren.program_unggulan || 'Data belum tersedia.'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="mt-8 pt-8 border-t border-slate-100">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-3">Saran & Harapan (Sinergi Pemda & FPP)</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
+                      <h4 className="font-bold text-slate-700 text-sm mb-2">Saran Pemda</h4>
+                      <p className="text-slate-600 text-sm whitespace-pre-wrap">{pesantren.saran_pemda || 'Belum diisi'}</p>
+                    </div>
+                    <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
+                      <h4 className="font-bold text-slate-700 text-sm mb-2">Harapan Forum/Pemda</h4>
+                      <p className="text-slate-600 text-sm whitespace-pre-wrap">{pesantren.harapan_pemda_forum || 'Belum diisi'}</p>
+                    </div>
                   </div>
                 </div>
 
@@ -159,21 +182,37 @@ export default async function PesantrenPublicProfilePage({ params }: { params: P
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-bold text-slate-700 text-sm mb-2 flex items-center gap-2">
-                      <ShoppingBag className="w-4 h-4 text-slate-400" /> Potensi Usaha & Koperasi BMT
+                      <ShoppingBag className="w-4 h-4 text-slate-400" /> Potensi Usaha Ekosistem
                     </h3>
-                    <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      {pesantren.potensi_ekonomi || pesantren.koperasi_bmt_usaha ? 
-                        `${pesantren.potensi_ekonomi || ''} ${pesantren.koperasi_bmt_usaha || ''}` : 
-                        'Data potensi ekonomi belum tersedia.'}
+                    <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
+                      {pesantren.potensi_ekonomi ? pesantren.potensi_ekonomi : 'Data belum tersedia.'}
                     </p>
                   </div>
                   
                   <div>
                     <h3 className="font-bold text-slate-700 text-sm mb-2 flex items-center gap-2">
-                      <Lightbulb className="w-4 h-4 text-slate-400" /> Kebutuhan Pengembangan
+                      <Store className="w-4 h-4 text-slate-400" /> Koperasi / BMT / Unit Usaha
                     </h3>
-                    <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      {pesantren.kebutuhan_utama || 'Data kebutuhan belum tersedia.'}
+                    <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
+                      {pesantren.koperasi_bmt_usaha ? pesantren.koperasi_bmt_usaha : 'Belum diisi'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-slate-700 text-sm mb-2 flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-slate-400" /> Kebutuhan Pengembangan Utama
+                    </h3>
+                    <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
+                      {pesantren.kebutuhan_utama || 'Data belum tersedia.'}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-bold text-slate-700 text-sm mb-2 flex items-center gap-2">
+                      <Library className="w-4 h-4 text-slate-400" /> Minat Terhadap Digitalisasi & AI
+                    </h3>
+                    <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-wrap">
+                      {pesantren.minat_digital_ai || 'Belum diisi'}
                     </p>
                   </div>
                 </div>
@@ -221,18 +260,37 @@ export default async function PesantrenPublicProfilePage({ params }: { params: P
                 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center border-b border-emerald-800/50 pb-3">
-                    <span className="text-emerald-100/80 text-sm">Total Santri (Estimasi)</span>
-                    <span className="font-black text-2xl text-emerald-400">
-                      {(pesantren.santri_sd || 0) + (pesantren.santri_smp || 0) + (pesantren.santri_sma || 0)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center border-b border-emerald-800/50 pb-3">
                     <span className="text-emerald-100/80 text-sm">Lembaga Formal</span>
                     <span className="font-bold text-white">{pesantren.lembaga_formal ? 'Tersedia' : 'Hanya Diniyah'}</span>
                   </div>
-                  <div className="flex justify-between items-center pt-2">
+                  <div className="flex justify-between items-center border-b border-emerald-800/50 pb-3">
                     <span className="text-emerald-100/80 text-sm">Tenaga Pendidik</span>
-                    <span className="font-bold text-white text-lg">{pesantren.guru_ustadz || 0}</span>
+                    <span className="font-bold text-white text-lg">{pesantren.guru_ustadz > 0 ? pesantren.guru_ustadz : 'Belum diisi'}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-emerald-800/50 pb-3">
+                    <span className="text-emerald-100/80 text-sm">Total Santri (Estimasi)</span>
+                    <span className="font-black text-2xl text-emerald-400">
+                      {((pesantren.santri_sd || 0) + (pesantren.santri_smp || 0) + (pesantren.santri_sma || 0)) > 0 
+                        ? ((pesantren.santri_sd || 0) + (pesantren.santri_smp || 0) + (pesantren.santri_sma || 0)) 
+                        : 'Belum diisi'}
+                    </span>
+                  </div>
+                  <div className="pt-2">
+                    <span className="text-emerald-100/80 text-xs uppercase tracking-wider font-bold mb-3 block">Rincian Santri</span>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="bg-emerald-900/40 rounded-lg p-2 border border-emerald-800/30">
+                        <span className="block text-[10px] text-emerald-300/80 mb-1">Tingkat SD/MI</span>
+                        <span className="font-bold text-white text-sm">{pesantren.santri_sd > 0 ? pesantren.santri_sd : '-'}</span>
+                      </div>
+                      <div className="bg-emerald-900/40 rounded-lg p-2 border border-emerald-800/30">
+                        <span className="block text-[10px] text-emerald-300/80 mb-1">Tingkat SMP/MTs</span>
+                        <span className="font-bold text-white text-sm">{pesantren.santri_smp > 0 ? pesantren.santri_smp : '-'}</span>
+                      </div>
+                      <div className="bg-emerald-900/40 rounded-lg p-2 border border-emerald-800/30">
+                        <span className="block text-[10px] text-emerald-300/80 mb-1">Tingkat SMA/MA</span>
+                        <span className="font-bold text-white text-sm">{pesantren.santri_sma > 0 ? pesantren.santri_sma : '-'}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -252,7 +310,7 @@ export default async function PesantrenPublicProfilePage({ params }: { params: P
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone className="w-5 h-5 text-slate-400 shrink-0" />
-                    <p className="text-slate-600 font-medium">{pesantren.hp || pesantren.phone || '-'}</p>
+                    <p className="text-slate-600 font-medium">{pesantren.hp || pesantren.phone || 'Belum diisi'}</p>
                   </div>
                   {pesantren.media_sosial && (
                      <div className="flex items-start gap-3">

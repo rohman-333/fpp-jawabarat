@@ -6,6 +6,8 @@ import { Home, Users, Store, MessagesSquare, FolderHeart, Newspaper, LayoutDashb
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import { NotificationBell } from './NotificationBell';
 import { canAccessAdmin, getDisplayRole } from '@/lib/auth/roles';
+import { MobileDashboardDrawer } from '@/components/shared/MobileDashboardDrawer';
+import { TopbarUserMenu } from '@/components/shared/TopbarUserMenu';
 
 export function SocialSidebar({ profile }: { profile: any }) {
   const pathname = usePathname();
@@ -20,12 +22,36 @@ export function SocialSidebar({ profile }: { profile: any }) {
     { name: 'Tersimpan', href: '/feed/saved', icon: Bookmark },
   ];
 
+  const role = profile?.role || 'user';
+  const isAdmin = role === 'admin' || role === 'superadmin';
+  const isTeam = role === 'team';
+  const hasPesantren = !!profile?.pesantren_id || profile?.has_pesantren;
+  const isSeller = profile?.is_seller && profile?.seller_status === 'approved';
+  const isCourier = profile?.is_courier && profile?.courier_status === 'approved';
+
   return (
     <>
       {/* Mobile Topbar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/80 backdrop-blur-md border-b border-slate-200 z-40 flex items-center justify-between px-4">
-        <BrandLogo variant="compact" isDark={false} />
-        <NotificationBell currentUserId={profile?.id} />
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 flex items-center justify-between px-4">
+        <div className="flex items-center gap-2">
+          <MobileDashboardDrawer 
+            isAdmin={isAdmin}
+            isTeam={isTeam}
+            isSeller={isSeller}
+            isCourier={isCourier}
+            hasPesantren={hasPesantren}
+            userName={profile?.name || 'User'}
+            avatarUrl={profile?.avatar_url}
+            role={role}
+          />
+          <BrandLogo variant="compact" isDark={false} />
+        </div>
+        <div className="flex items-center gap-3">
+          <NotificationBell currentUserId={profile?.id} />
+          <div className="scale-75 origin-right">
+            <TopbarUserMenu userName={profile?.name || 'User'} avatarUrl={profile?.avatar_url} />
+          </div>
+        </div>
       </div>
 
       {/* Desktop Sidebar */}

@@ -13,6 +13,10 @@ if (emailArgIndex !== -1 && process.argv.length > emailArgIndex + 1) {
   onlyEmail = process.argv[emailArgIndex + 1];
 }
 
+const isOnlyPesantren = process.argv.includes('--only-pesantren');
+const isUpdateExisting = process.argv.includes('--update-existing');
+const isForce = process.argv.includes('--force');
+
 function loadEnv() {
   try {
     const envPath = path.join(process.cwd(), '.env.migration');
@@ -118,7 +122,8 @@ async function run() {
   const legacyUserToPesantrenRef = new Map<string, string>();
 
   // 1. MIGRASI USERS
-  console.log(`🚀 Memproses ${stats.usersRead} users...`);
+  if (!isOnlyPesantren) {
+    console.log(`🚀 Memproses ${stats.usersRead} users...`);
   
   for (const row of usersData) {
     try {
@@ -219,6 +224,7 @@ async function run() {
       stats.errors.push(`[USER] Error pada baris: ${err.message}`);
     }
   }
+  } // end if (!isOnlyPesantren)
 
   // 2. MIGRASI PESANTREN
   console.log(`\n🚀 Memproses ${stats.pesantrenRead} pesantren...`);
@@ -240,11 +246,66 @@ async function run() {
         continue;
       }
 
-      const { data: existingPesantren } = await supabase.from('pesantren').select('id').eq('legacy_pesantren_id', mapped.legacy_pesantren_id).single();
+      const { data: existingPesantren } = await supabase.from('pesantren')
+        .select('*')
+        .eq('legacy_pesantren_id', mapped.legacy_pesantren_id)
+        .single();
 
       if (existingPesantren) {
-        stats.pesantrenSkipped++;
         legacyPesantrenToUuid.set(mapped.legacy_pesantren_id, existingPesantren.id);
+        
+        if (isUpdateExisting) {
+          // Update missing fields
+          const updateData: any = {};
+          
+          if (!existingPesantren.hp && mapped.hp) updateData.hp = mapped.hp;
+          if (!existingPesantren.alamat_desa && mapped.alamat_desa) updateData.alamat_desa = mapped.alamat_desa;
+          if (!existingPesantren.kecamatan && mapped.kecamatan) updateData.kecamatan = mapped.kecamatan;
+          if (!existingPesantren.tahun_berdiri && mapped.tahun_berdiri) updateData.tahun_berdiri = mapped.tahun_berdiri;
+          if (existingPesantren.lembaga_formal === null) updateData.lembaga_formal = mapped.lembaga_formal;
+          if (!existingPesantren.santri_sd && mapped.santri_sd) updateData.santri_sd = mapped.santri_sd;
+          if (!existingPesantren.santri_smp && mapped.santri_smp) updateData.santri_smp = mapped.santri_smp;
+          if (!existingPesantren.santri_sma && mapped.santri_sma) updateData.santri_sma = mapped.santri_sma;
+          if (!existingPesantren.guru_ustadz && mapped.guru_ustadz) updateData.guru_ustadz = mapped.guru_ustadz;
+          if (!existingPesantren.jenis_pesantren && mapped.jenis_pesantren) updateData.jenis_pesantren = mapped.jenis_pesantren;
+          if (!existingPesantren.program_unggulan && mapped.program_unggulan) updateData.program_unggulan = mapped.program_unggulan;
+          if (!existingPesantren.media_sosial && mapped.media_sosial) updateData.media_sosial = mapped.media_sosial;
+          if (!existingPesantren.potensi_ekonomi && mapped.potensi_ekonomi) updateData.potensi_ekonomi = mapped.potensi_ekonomi;
+          if (!existingPesantren.kebutuhan_utama && mapped.kebutuhan_utama) updateData.kebutuhan_utama = mapped.kebutuhan_utama;
+          if (!existingPesantren.koperasi_bmt_usaha && mapped.koperasi_bmt_usaha) updateData.koperasi_bmt_usaha = mapped.koperasi_bmt_usaha;
+          if (!existingPesantren.minat_digital_ai && mapped.minat_digital_ai) updateData.minat_digital_ai = mapped.minat_digital_ai;
+          if (!existingPesantren.saran_pemda && mapped.saran_pemda) updateData.saran_pemda = mapped.saran_pemda;
+          if (!existingPesantren.harapan_pemda_forum && mapped.harapan_pemda_forum) updateData.harapan_pemda_forum = mapped.harapan_pemda_forum;
+          if (!existingPesantren.logo_url && mapped.logo_url) updateData.logo_url = mapped.logo_url;
+          if (!existingPesantren.foto_url && mapped.foto_url) updateData.foto_url = mapped.foto_url;
+          
+          if (isForce) {
+             Object.assign(updateData, {
+               hp: mapped.hp, alamat_desa: mapped.alamat_desa, kecamatan: mapped.kecamatan, 
+               tahun_berdiri: mapped.tahun_berdiri, lembaga_formal: mapped.lembaga_formal,
+               santri_sd: mapped.santri_sd, santri_smp: mapped.santri_smp, santri_sma: mapped.santri_sma,
+               guru_ustadz: mapped.guru_ustadz, jenis_pesantren: mapped.jenis_pesantren,
+               program_unggulan: mapped.program_unggulan, media_sosial: mapped.media_sosial,
+               potensi_ekonomi: mapped.potensi_ekonomi, kebutuhan_utama: mapped.kebutuhan_utama,
+               koperasi_bmt_usaha: mapped.koperasi_bmt_usaha, minat_digital_ai: mapped.minat_digital_ai,
+               saran_pemda: mapped.saran_pemda, harapan_pemda_forum: mapped.harapan_pemda_forum,
+               logo_url: mapped.logo_url, foto_url: mapped.foto_url
+             });
+          }
+
+          if (Object.keys(updateData).length > 0) {
+            const { error: updateError } = await supabase.from('pesantren').update(updateData).eq('id', existingPesantren.id);
+            if (updateError) {
+              stats.errors.push(`[PESANTREN] Gagal update ${mapped.name}: ${updateError.message}`);
+            } else {
+              console.log(`✅ Pesantren di-update: ${mapped.name} (Fields: ${Object.keys(updateData).join(', ')})`);
+            }
+          } else {
+            console.log(`⏩ Pesantren dilewati (sudah lengkap): ${mapped.name}`);
+          }
+        } else {
+          stats.pesantrenSkipped++;
+        }
         continue;
       }
 
@@ -259,11 +320,31 @@ async function run() {
         nspp: mapped.nspp,
         pendiri: mapped.pendiri,
         pengasuh: mapped.pengasuh,
+        hp: mapped.hp,
         address: mapped.address,
+        alamat_desa: mapped.alamat_desa,
+        kecamatan: mapped.kecamatan,
         city: mapped.city,
+        tahun_berdiri: mapped.tahun_berdiri,
+        lembaga_formal: mapped.lembaga_formal,
+        santri_sd: mapped.santri_sd,
+        santri_smp: mapped.santri_smp,
+        santri_sma: mapped.santri_sma,
+        guru_ustadz: mapped.guru_ustadz,
+        jenis_pesantren: mapped.jenis_pesantren,
+        program_unggulan: mapped.program_unggulan,
+        media_sosial: mapped.media_sosial,
+        potensi_ekonomi: mapped.potensi_ekonomi,
+        kebutuhan_utama: mapped.kebutuhan_utama,
+        koperasi_bmt_usaha: mapped.koperasi_bmt_usaha,
+        minat_digital_ai: mapped.minat_digital_ai,
+        saran_pemda: mapped.saran_pemda,
+        harapan_pemda_forum: mapped.harapan_pemda_forum,
+        logo_url: mapped.logo_url,
+        foto_url: mapped.foto_url,
         legacy_pesantren_id: mapped.legacy_pesantren_id,
         is_verified: true,
-        status: 'verified'
+        status: mapped.status || 'verified'
       }]).select('id').single();
 
       if (pError) {

@@ -106,10 +106,9 @@ export function DashboardSidebar({ isAdmin = false, userName, avatarUrl }: Sideb
               <p className="text-[10px] text-emerald-400 truncate">{isAdmin ? 'Administrator' : 'Member Pesantren'}</p>
             </div>
           </div>
-          <button className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-red-300/80 hover:bg-red-950/40 hover:text-red-300 transition-colors w-full justify-center border border-transparent hover:border-red-900/50">
-            <LogOut className="w-4 h-4" />
-            Keluar Akun
-          </button>
+          <Link href="/auth/signout" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors w-full text-sm font-medium">
+            <LogOut className="w-4 h-4" /> Keluar Akun
+          </Link>
         </div>
       </aside>
     </>
