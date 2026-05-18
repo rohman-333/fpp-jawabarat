@@ -14,8 +14,8 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
   const [banners, setBanners] = useState<any[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(initialPosts && initialPosts.length > 0 ? false : true);
+  const [hasMore, setHasMore] = useState(initialPosts && initialPosts.length > 0 ? true : false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const { ref, inView } = useInView();
   const PAGE_SIZE = 10;
@@ -183,9 +183,12 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
 
   // Reset and fetch on tab change or refresh
   useEffect(() => {
-    if (initialMount.current && initialPosts && initialPosts.length > 0) {
+    if (initialMount.current) {
       initialMount.current = false;
-      return;
+      if (initialPosts && initialPosts.length > 0 && activeTab === 'semua') {
+        // Skip fetch if SSR provided posts for initial 'semua' tab
+        return;
+      }
     }
     setPosts([]);
     setPage(0);
@@ -239,13 +242,14 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
   return (
     <div className="space-y-4">
       {posts.map((post, index) => {
-        const showBanner = (index + 1) % 6 === 0 && banners.length > 0;
-        const bannerIndex = Math.floor((index + 1) / 6) % banners.length;
-        const banner = showBanner ? banners[bannerIndex] : null;
+        // Temporarily disable mixed feed / ads / programs to isolate social_posts
+        const showBanner = false; // (index + 1) % 6 === 0 && banners.length > 0;
+        const bannerIndex = 0; // Math.floor((index + 1) / 6) % banners.length;
+        const banner: any = null; // showBanner ? banners[bannerIndex] : null;
 
-        const showProgram = (index + 1) % 8 === 0 && programs.length > 0;
-        const programIndex = Math.floor((index + 1) / 8) % programs.length;
-        const program = showProgram ? programs[programIndex] : null;
+        const showProgram = false; // (index + 1) % 8 === 0 && programs.length > 0;
+        const programIndex = 0; // Math.floor((index + 1) / 8) % programs.length;
+        const program: any = null; // showProgram ? programs[programIndex] : null;
 
         return (
           <div key={post.id}>
@@ -287,9 +291,10 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
               </div>
             )}
 
-            {(index > 0 && (index + 1) % 5 === 0) && (
+            {/* Temporarily disabled FeedProductCard */}
+            {/* {(index > 0 && (index + 1) % 5 === 0) && (
               <FeedProductCard />
-            )}
+            )} */}
           </div>
         );
       })}
