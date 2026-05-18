@@ -14,6 +14,12 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     redirect('/login');
   }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
   const { data: post, error } = await supabase
     .from('social_posts')
     .select(`
@@ -73,7 +79,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         </Link>
       </div>
       
-      <FeedCard post={enrichedPost} currentUserId={user.id} />
+      <FeedCard post={enrichedPost} currentUser={{ ...user, role: profile?.role }} />
       
       {/* We are overriding the CommentBox inside FeedCard with our own here so it's always open on the detail page, but FeedCard manages its own toggle. We can just let FeedCard handle it, or we can force it open. To force it open, we can just rely on the user clicking, but actually in a detail page it's better to show comments directly. FeedCard encapsulates it though, so for simplicity we just render the CommentBox below as a permanent section. */}
       

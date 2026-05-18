@@ -14,9 +14,10 @@ import { getDisplayRole } from '@/lib/auth/roles';
 import { ReportPostDialog } from './ReportPostDialog';
 import { Flag, EyeOff, Link as LinkIcon, X } from 'lucide-react';
 
-export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: string }) {
+export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }) {
   const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: id });
   
+  const currentUserId = currentUser?.id;
   const myReactionObj = post.reactions?.find((r: any) => r.user_id === currentUserId);
   const initialReaction = myReactionObj ? myReactionObj.reaction_type : (post.has_liked ? 'like' : null);
   
@@ -223,7 +224,7 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
                 
                 {currentUserId && (
                   <>
-                    {currentUserId === post.author_id && (
+                    {(currentUserId === post.author_id || ['superadmin', 'admin', 'team'].includes(currentUser?.role)) && (
                       <button 
                         onClick={async () => {
                           if (!confirm('Apakah Anda yakin ingin menghapus postingan ini?')) return;

@@ -253,7 +253,7 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
 
         return (
           <div key={post.id}>
-            <FeedCard post={post} currentUserId={currentUser?.id} />
+            <FeedCard post={post} currentUser={currentUser} />
             
             {banner && (
               <div className="my-4 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group">

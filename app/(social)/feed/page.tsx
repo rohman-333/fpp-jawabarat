@@ -13,7 +13,7 @@ export default async function FeedPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('legacy_user_id, password_changed_at')
+    .select('legacy_user_id, password_changed_at, role')
     .eq('id', user.id)
     .single();
 
@@ -84,7 +84,7 @@ export default async function FeedPage() {
           passwordChangedAt={profile?.password_changed_at} 
         />
       </div>
-      <FeedContainer user={user} initialPosts={initialPosts} />
+      <FeedContainer user={{...user, role: profile?.role}} initialPosts={initialPosts} />
     </>
   );
 }
