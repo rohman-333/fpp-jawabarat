@@ -30,7 +30,9 @@ export default async function NotificationsPage() {
   const getIcon = (type: string) => {
     switch (type) {
       case 'like': return <Heart className="w-5 h-5 text-red-500 fill-red-500" />;
+      case 'reaction': return <span className="text-lg">❤️</span>; // Or generic reaction emoji
       case 'comment': return <MessageCircle className="w-5 h-5 text-blue-500 fill-blue-100" />;
+      case 'mention': return <span className="font-bold text-emerald-500">@</span>;
       case 'follow': return <UserPlus className="w-5 h-5 text-emerald-500" />;
       default: return <Info className="w-5 h-5 text-slate-500" />;
     }

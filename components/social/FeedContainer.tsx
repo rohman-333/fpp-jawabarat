@@ -8,8 +8,8 @@ import { SuggestedUsers } from './SuggestedUsers';
 import { SuggestedProducts } from './SuggestedProducts';
 import { SuggestedPrograms } from './SuggestedPrograms';
 
-export function FeedContainer({ user }: { user: any }) {
-  const [activeTab, setActiveTab] = useState('semua');
+export function FeedContainer({ user, initialTab = 'semua' }: { user: any, initialTab?: string }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const triggerRefresh = () => setRefreshKey(prev => prev + 1);

@@ -47,7 +47,7 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
 
       if (targetUserId) {
         query = query.eq('author_id', targetUserId);
-      } else if (activeTab !== 'semua' && activeTab !== 'mengikuti') {
+      } else if (activeTab !== 'semua' && activeTab !== 'mengikuti' && activeTab !== 'tersimpan') {
         query = query.eq('type', activeTab);
       }
 
@@ -63,6 +63,23 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
           query = query.in('author_id', followingIds);
         } else {
           // If not following anyone, return empty results early
+          if (isReset) setPosts([]);
+          setHasMore(false);
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (!targetUserId && activeTab === 'tersimpan' && currentUser?.id) {
+        const { data: savedData } = await supabase
+          .from('social_saves')
+          .select('post_id')
+          .eq('user_id', currentUser.id);
+
+        if (savedData && savedData.length > 0) {
+          const savedIds = savedData.map(s => s.post_id);
+          query = query.in('id', savedIds);
+        } else {
           if (isReset) setPosts([]);
           setHasMore(false);
           setLoading(false);

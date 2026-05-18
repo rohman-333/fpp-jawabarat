@@ -1,9 +1,31 @@
-import { PlaceholderPage } from '@/components/shared/PlaceholderPage';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { FeedContainer } from '@/components/social/FeedContainer';
+import { LegacyPasswordBanner } from '@/components/shared/LegacyPasswordBanner';
 
-export default function Page() {
+export default async function FollowingPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('legacy_user_id, password_changed_at')
+    .eq('id', user.id)
+    .single();
+
   return (
-    <div className="max-w-[680px] mx-auto xl:mx-0 w-full pt-4 md:pt-8 px-4 md:px-0 flex-1 flex flex-col">
-      <PlaceholderPage title="Postingan Diikuti" />
-    </div>
+    <>
+      <div className="max-w-[680px] mx-auto xl:mx-0 w-full px-4 md:px-0 pt-4 md:pt-8 pb-0">
+        <LegacyPasswordBanner 
+          legacyUserId={profile?.legacy_user_id} 
+          passwordChangedAt={profile?.password_changed_at} 
+        />
+      </div>
+      <FeedContainer user={user} initialTab="mengikuti" />
+    </>
   );
 }

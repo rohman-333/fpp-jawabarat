@@ -272,8 +272,20 @@ export function FeedCard({ post, currentUserId }: { post: any, currentUserId?: s
 
       {/* Post Content */}
       <div className="px-4 pb-3">
-        <p className="text-slate-700 whitespace-pre-wrap text-[15px] sm:text-base leading-relaxed">
-          {post.content}
+        <p className="text-slate-700 whitespace-pre-wrap text-[15px] sm:text-base leading-relaxed break-words">
+          {post.content ? (
+            post.content.split(/(@[a-zA-Z0-9_.-]+)/g).map((part: string, i: number) => {
+              if (part.startsWith('@') && part.length > 1) {
+                const username = part.substring(1);
+                return (
+                  <Link key={i} href={`/u/${username}`} className="text-emerald-600 font-semibold hover:underline">
+                    {part}
+                  </Link>
+                );
+              }
+              return <span key={i}>{part}</span>;
+            })
+          ) : null}
         </p>
       </div>
 

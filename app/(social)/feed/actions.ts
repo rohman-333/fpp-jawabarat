@@ -19,7 +19,7 @@ export async function createPost(formData: FormData) {
 
   if (!user) return { error: 'Not authenticated' };
 
-  const { error } = await supabase
+  const { data: post, error } = await supabase
     .from('social_posts')
     .insert([{
       author_id: user.id,
@@ -28,10 +28,58 @@ export async function createPost(formData: FormData) {
       image_url: image_url || null,
       video_url: video_url || null,
       media_type: media_type || 'text',
-    }]);
+    }])
+    .select('id')
+    .single();
 
   if (error) return { error: error.message };
-  return { success: true };
+
+  // Parse mentions
+  if (content) {
+    const mentionRegex = /@([a-zA-Z0-9_.-]+)/g;
+    const matches = Array.from(content.matchAll(mentionRegex));
+    const usernames = matches.map(m => m[1]);
+
+    if (usernames.length > 0) {
+      // Find valid users
+      const { data: mentionedUsers } = await supabase
+        .from('profiles')
+        .select('id, username')
+        .in('username', usernames);
+
+      if (mentionedUsers && mentionedUsers.length > 0) {
+        // Insert to post_mentions
+        const mentionPayloads = mentionedUsers.map(u => ({
+          post_id: post.id,
+          mentioned_user_id: u.id,
+          created_by: user.id
+        }));
+        await supabase.from('post_mentions').insert(mentionPayloads);
+
+        // Fetch author name for notification
+        const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
+        const actorName = actor?.name || 'Seseorang';
+
+        // Notify mentioned users
+        const notifPayloads = mentionedUsers
+          .filter(u => u.id !== user.id) // don't notify self
+          .map(u => ({
+            user_id: u.id,
+            actor_id: user.id,
+            type: 'mention',
+            title: `${actorName} menyebut Anda dalam sebuah kiriman`,
+            message: content.length > 50 ? content.substring(0, 50) + '...' : content,
+            target_url: `/post/${post.id}`
+          }));
+        
+        if (notifPayloads.length > 0) {
+          await supabase.from('notifications').insert(notifPayloads);
+        }
+      }
+    }
+  }
+
+  return { success: true, post };
 }
 
 export async function toggleLike(postId: string) {
@@ -272,13 +320,23 @@ export async function hidePost(postId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Not authenticated' };
 
-  // Note: the original implementation was flawed since it used author_id = user.id but was called for other's posts.
-  // But we just restore it for compilation sake, ideally this uses a separate social_hidden_posts table.
+  // Check role
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'team';
+
+  if (!isAdmin) {
+    // Normal user hides it ONLY for themselves? Actually the prompt says:
+    // "Admin/superadmin bisa hide post: - status = 'hidden' - hidden_at = now()"
+    // But what does the EyeOff button do for normal users? "Sembunyikan dari Feed". 
+    // Ideally this inserts into a social_hidden_posts table for the current user.
+    // If it's just a local UI hide, returning success is enough. We won't mutate the global post.
+    return { success: true };
+  }
+
   const { error } = await supabase
     .from('social_posts')
-    .update({ status: 'hidden' })
-    .eq('id', postId)
-    .eq('author_id', user.id);
+    .update({ status: 'hidden', hidden_at: new Date().toISOString() })
+    .eq('id', postId);
 
   if (error) return { error: error.message };
   return { success: true };

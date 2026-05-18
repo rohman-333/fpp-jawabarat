@@ -76,7 +76,9 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
   const getIcon = (type: string) => {
     switch (type) {
       case 'like': return <Heart className="w-4 h-4 text-red-500 fill-red-500" />;
+      case 'reaction': return <span className="text-[12px] leading-none">❤️</span>;
       case 'comment': return <MessageCircle className="w-4 h-4 text-blue-500 fill-blue-100" />;
+      case 'mention': return <span className="font-bold text-emerald-500 text-sm leading-none">@</span>;
       case 'follow': return <UserPlus className="w-4 h-4 text-emerald-500" />;
       default: return <Info className="w-4 h-4 text-slate-500" />;
     }

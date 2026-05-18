@@ -4,6 +4,7 @@ export function FeedTabs({ activeTab, onTabChange }: { activeTab: string, onTabC
   const tabs = [
     { id: 'semua', label: 'Semua' },
     { id: 'mengikuti', label: 'Mengikuti' },
+    { id: 'tersimpan', label: 'Tersimpan' },
     { id: 'kabar', label: 'Kabar' },
     { id: 'musyawarah', label: 'Musyawarah' },
     { id: 'kegiatan_santri', label: 'Kegiatan Santri' },
