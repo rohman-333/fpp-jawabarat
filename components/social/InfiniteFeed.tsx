@@ -224,25 +224,9 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
     );
   }
 
-  const debugInfo = (
-    <div className="bg-red-50 text-red-800 p-4 rounded-xl border border-red-200 mb-4 text-xs font-mono overflow-auto max-w-full">
-      <div className="font-bold mb-2">DEBUG FEED:</div>
-      <div>Active Tab: {activeTab}</div>
-      <div>Jumlah post di state: {posts.length}</div>
-      <div>Error: {fetchError || 'None'}</div>
-      {posts.length > 0 && (
-        <div className="mt-2">
-          <strong>First Post:</strong>
-          <pre className="whitespace-pre-wrap">{JSON.stringify(posts[0], null, 2)}</pre>
-        </div>
-      )}
-    </div>
-  );
-
   if (!loading && posts.length === 0) {
     return (
       <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
-         {debugInfo}
          <EmptyState 
             title="Belum ada kabar" 
             description={activeTab === 'semua' ? "Jadilah yang pertama membagikan kabar atau kegiatan pesantren Anda ke komunitas." : `Belum ada konten untuk kategori ${activeTab}.`}
@@ -254,7 +238,6 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
 
   return (
     <div className="space-y-4">
-      {debugInfo}
       {posts.map((post, index) => {
         const showBanner = (index + 1) % 6 === 0 && banners.length > 0;
         const bannerIndex = Math.floor((index + 1) / 6) % banners.length;
