@@ -208,6 +208,37 @@ export default async function AdminPage() {
                   </div>
                 </div>
               </div>
+
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h2 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-3">Kelola Konten</h2>
+                <div className="space-y-3">
+                  <Link href="/admin/banners" className="p-4 rounded-xl border border-slate-100 flex items-center justify-between group hover:bg-slate-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                        <Landmark className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-800">Kelola Banner/Iklan</h3>
+                        <p className="text-xs text-slate-500">Atur banner sponsor & promo</p>
+                      </div>
+                    </div>
+                    <span className="text-slate-400 group-hover:text-emerald-600 transition-colors">&rarr;</span>
+                  </Link>
+
+                  <Link href="/admin/program" className="p-4 rounded-xl border border-slate-100 flex items-center justify-between group hover:bg-slate-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                        <FolderHeart className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-800">Kelola Program</h3>
+                        <p className="text-xs text-slate-500">Atur program & donasi</p>
+                      </div>
+                    </div>
+                    <span className="text-slate-400 group-hover:text-emerald-600 transition-colors">&rarr;</span>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </main>

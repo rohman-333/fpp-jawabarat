@@ -11,11 +11,23 @@ import { FeedProductCard } from './FeedProductCard';
 export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUserId }: { activeTab: string, currentUser?: any, refreshKey?: number, targetUserId?: string }) {
   const supabase = createClient();
   const [posts, setPosts] = useState<any[]>([]);
+  const [banners, setBanners] = useState<any[]>([]);
+  const [programs, setPrograms] = useState<any[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const { ref, inView } = useInView();
   const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    const fetchAds = async () => {
+      const { data: b } = await supabase.from('site_banners').select('*').eq('status', 'active').eq('placement', 'feed_inline');
+      if (b) setBanners(b);
+      const { data: p } = await supabase.from('programs').select('*').eq('status', 'published').limit(5);
+      if (p) setPrograms(p);
+    };
+    fetchAds();
+  }, [supabase]);
 
   const fetchPosts = useCallback(async (pageNum: number, isReset: boolean = false) => {
     try {
@@ -164,14 +176,61 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
 
   return (
     <div className="space-y-4">
-      {posts.map((post, index) => (
-        <div key={post.id}>
-          <FeedCard post={post} currentUserId={currentUser?.id} />
-          {(index > 0 && (index + 1) % 5 === 0) && (
-            <FeedProductCard />
-          )}
-        </div>
-      ))}
+      {posts.map((post, index) => {
+        const showBanner = (index + 1) % 6 === 0 && banners.length > 0;
+        const bannerIndex = Math.floor((index + 1) / 6) % banners.length;
+        const banner = showBanner ? banners[bannerIndex] : null;
+
+        const showProgram = (index + 1) % 8 === 0 && programs.length > 0;
+        const programIndex = Math.floor((index + 1) / 8) % programs.length;
+        const program = showProgram ? programs[programIndex] : null;
+
+        return (
+          <div key={post.id}>
+            <FeedCard post={post} currentUserId={currentUser?.id} />
+            
+            {banner && (
+              <div className="my-4 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group">
+                <a href={banner.cta_url || '#'} className="block relative">
+                  <img src={banner.image_url} alt={banner.title || 'Sponsor'} className="w-full h-[180px] object-cover group-hover:scale-105 transition-transform duration-500" />
+                  {banner.is_sponsored && (
+                    <div className="absolute top-4 left-4 bg-yellow-500 text-slate-900 text-[10px] font-black tracking-widest px-2 py-1 rounded shadow-md uppercase">
+                      Sponsor {banner.sponsor_name && `- ${banner.sponsor_name}`}
+                    </div>
+                  )}
+                  {(banner.title || banner.cta_label) && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                      {banner.title && <h4 className="text-white font-bold text-lg mb-1">{banner.title}</h4>}
+                      {banner.cta_label && <span className="text-emerald-300 font-bold text-xs">{banner.cta_label} &rarr;</span>}
+                    </div>
+                  )}
+                </a>
+              </div>
+            )}
+
+            {program && (
+              <div className="my-4 bg-white rounded-2xl border border-emerald-100 shadow-sm p-4 bg-gradient-to-br from-emerald-50 to-white flex gap-4 items-center">
+                <div className="w-16 h-16 rounded-xl bg-emerald-100 shrink-0 overflow-hidden flex items-center justify-center">
+                  {program.image_url ? (
+                    <img src={program.image_url} alt={program.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Users className="w-8 h-8 text-emerald-300" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Program Sinergi: {program.category || 'Umum'}</p>
+                  <h4 className="font-bold text-slate-800 text-sm truncate mb-1">{program.title}</h4>
+                  <a href={`/program/${program.slug}`} className="inline-block bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors">Lihat Detail</a>
+                </div>
+              </div>
+            )}
+
+            {(index > 0 && (index + 1) % 5 === 0) && (
+              <FeedProductCard />
+            )}
+          </div>
+        );
+      })}
       
       {hasMore && (
         <div ref={ref} className="py-6 flex justify-center">

@@ -20,6 +20,36 @@ export default async function LandingPage() {
     .order('created_at', { ascending: false })
     .limit(4);
 
+  // Fetch real programs
+  const { data: programs } = await supabase
+    .from('programs')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  // Fetch banners
+  const { data: landingHeroBanners } = await supabase
+    .from('site_banners')
+    .select('*')
+    .eq('status', 'active')
+    .eq('placement', 'landing_hero')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false })
+    .limit(1);
+    
+  const { data: landingCardBanners } = await supabase
+    .from('site_banners')
+    .select('*')
+    .eq('status', 'active')
+    .eq('placement', 'landing_card')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  const heroBanner = landingHeroBanners?.[0];
+  const cardBanner = landingCardBanners?.[0];
+
   // Fetch some data for forum
   const { data: posts } = await supabase
     .from('forum_posts')
@@ -76,74 +106,93 @@ export default async function LandingPage() {
               </div>
             </div>
 
-            {/* Right Content: Dashboard Preview */}
+            {/* Right Content */}
             <div className="relative mx-auto w-full max-w-lg lg:max-w-none perspective-1000 hidden md:block">
-              <div className="relative rounded-2xl bg-emerald-900/40 border border-emerald-800/50 p-2 shadow-2xl backdrop-blur-md transform rotate-y-[-5deg] rotate-x-[2deg]">
-                {/* Mockup Topbar */}
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-emerald-800/50 bg-emerald-950/80 rounded-t-xl">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-                  </div>
-                  <div className="mx-auto bg-emerald-900/50 rounded-md px-32 py-1.5 border border-emerald-800/50"></div>
-                </div>
-                {/* Mockup Content */}
-                <div className="bg-emerald-950 rounded-b-xl p-4 sm:p-6 grid grid-cols-12 gap-4">
-                  {/* Sidebar */}
-                  <div className="col-span-3 space-y-3">
-                    <div className="h-6 w-3/4 bg-emerald-800/50 rounded animate-pulse mb-6"></div>
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="flex gap-3 items-center">
-                        <div className="w-5 h-5 rounded bg-emerald-800/50"></div>
-                        <div className="h-3 w-full bg-emerald-800/30 rounded"></div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Main Content */}
-                  <div className="col-span-9 space-y-4">
-                    <div className="h-32 rounded-xl bg-gradient-to-r from-emerald-900 to-emerald-800 border border-emerald-700/50 p-6 flex flex-col justify-end relative overflow-hidden">
-                      <div className="absolute right-0 bottom-0 opacity-20 transform translate-x-1/4 translate-y-1/4">
-                         <Landmark className="w-32 h-32 text-emerald-100" />
-                      </div>
-                      <p className="text-emerald-300 text-xs font-semibold mb-1">Selamat datang di</p>
-                      <h3 className="text-white text-2xl font-bold">FPP JAWABARAT</h3>
+              {heroBanner ? (
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-emerald-800/50 group">
+                  <img src={heroBanner.image_url} alt={heroBanner.title || 'Banner'} className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-700" />
+                  {(heroBanner.title || heroBanner.subtitle) && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent flex flex-col justify-end p-8">
+                      {heroBanner.is_sponsored && (
+                        <span className="bg-yellow-500 text-emerald-950 text-xs font-bold px-3 py-1 rounded-full w-fit mb-3">Sponsor: {heroBanner.sponsor_name || 'Partner'}</span>
+                      )}
+                      <h3 className="text-3xl font-bold text-white mb-2">{heroBanner.title}</h3>
+                      <p className="text-emerald-100 mb-6">{heroBanner.subtitle}</p>
+                      {heroBanner.cta_label && heroBanner.cta_url && (
+                        <Link href={heroBanner.cta_url}>
+                          <Button className="bg-yellow-500 hover:bg-yellow-400 text-emerald-950 font-bold rounded-xl shadow-lg border-none w-fit">
+                            {heroBanner.cta_label} <ArrowRight className="w-4 h-4 ml-2" />
+                          </Button>
+                        </Link>
+                      )}
                     </div>
-                    {/* Stats Row */}
-                    <div className="grid grid-cols-3 gap-3">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3">
-                          <div className="w-8 h-8 rounded-full bg-emerald-800/50 mb-2"></div>
-                          <div className="h-4 w-1/2 bg-yellow-500/80 rounded mb-1"></div>
-                          <div className="h-2 w-3/4 bg-emerald-700/50 rounded"></div>
+                  )}
+                </div>
+              ) : (
+                <div className="relative rounded-2xl bg-emerald-900/40 border border-emerald-800/50 p-2 shadow-2xl backdrop-blur-md transform rotate-y-[-5deg] rotate-x-[2deg]">
+                  <div className="flex items-center gap-2 px-4 py-3 border-b border-emerald-800/50 bg-emerald-950/80 rounded-t-xl">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                    </div>
+                    <div className="mx-auto bg-emerald-900/50 rounded-md px-32 py-1.5 border border-emerald-800/50"></div>
+                  </div>
+                  <div className="bg-emerald-950 rounded-b-xl p-4 sm:p-6 grid grid-cols-12 gap-4">
+                    <div className="col-span-3 space-y-3">
+                      <div className="h-6 w-3/4 bg-emerald-800/50 rounded animate-pulse mb-6"></div>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="flex gap-3 items-center">
+                          <div className="w-5 h-5 rounded bg-emerald-800/50"></div>
+                          <div className="h-3 w-full bg-emerald-800/30 rounded"></div>
                         </div>
                       ))}
                     </div>
-                    {/* Content Row */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3 h-24"></div>
-                      <div className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3 h-24"></div>
+                    <div className="col-span-9 space-y-4">
+                      <div className="h-32 rounded-xl bg-gradient-to-r from-emerald-900 to-emerald-800 border border-emerald-700/50 p-6 flex flex-col justify-end relative overflow-hidden">
+                        <div className="absolute right-0 bottom-0 opacity-20 transform translate-x-1/4 translate-y-1/4">
+                           <Landmark className="w-32 h-32 text-emerald-100" />
+                        </div>
+                        <p className="text-emerald-300 text-xs font-semibold mb-1">Selamat datang di</p>
+                        <h3 className="text-white text-2xl font-bold">FPP JAWABARAT</h3>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3">
+                            <div className="w-8 h-8 rounded-full bg-emerald-800/50 mb-2"></div>
+                            <div className="h-4 w-1/2 bg-yellow-500/80 rounded mb-1"></div>
+                            <div className="h-2 w-3/4 bg-emerald-700/50 rounded"></div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3 h-24"></div>
+                        <div className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3 h-24"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
               
-              {/* Floating badges */}
-              <div className="absolute -left-6 top-12 bg-white text-emerald-950 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce shadow-emerald-900/20">
-                <ShieldCheck className="w-6 h-6 text-emerald-600" />
-                <div>
-                  <p className="text-xs font-bold text-slate-500">Terpercaya</p>
-                  <p className="text-sm font-bold">Aman & Akurat</p>
-                </div>
-              </div>
-              
-              <div className="absolute -right-6 bottom-24 bg-yellow-400 text-emerald-950 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-pulse">
-                <Users className="w-6 h-6" />
-                <div>
-                  <p className="text-xs font-bold text-emerald-800">Kolaboratif</p>
-                  <p className="text-sm font-bold">Sinergi Umat</p>
-                </div>
-              </div>
+              {!heroBanner && (
+                <>
+                  <div className="absolute -left-6 top-12 bg-white text-emerald-950 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce shadow-emerald-900/20">
+                    <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                    <div>
+                      <p className="text-xs font-bold text-slate-500">Terpercaya</p>
+                      <p className="text-sm font-bold">Aman & Akurat</p>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute -right-6 bottom-24 bg-yellow-400 text-emerald-950 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-pulse">
+                    <Users className="w-6 h-6" />
+                    <div>
+                      <p className="text-xs font-bold text-emerald-800">Kolaboratif</p>
+                      <p className="text-sm font-bold">Sinergi Umat</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             
           </div>
@@ -208,7 +257,7 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Program Sinergi Dummy */}
+      {/* Program Sinergi Real */}
       <section className="py-20 bg-white border-t border-slate-100">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex justify-between items-end mb-10">
@@ -216,34 +265,68 @@ export default async function LandingPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Program Sinergi Terbaru</h2>
               <p className="text-slate-500">Kesempatan kolaborasi dan dukungan untuk pesantren.</p>
             </div>
-            <Button variant="ghost" className="text-emerald-600 font-semibold hidden sm:flex hover:bg-emerald-50">
-              Lihat Semua
-            </Button>
+            <Link href="/program">
+              <Button variant="ghost" className="text-emerald-600 font-semibold hidden sm:flex hover:bg-emerald-50">
+                Lihat Semua
+              </Button>
+            </Link>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { title: "Beasiswa Santri Berprestasi", cat: "Pendidikan", img: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=500&q=80" },
-              { title: "Sarana Air Bersih Pesantren", cat: "Sosial & Lingkungan", img: "https://images.unsplash.com/photo-1541818227092-299f4d1e2e6d?w=500&q=80" },
-              { title: "Pelatihan Digital Pesantren", cat: "Pengembangan SDM", img: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=500&q=80" }
-            ].map((prog, i) => (
-              <div key={i} className="group rounded-2xl border border-slate-200 overflow-hidden bg-white hover:shadow-lg transition-shadow">
-                <div className="h-48 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-emerald-900/20 group-hover:bg-transparent transition-colors z-10"></div>
-                  <img src={prog.img} alt={prog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-4 right-4 z-20 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                    Aktif
+            {programs && programs.length > 0 ? (
+              programs.map((prog) => (
+                <Link href={`/program/${prog.slug}`} key={prog.id} className="group rounded-2xl border border-slate-200 overflow-hidden bg-white hover:shadow-lg transition-shadow">
+                  <div className="h-48 overflow-hidden relative bg-slate-100">
+                    <div className="absolute inset-0 bg-emerald-900/20 group-hover:bg-transparent transition-colors z-10"></div>
+                    {prog.image_url ? (
+                      <img src={prog.image_url} alt={prog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Handshake className="w-12 h-12 text-slate-300" />
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4 z-20 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                      Aktif
+                    </div>
                   </div>
-                </div>
-                <div className="p-6">
-                  <p className="text-emerald-600 text-xs font-bold uppercase tracking-wider mb-2">{prog.cat}</p>
-                  <h3 className="font-bold text-lg text-slate-900 line-clamp-2 leading-snug">{prog.title}</h3>
-                </div>
+                  <div className="p-6">
+                    <p className="text-emerald-600 text-xs font-bold uppercase tracking-wider mb-2">{prog.category || 'Umum'}</p>
+                    <h3 className="font-bold text-lg text-slate-900 line-clamp-2 leading-snug">{prog.title}</h3>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full">
+                <EmptyState title="Belum ada program" description="Program sinergi sedang dipersiapkan." icon={<Handshake className="w-8 h-8 text-slate-300"/>} />
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
+
+      {cardBanner && (
+        <section className="py-10 bg-slate-50 border-t border-slate-200">
+          <div className="container mx-auto px-4 max-w-6xl">
+            <Link href={cardBanner.cta_url || '#'} className="block rounded-3xl overflow-hidden shadow-lg border border-slate-200 group relative">
+              <img src={cardBanner.image_url} alt={cardBanner.title || 'Promo'} className="w-full h-[150px] md:h-[250px] object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+              {(cardBanner.title || cardBanner.subtitle) && (
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 to-transparent flex flex-col justify-center p-8 md:p-12">
+                  {cardBanner.is_sponsored && (
+                    <span className="bg-yellow-500 text-slate-900 text-[10px] uppercase font-black tracking-widest px-3 py-1 rounded w-fit mb-4">Sponsor Resmi: {cardBanner.sponsor_name}</span>
+                  )}
+                  <h3 className="text-2xl md:text-4xl font-bold text-white mb-2 max-w-lg">{cardBanner.title}</h3>
+                  <p className="text-slate-200 mb-6 max-w-md hidden md:block">{cardBanner.subtitle}</p>
+                  {cardBanner.cta_label && (
+                    <span className="bg-white text-emerald-700 font-bold px-6 py-2.5 rounded-xl w-fit group-hover:bg-emerald-50 transition-colors shadow-lg">
+                      {cardBanner.cta_label}
+                    </span>
+                  )}
+                </div>
+              )}
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Marketplace Preview */}
       <section className="py-20 bg-slate-50 border-t border-slate-200">
