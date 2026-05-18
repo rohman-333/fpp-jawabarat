@@ -28,8 +28,8 @@ export default async function AdminSellerApplicationsPage() {
   const { data: applications, error } = await supabase
     .from('seller_applications')
     .select(`
-      *,
-      profiles:user_id(name, email)
+      id, user_id, applicant_email, store_name, category, description, whatsapp, address, reason, status, created_at,
+      profiles:user_id(name, avatar_url, role, seller_status, is_seller)
     `)
     .order('created_at', { ascending: false });
 
@@ -37,12 +37,12 @@ export default async function AdminSellerApplicationsPage() {
     console.error('[ADMIN_SELLER_APPLICATIONS_FETCH_ERROR]', error);
   }
 
-  let combinedApplications = applications || [];
+  let combinedApplications: any[] = applications || [];
 
   // Fallback if seller_applications is somehow missing entries for pending profiles
   const { data: pendingProfiles } = await supabase
     .from('profiles')
-    .select('id, name, email, created_at')
+    .select('id, name, seller_status, is_seller, created_at')
     .eq('seller_status', 'pending');
 
   if (pendingProfiles && pendingProfiles.length > 0) {
@@ -52,10 +52,11 @@ export default async function AdminSellerApplicationsPage() {
       .map(p => ({
         id: `fallback-${p.id}`,
         user_id: p.id,
+        applicant_email: null,
         store_name: p.name || 'Toko Baru',
         status: 'pending',
         created_at: p.created_at,
-        profiles: { name: p.name, email: p.email }
+        profiles: { name: p.name, seller_status: p.seller_status, is_seller: p.is_seller }
       }));
     
     combinedApplications = [...combinedApplications, ...fallbackApps];

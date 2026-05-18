@@ -93,6 +93,9 @@ export function SellerApplicationList({ initialData }: { initialData: any[] }) {
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Kontak & Lokasi</h4>
                   <div className="space-y-2">
                     <p className="text-sm text-slate-700 flex items-center gap-2">
+                      <User className="w-4 h-4 text-slate-400" /> {app.applicant_email || 'Email tidak tersedia'}
+                    </p>
+                    <p className="text-sm text-slate-700 flex items-center gap-2">
                       <Phone className="w-4 h-4 text-slate-400" /> {app.whatsapp}
                     </p>
                     <p className="text-sm text-slate-700 flex items-center gap-2">

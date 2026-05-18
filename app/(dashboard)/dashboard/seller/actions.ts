@@ -26,6 +26,7 @@ export async function submitSellerApplication(formData: FormData) {
     .from('seller_applications')
     .insert({
       user_id: user.id,
+      applicant_email: user.email,
       store_name,
       category,
       description,
@@ -68,6 +69,7 @@ export async function updateSellerApplicationStatus(applicationId: string, newSt
       .insert({
         user_id: targetUserId,
         store_name: 'Toko FPP',
+        applicant_email: null,
         status: newStatus,
         reviewed_by: user.id,
         reviewed_at: new Date().toISOString()
