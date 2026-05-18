@@ -28,11 +28,16 @@ export async function createPost(formData: FormData) {
       image_url: image_url || null,
       video_url: video_url || null,
       media_type: media_type || 'text',
+      status: 'active',
+      visibility: 'public'
     }])
     .select('id')
     .single();
 
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('[CREATE_POST_ERROR]', error);
+    return { success: false, error: error.message };
+  }
 
   // Parse mentions
   if (content) {
@@ -79,6 +84,8 @@ export async function createPost(formData: FormData) {
     }
   }
 
+  revalidatePath('/feed');
+  revalidatePath('/');
   return { success: true, post };
 }
 

@@ -42,6 +42,7 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
           comments_count:social_comments(count)
         `)
         .is('deleted_at', null)
+        .or('status.eq.active,status.is.null')
         .order('created_at', { ascending: false })
         .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
 

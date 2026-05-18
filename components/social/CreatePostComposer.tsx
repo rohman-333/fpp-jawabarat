@@ -65,12 +65,20 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
       if (mediaFile) {
         if (mediaType === 'image') {
           const { url, error } = await uploadPostImage(mediaFile, user.id);
-          if (error) throw new Error(error);
-          imageUrl = url;
+          if (error) {
+            console.error('[UPLOAD_IMAGE_ERROR]', error);
+            alert('Gagal mengupload gambar. Postingan tetap dibuat tanpa gambar.');
+          } else {
+            imageUrl = url;
+          }
         } else if (mediaType === 'video') {
           const { url, error } = await uploadSocialVideo(mediaFile, user.id);
-          if (error) throw new Error(error);
-          videoUrl = url;
+          if (error) {
+            console.error('[UPLOAD_VIDEO_ERROR]', error);
+            alert('Gagal mengupload video. Postingan tetap dibuat tanpa video.');
+          } else {
+            videoUrl = url;
+          }
         }
       }
 
@@ -83,15 +91,20 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
         formData.append('media_type', 'video');
       }
       
-      await createPost(formData);
+      const res = await createPost(formData);
       
-      setContent('');
-      removeMedia();
-      setShowEmoji(false);
-      if (onSuccess) onSuccess();
+      if (res?.error) {
+        console.error('[CREATE_POST_CLIENT_ERROR]', res.error);
+        alert('Gagal memposting: ' + res.error);
+      } else {
+        setContent('');
+        removeMedia();
+        setShowEmoji(false);
+        if (onSuccess) onSuccess();
+      }
     } catch (err) {
-      console.error(err);
-      alert('Gagal memposting. Silakan coba lagi.');
+      console.error('[CREATE_POST_CLIENT_EXCEPTION]', err);
+      alert('Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
     }
