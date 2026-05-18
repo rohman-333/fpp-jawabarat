@@ -33,6 +33,10 @@ export default async function AdminSellerApplicationsPage() {
     `)
     .order('created_at', { ascending: false });
 
+  if (error) {
+    console.error('[ADMIN_SELLER_APPLICATIONS_FETCH_ERROR]', error);
+  }
+
   let combinedApplications = applications || [];
 
   // Fallback if seller_applications is somehow missing entries for pending profiles
@@ -48,7 +52,7 @@ export default async function AdminSellerApplicationsPage() {
       .map(p => ({
         id: `fallback-${p.id}`,
         user_id: p.id,
-        shop_name: p.name || 'Toko Baru',
+        store_name: p.name || 'Toko Baru',
         status: 'pending',
         created_at: p.created_at,
         profiles: { name: p.name, email: p.email }
@@ -65,6 +69,12 @@ export default async function AdminSellerApplicationsPage() {
         </h1>
         <p className="text-slate-500 text-sm mt-1">Kelola permohonan pembukaan toko oleh pengguna (Seller).</p>
       </div>
+
+      {error && (
+        <div className="p-4 bg-red-50 text-red-600 border border-red-100 rounded-xl">
+          Terjadi kesalahan saat memuat data dari server: {error.message}
+        </div>
+      )}
 
       <SellerApplicationList initialData={combinedApplications} />
     </div>

@@ -11,14 +11,14 @@ export async function submitSellerApplication(formData: FormData) {
     return { error: 'Not authenticated' };
   }
 
-  const shop_name = formData.get('shop_name') as string;
-  const business_category = formData.get('business_category') as string;
+  const store_name = formData.get('shop_name') as string;
+  const category = formData.get('business_category') as string;
   const description = formData.get('description') as string;
   const whatsapp = formData.get('whatsapp') as string;
   const address = formData.get('address') as string;
   const reason = formData.get('reason') as string;
 
-  if (!shop_name || !whatsapp || !address) {
+  if (!store_name || !whatsapp || !address) {
     return { error: 'Mohon lengkapi semua field yang wajib' };
   }
 
@@ -26,8 +26,8 @@ export async function submitSellerApplication(formData: FormData) {
     .from('seller_applications')
     .insert({
       user_id: user.id,
-      shop_name,
-      business_category,
+      store_name,
+      category,
       description,
       whatsapp,
       address,
@@ -67,7 +67,7 @@ export async function updateSellerApplicationStatus(applicationId: string, newSt
       .from('seller_applications')
       .insert({
         user_id: targetUserId,
-        shop_name: 'Toko FPP',
+        store_name: 'Toko FPP',
         status: newStatus,
         reviewed_by: user.id,
         reviewed_at: new Date().toISOString()

@@ -41,11 +41,11 @@ export function SellerApplicationList({ initialData }: { initialData: any[] }) {
                 <Store className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800 text-lg">{app.shop_name}</h3>
+                <h3 className="font-bold text-slate-800 text-lg">{app.store_name}</h3>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
                   <span className="flex items-center gap-1"><User className="w-3 h-3" /> {app.profiles?.name || 'User'}</span>
                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(app.created_at).toLocaleDateString('id-ID')}</span>
-                  <span className="uppercase font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">{app.business_category}</span>
+                  <span className="uppercase font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">{app.category}</span>
                 </div>
               </div>
             </div>

@@ -34,7 +34,18 @@ export default async function AdminPage() {
   const { count: donationCount } = await supabase.from('donations').select('*', { count: 'exact', head: true });
   
   const { count: pendingPesantrenCount } = await supabase.from('pesantren').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-  const { count: pendingSellerCount } = await supabase.from('seller_applications').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  
+  let { count: pendingSellerCount, error: sellerCountError } = await supabase.from('seller_applications').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  if (sellerCountError) console.error('[ADMIN_SELLER_APPLICATIONS_FETCH_ERROR]', sellerCountError);
+  
+  // Add fallback count from profiles
+  const { data: pendingSellerProfiles } = await supabase.from('profiles').select('id').eq('seller_status', 'pending');
+  if (pendingSellerProfiles && pendingSellerProfiles.length > 0) {
+    const { data: existingApps } = await supabase.from('seller_applications').select('user_id');
+    const existingIds = (existingApps || []).map(a => a.user_id);
+    const fallbackCount = pendingSellerProfiles.filter(p => !existingIds.includes(p.id)).length;
+    pendingSellerCount = (pendingSellerCount || 0) + fallbackCount;
+  }
   const { count: pendingCourierCount } = await supabase.from('courier_business_model').select('*', { count: 'exact', head: true }).eq('status', 'pending');
   const { count: pendingReportsCount } = await supabase.from('post_reports').select('*', { count: 'exact', head: true }).eq('status', 'pending');
 
