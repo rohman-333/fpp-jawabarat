@@ -1,3 +1,4 @@
+import { canAccessAdmin } from '@/lib/auth/roles';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { DashboardSidebar } from '@/components/shared/DashboardSidebar';
@@ -23,7 +24,7 @@ export default async function AdminPesantrenPage({
     .eq('id', user.id)
     .single();
 
-  if (!profile || (profile.role !== 'admin' && profile.role !== 'operator')) {
+  if (!profile || (!canAccessAdmin(profile))) {
     redirect('/dashboard');
   }
 

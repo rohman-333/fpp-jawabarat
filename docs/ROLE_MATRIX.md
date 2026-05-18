@@ -1,34 +1,34 @@
-# Role Matrix & Permission System
+# FPP JAWABARAT - Role Matrix & Authority System
 
-Sistem Role pada FPP JAWABARAT disederhanakan agar tidak membingungkan pengguna umum. Role utama pada level akses sistem (`role`) dibatasi hanya untuk 4 tipe:
-1. `superadmin`
-2. `admin`
-3. `team`
-4. `user`
+Sistem otorisasi (role) di FPP JAWABARAT kini telah disederhanakan dari yang awalnya menggunakan `account_type` jamak (kiai, ustadz, dll) menjadi matriks peran berlapis (Role & Flags). Hal ini untuk mempermudah manajemen *database* dan kontrol akses UI.
 
-## Konsep Dasar
+## 1. System Roles (`role`)
+Kolom utama yang menentukan level akses administratif seorang pengguna terhadap *platform*. Hanya ada 4 nilai baku:
 
-1. **Semua pendaftar publik otomatis menjadi `user`**.
-2. Tidak ada lagi tipe akun seperti `kiai`, `ustadz`, `santri`, `alumni`, `pesantren`, `seller`, dll sebagai role utama.
-3. Fitur-fitur tambahan bagi user biasa dikendalikan menggunakan boolean dan status flag pada tabel `profiles`.
+| Role | Deskripsi | Akses Dashboard |
+| :--- | :--- | :--- |
+| `superadmin` | Pemilik platform/founder. Memiliki hak akses penuh tanpa batas ke seluruh data dan sistem. | `/admin/*` (Full Access) |
+| `admin` | Tim operasional utama yang membantu `superadmin` mengurus moderasi, laporan, dsb. | `/admin/*` (Kecuali pengaturan kritis/keuangan) |
+| `team` | Tim divisi fungsional spesifik (contoh: kurir, pesantren, marketplace, konten). Akses terbatas berdasarkan `team_division`. | `/admin/*` (Terbatas sesuai divisi) |
+| `user` | Pengguna umum publik (Default untuk setiap pendaftar baru). | `/dashboard/*` (Sesuai flag/status) |
 
-## Flag & Status Ekstensi User
-- **Pesantren:** Jika user memiliki pesantren dan telah divalidasi, maka `has_pesantren = true` dan `pesantren_id` berisi UUID pesantren.
-- **Seller Marketplace:** Jika user mendaftar buka toko dan disetujui, maka `is_seller = true` dan `seller_status = 'approved'`.
-- **Kurir:** Jika melamar jadi kurir dan disetujui, maka `is_courier = true` dan `courier_status = 'approved'`.
+---
 
-## Team Inti FPP
-- Team FPP JAWABARAT (`role = 'team'`) tidak bisa mendaftar secara publik.
-- Superadmin mengundang (invite) team melalui dashboard internal.
-- Posisi/tugas team spesifik disimpan dalam `team_division` (misal: marketplace, pesantren, konten, kurir, keuangan, support, teknis).
+## 2. Capability Flags (Status/Label)
+Fitur tambahan yang dimiliki seorang `user` (atau role lain) dikendalikan menggunakan kolom atribut independen (*flags*), BUKAN menambah role baru. 
 
-## Matriks Hak Akses
+| Flag / Kolom | Tipe | Nilai | Deskripsi Akses |
+| :--- | :--- | :--- | :--- |
+| `has_pesantren` | `boolean` | `true` / `false` | Membuka fitur pengelolaan profil Pesantren di dasbor. |
+| `pesantren_id` | `uuid` | `UUID` / `null` | Menautkan profil user ke entitas Pesantren spesifik. |
+| `is_seller` | `boolean` | `true` / `false` | Menandakan profil memiliki etalase toko. |
+| `seller_status` | `text` | `none`, `pending`, `approved`, `rejected` | Jika `approved` dan `is_seller = true`, buka akses manajemen produk & order toko. |
+| `is_courier` | `boolean` | `true` / `false` | Menandakan profil adalah mitra kurir. |
+| `courier_status` | `text` | `none`, `pending`, `approved`, `rejected` | Jika `approved`, buka akses pelacakan dan daftar kiriman. |
+| `team_division`| `text` | `marketplace`, `pesantren`, dll. | Menentukan *scope* akses jika profil merupakan `role = 'team'`. |
 
-| Role / Flag | Akses Feed | Akses Marketplace | Kelola Produk Sendiri | Kelola Pesantren Sendiri | Akses Dashboard Admin | Kelola Semua Pesantren |
-|-------------|------------|-------------------|-----------------------|--------------------------|-----------------------|------------------------|
-| **User** | Ya | Ya (Beli) | Tidak | Tidak | Tidak | Tidak |
-| **Pengelola Pesantren** (`has_pesantren`) | Ya | Ya (Beli) | Tidak (kecuali Seller) | Ya | Tidak | Tidak |
-| **Seller** (`is_seller`) | Ya | Ya (Beli/Jual) | Ya | Tidak (kecuali Pengelola) | Tidak | Tidak |
-| **Team** (`team`) | Ya | Ya | Tergantung divisi | Tergantung divisi | Ya (Terbatas divisi) | Tergantung divisi |
-| **Admin** (`admin`) | Ya | Ya | Ya | Ya | Ya (Full) | Ya |
-| **Superadmin** | Ya | Ya | Ya | Ya | Ya (Full + Invite Team) | Ya |
+## 3. Aturan Transisi / Migrasi
+- `operator` lama ➔ `admin`
+- `pesantren` lama ➔ `user` + `has_pesantren = true`
+- `seller` lama ➔ `user` + `is_seller = true` + `seller_status = 'approved'`
+- Sebutan "Kiai", "Santri", "Donatur" tidak lagi mempengaruhi level kontrol akses, dan dapat dikelola hanya sebatas data demografis (jika diperlukan kedepannya).

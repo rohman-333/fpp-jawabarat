@@ -1,4 +1,5 @@
 'use server'
+import { canAccessAdmin } from '@/lib/auth/roles';
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -24,7 +25,7 @@ export async function setProductStatus(formData: FormData) {
     .eq('id', user.id)
     .single();
 
-  if (!profile || (profile.role !== 'admin' && profile.role !== 'operator')) {
+  if (!profile || (!canAccessAdmin(profile))) {
     throw new Error('Akses ditolak.');
   }
 
