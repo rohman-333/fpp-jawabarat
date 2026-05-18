@@ -11,7 +11,7 @@ import Link from 'next/link';
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const supabase = await createClient();
-  const { data: profile } = await supabase.from('profiles').select('name, bio').eq('username', username).single();
+  const { data: profile } = await supabase.from('public_profiles').select('name, bio').eq('username', username).single();
   
   if (!profile) return { title: 'User Not Found' };
   return {
@@ -31,17 +31,28 @@ export default async function PublicProfilePage({
   const { data: { user: currentUser } } = await supabase.auth.getUser();
 
   const { data: profile } = await supabase
-    .from('profiles')
-    .select(`
-      *,
-      pesantren(id, name, city, logo_url)
-    `)
+    .from('public_profiles')
+    .select('*')
     .eq('username', username)
     .single();
 
   if (!profile) {
     notFound();
   }
+
+  // Fetch pesantren separately since public_profiles is a view
+  let pesantren = null;
+  if (profile.has_pesantren) {
+    const { data: p } = await supabase
+      .from('pesantren')
+      .select('id, name, city, logo_url')
+      .eq('owner_id', profile.id)
+      .single();
+    if (p) pesantren = p;
+  }
+  
+  // Attach it for the UI
+  profile.pesantren = pesantren;
 
   // Fetch counts safely
   const { count: followersCount } = await supabase

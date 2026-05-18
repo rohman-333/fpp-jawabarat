@@ -19,7 +19,7 @@ export default async function ShortProfileRoute({ params }: { params: Promise<{ 
   // 2. Check if username exists in DB
   const supabase = await createClient();
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('public_profiles')
     .select('id, username')
     .eq('username', username)
     .single();

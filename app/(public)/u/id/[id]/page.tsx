@@ -10,7 +10,7 @@ export default async function ProfileIdFallbackPage({
   const supabase = await createClient();
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('public_profiles')
     .select('username')
     .eq('id', id)
     .single();
