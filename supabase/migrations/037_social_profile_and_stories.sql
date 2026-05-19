@@ -10,26 +10,30 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS gender text;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS social_links jsonb DEFAULT '{}'::jsonb;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS profile_completed boolean DEFAULT false;
 
-CREATE OR REPLACE VIEW public.public_profiles AS
+DROP VIEW IF EXISTS public.public_profiles CASCADE;
+
+CREATE VIEW public.public_profiles AS
 SELECT
-  id,
-  name,
-  username,
-  avatar_url,
-  cover_url,
-  bio,
-  location,
-  website,
-  social_links,
-  role,
-  has_pesantren,
-  is_seller,
-  is_courier,
-  seller_status,
-  courier_status,
-  is_verified,
-  created_at
-FROM public.profiles;
+  p.id,
+  p.name,
+  p.username,
+  p.avatar_url,
+  p.cover_url,
+  p.bio,
+  p.location,
+  p.website,
+  p.social_links,
+  p.role,
+  p.account_type,
+  p.has_pesantren,
+  p.pesantren_id,
+  p.is_seller,
+  p.seller_status,
+  p.is_courier,
+  p.courier_status,
+  p.created_at
+FROM public.profiles p
+WHERE coalesce(p.status, 'active') = 'active';
 
 GRANT SELECT ON public.public_profiles TO anon, authenticated;
 
