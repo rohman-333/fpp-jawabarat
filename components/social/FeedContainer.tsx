@@ -7,6 +7,7 @@ import { InfiniteFeed } from './InfiniteFeed';
 import { SuggestedUsers } from './SuggestedUsers';
 import { SuggestedProducts } from './SuggestedProducts';
 import { SuggestedPrograms } from './SuggestedPrograms';
+import { StoriesTray } from './StoriesTray';
 
 export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { user: any, initialTab?: string, initialPosts?: any[] }) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -23,6 +24,7 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
         <p className="text-sm text-slate-500">Kabar terbaru dari komunitas FPP JAWABARAT</p>
       </div>
 
+      <StoriesTray user={user} />
       <CreatePostComposer user={user} onSuccess={triggerRefresh} />
       
       <div className="sticky top-[60px] md:top-0 bg-slate-100/50 pt-2 pb-2 z-10 backdrop-blur-md">

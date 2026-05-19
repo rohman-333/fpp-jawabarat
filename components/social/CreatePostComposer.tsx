@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
 import { uploadSocialVideo } from '@/lib/supabase/storage';
-import { Video, Smile } from 'lucide-react';
+import { Video, Smile, Camera } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?: () => void }) {
@@ -24,6 +24,8 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
   const [showEmoji, setShowEmoji] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const cameraVideoInputRef = useRef<HTMLInputElement>(null);
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
     const file = e.target.files?.[0];
@@ -48,6 +50,8 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
     setMediaType(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (videoInputRef.current) videoInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
+    if (cameraVideoInputRef.current) cameraVideoInputRef.current.value = '';
   };
 
   const onEmojiClick = (emojiObject: any) => {
@@ -201,7 +205,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
 
                 <input 
                   type="file" 
-                  accept="image/jpeg,image/png,image/webp" 
+                  accept="image/*" 
                   ref={fileInputRef} 
                   onChange={(e) => handleMediaChange(e, 'image')} 
                   className="hidden" 
@@ -209,22 +213,59 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                 <button 
                   type="button" 
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors flex-shrink-0" 
+                  className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors flex-shrink-0 hidden sm:block" 
                   title="Lampirkan Gambar"
                 >
                   <ImageIcon className="w-5 h-5" />
                 </button>
+
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  capture="environment"
+                  ref={cameraInputRef} 
+                  onChange={(e) => handleMediaChange(e, 'image')} 
+                  className="hidden" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    if (window.innerWidth <= 768) {
+                      cameraInputRef.current?.click();
+                    } else {
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors flex-shrink-0 sm:hidden" 
+                  title="Kamera Foto"
+                >
+                  <Camera className="w-5 h-5" />
+                </button>
                 
                 <input 
                   type="file" 
-                  accept="video/mp4,video/webm,video/quicktime" 
+                  accept="video/*" 
                   ref={videoInputRef} 
+                  onChange={(e) => handleMediaChange(e, 'video')} 
+                  className="hidden" 
+                />
+                <input 
+                  type="file" 
+                  accept="video/*" 
+                  capture="environment"
+                  ref={cameraVideoInputRef} 
                   onChange={(e) => handleMediaChange(e, 'video')} 
                   className="hidden" 
                 />
                 <button 
                   type="button" 
-                  onClick={() => videoInputRef.current?.click()}
+                  onClick={() => {
+                    if (window.innerWidth <= 768) {
+                      cameraVideoInputRef.current?.click();
+                    } else {
+                      videoInputRef.current?.click();
+                    }
+                  }}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0" 
                   title="Lampirkan Video"
                 >

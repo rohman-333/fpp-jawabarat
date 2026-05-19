@@ -28,7 +28,7 @@ export default async function AdminSellerApplicationsPage() {
   const { data: applications, error } = await supabase
     .from('seller_applications')
     .select(`
-      id, user_id, applicant_email, store_name, category, description, whatsapp, address, reason, status, created_at,
+      id, user_id, applicant_email, shop_name, store_name, business_category, category, description, whatsapp, address, reason, status, created_at,
       profiles:user_id(name, avatar_url, role, seller_status, is_seller)
     `)
     .order('created_at', { ascending: false });
@@ -53,6 +53,7 @@ export default async function AdminSellerApplicationsPage() {
         id: `fallback-${p.id}`,
         user_id: p.id,
         applicant_email: null,
+        shop_name: p.name || 'Toko Baru',
         store_name: p.name || 'Toko Baru',
         status: 'pending',
         created_at: p.created_at,

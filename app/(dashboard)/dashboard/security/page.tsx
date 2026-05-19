@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ChangePasswordForm } from '@/components/dashboard/ChangePasswordForm'
+import { PushNotificationManager } from '@/components/dashboard/PushNotificationManager'
 import { DashboardSidebar } from '@/components/shared/DashboardSidebar'
 import { DashboardTopbar } from '@/components/shared/DashboardTopbar'
 
@@ -48,8 +49,13 @@ export default async function SecurityPage() {
               </p>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 space-y-8">
               <ChangePasswordForm />
+              
+              <div className="pt-4 border-t border-slate-200">
+                <h2 className="text-xl font-bold text-slate-800 mb-4">Notifikasi Push</h2>
+                <PushNotificationManager />
+              </div>
             </div>
           </div>
         </main>

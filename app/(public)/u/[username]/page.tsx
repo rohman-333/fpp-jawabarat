@@ -8,6 +8,7 @@ import { FollowButton } from '@/components/social/FollowButton';
 import { InfiniteFeed } from '@/components/social/InfiniteFeed';
 import Link from 'next/link';
 import { resolveMediaUrl } from '@/lib/media/resolveMediaUrl';
+import { Button } from '@/components/ui/button';
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
@@ -186,6 +187,7 @@ export default async function PublicProfilePage({
           </div>
 
             {/* TABS */}
+          <div className="px-4 sm:px-8 max-w-[800px] mx-auto py-8">
             <div className="flex border-b border-slate-200 mb-8 overflow-x-auto hide-scrollbar gap-6 text-sm font-bold">
               <Link href={`/u/${username}?tab=postingan`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'postingan' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
                 Postingan

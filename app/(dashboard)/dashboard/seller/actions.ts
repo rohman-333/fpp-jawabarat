@@ -11,15 +11,15 @@ export async function submitSellerApplication(formData: FormData) {
     return { error: 'Not authenticated' };
   }
 
-  const store_name = formData.get('shop_name') as string;
-  const category = formData.get('business_category') as string;
+  const shopName = (formData.get('shop_name') || formData.get('store_name')) as string;
+  const category = (formData.get('business_category') || formData.get('category')) as string;
   const description = formData.get('description') as string;
   const whatsapp = formData.get('whatsapp') as string;
   const address = formData.get('address') as string;
   const reason = formData.get('reason') as string;
 
-  if (!store_name || !whatsapp || !address) {
-    return { error: 'Mohon lengkapi semua field yang wajib' };
+  if (!shopName || !whatsapp || !address) {
+    return { error: 'Mohon lengkapi semua field yang wajib (Nama Toko, WhatsApp, Alamat)' };
   }
 
   const { error } = await supabase
@@ -27,8 +27,10 @@ export async function submitSellerApplication(formData: FormData) {
     .insert({
       user_id: user.id,
       applicant_email: user.email,
-      store_name,
-      category,
+      shop_name: shopName,
+      store_name: shopName,
+      business_category: category,
+      category: category,
       description,
       whatsapp,
       address,
@@ -37,6 +39,7 @@ export async function submitSellerApplication(formData: FormData) {
     });
 
   if (error) {
+    console.error('[SELLER_APPLY_ERROR]', error);
     if (error.code === '23505') { // unique violation
       return { error: 'Anda sudah pernah mengajukan buka toko.' };
     }
@@ -68,6 +71,7 @@ export async function updateSellerApplicationStatus(applicationId: string, newSt
       .from('seller_applications')
       .insert({
         user_id: targetUserId,
+        shop_name: 'Toko FPP',
         store_name: 'Toko FPP',
         applicant_email: null,
         status: newStatus,

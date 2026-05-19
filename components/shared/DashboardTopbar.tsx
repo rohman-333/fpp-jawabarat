@@ -1,6 +1,7 @@
 import { Search, Bell, Menu } from 'lucide-react';
 import { MobileDashboardDrawer } from './MobileDashboardDrawer';
 import { TopbarUserMenu } from './TopbarUserMenu';
+import { NotificationDropdown } from './NotificationDropdown';
 import { createClient } from '@/lib/supabase/server';
 
 interface TopbarProps {
@@ -55,11 +56,7 @@ export async function DashboardTopbar({ title, userName, avatarUrl }: TopbarProp
           />
         </div>
         
-        <button className="relative p-2 text-slate-400 hover:text-emerald-600 transition-colors rounded-full hover:bg-slate-50">
-          <Bell className="w-5 h-5" />
-          {/* Mock notification dot */}
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-        </button>
+        <NotificationDropdown userId={user?.id || ''} />
 
         <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
 

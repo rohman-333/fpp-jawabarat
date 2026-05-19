@@ -11,9 +11,10 @@ interface ImageUploaderProps {
   defaultValue?: string | null;
   type: 'logo' | 'photo' | 'avatar' | 'product';
   userId: string;
+  bucket?: string;
 }
 
-export function ImageUploader({ name, label, defaultValue, type, userId }: ImageUploaderProps) {
+export function ImageUploader({ name, label, defaultValue, type, userId, bucket }: ImageUploaderProps) {
   const [preview, setPreview] = useState<string | null>(defaultValue || null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);

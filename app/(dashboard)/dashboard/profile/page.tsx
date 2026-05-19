@@ -55,7 +55,7 @@ export default async function ProfilePage() {
                         name="cover_url"
                         label=""
                         defaultValue={profile?.cover_url}
-                        type="profile"
+                        type="photo"
                         userId={user.id}
                         bucket="covers"
                       />
