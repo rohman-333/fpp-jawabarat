@@ -21,7 +21,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
       
       <main className="flex-1 py-8 md:py-12">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href="/program" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-bold mb-6 transition-colors">
+          <Link href="/program" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-bold mb-6 transition-colors">
             <ChevronLeft className="w-5 h-5" /> Kembali ke Program
           </Link>
 
@@ -36,7 +36,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
             
             <div className="p-6 md:p-10">
               <div className="flex flex-wrap items-center gap-3 mb-4">
-                <span className="bg-emerald-50 text-emerald-700 px-3 py-1 text-sm font-bold rounded-lg border border-emerald-100">
+                <span className="bg-blue-50 text-blue-700 px-3 py-1 text-sm font-bold rounded-lg border border-blue-100">
                   {program.category || 'Umum'}
                 </span>
               </div>
@@ -61,7 +61,7 @@ export default async function ProgramDetailPage({ params }: { params: { slug: st
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 border-t border-slate-100 pt-8">
-                <button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-emerald-200 transition-colors text-center">
+                <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-200 transition-colors text-center">
                   Ikut Berpartisipasi
                 </button>
                 <button className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2">

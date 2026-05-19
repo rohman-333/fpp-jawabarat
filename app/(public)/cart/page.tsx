@@ -56,7 +56,7 @@ export default async function CartPage() {
       
       <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
         <h1 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-          <ShoppingCart className="w-6 h-6 text-emerald-600" /> Keranjang Belanja
+          <ShoppingCart className="w-6 h-6 text-blue-600" /> Keranjang Belanja
         </h1>
 
         {!cartItems || cartItems.length === 0 ? (
@@ -64,7 +64,7 @@ export default async function CartPage() {
             <ShoppingCart className="w-16 h-16 text-slate-300 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-slate-800 mb-2">Keranjang Belanja Kosong</h2>
             <p className="text-slate-500 mb-6">Anda belum memasukkan produk apapun ke dalam keranjang.</p>
-            <Link href="/marketplace" className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors">
+            <Link href="/marketplace" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
               Mulai Belanja <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -74,7 +74,7 @@ export default async function CartPage() {
               {Object.values(itemsBySeller).map((group: any) => (
                 <div key={group.seller?.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                   <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-                    <Store className="w-4 h-4 text-emerald-600" />
+                    <Store className="w-4 h-4 text-blue-600" />
                     <span className="font-bold text-slate-700">{group.seller?.name || 'Toko FPP'}</span>
                   </div>
                   <div className="divide-y divide-slate-100">
@@ -88,10 +88,10 @@ export default async function CartPage() {
                           )}
                         </div>
                         <div className="flex-1">
-                          <Link href={`/marketplace/${item.product.slug}`} className="font-medium text-slate-800 hover:text-emerald-600 line-clamp-2 mb-1">
+                          <Link href={`/marketplace/${item.product.slug}`} className="font-medium text-slate-800 hover:text-blue-600 line-clamp-2 mb-1">
                             {item.product.name}
                           </Link>
-                          <div className="text-emerald-600 font-bold mb-3">
+                          <div className="text-blue-600 font-bold mb-3">
                             Rp {item.product.price.toLocaleString('id-ID')}
                           </div>
                           <CartItemControls itemId={item.id} quantity={item.quantity} />
@@ -112,9 +112,9 @@ export default async function CartPage() {
                 </div>
                 <div className="border-t border-slate-100 my-4 pt-4 flex justify-between font-bold text-lg text-slate-800">
                   <span>Total Harga</span>
-                  <span className="text-emerald-600">Rp {totalPrice.toLocaleString('id-ID')}</span>
+                  <span className="text-blue-600">Rp {totalPrice.toLocaleString('id-ID')}</span>
                 </div>
-                <Link href="/checkout" className="w-full mt-4 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors">
+                <Link href="/checkout" className="w-full mt-4 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
                   Lanjut ke Pembayaran <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>

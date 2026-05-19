@@ -16,10 +16,10 @@ export default async function ProgramPage() {
       <PublicNavbar />
       
       <main className="flex-1">
-        <div className="bg-emerald-800 text-white py-16">
+        <div className="bg-blue-800 text-white py-16">
           <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
             <h1 className="text-3xl md:text-5xl font-bold mb-4">Program Sinergi</h1>
-            <p className="text-emerald-100 max-w-2xl mx-auto text-lg">Ikuti dan dukung berbagai program unggulan untuk kemajuan pesantren di Jawa Barat.</p>
+            <p className="text-blue-100 max-w-2xl mx-auto text-lg">Ikuti dan dukung berbagai program unggulan untuk kemajuan pesantren di Jawa Barat.</p>
           </div>
         </div>
 
@@ -34,12 +34,12 @@ export default async function ProgramPage() {
                     ) : (
                       <FolderHeart className="w-12 h-12 text-slate-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                     )}
-                    <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-bold text-emerald-700 rounded-lg">
+                    <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-bold text-blue-700 rounded-lg">
                       {prog.category || 'Umum'}
                     </span>
                   </div>
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-emerald-600 transition-colors line-clamp-2">{prog.title}</h3>
+                    <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">{prog.title}</h3>
                     <p className="text-sm text-slate-500 line-clamp-3 mb-4">{prog.description}</p>
                     
                     <div className="flex flex-col gap-2 text-xs text-slate-500 border-t border-slate-100 pt-4">

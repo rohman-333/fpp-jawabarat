@@ -67,7 +67,7 @@ export default async function AdminSellerApplicationsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-          <Store className="w-6 h-6 text-emerald-600" /> Tinjau Pengajuan Toko
+          <Store className="w-6 h-6 text-blue-600" /> Tinjau Pengajuan Toko
         </h1>
         <p className="text-slate-500 text-sm mt-1">Kelola permohonan pembukaan toko oleh pengguna (Seller).</p>
       </div>

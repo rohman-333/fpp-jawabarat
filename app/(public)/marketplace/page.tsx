@@ -40,7 +40,7 @@ export default async function MarketplacePage() {
                   {heroBanner.is_sponsored && <span className="bg-yellow-500 text-slate-900 text-[10px] uppercase font-black tracking-widest px-2 py-1 rounded w-fit mb-2">Sponsor Resmi: {heroBanner.sponsor_name}</span>}
                   {heroBanner.title && <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">{heroBanner.title}</h2>}
                   {heroBanner.subtitle && <p className="text-slate-200 mb-3 text-sm md:text-base hidden md:block">{heroBanner.subtitle}</p>}
-                  {heroBanner.cta_label && <span className="text-emerald-300 font-bold text-sm md:text-base inline-flex items-center gap-1">{heroBanner.cta_label} &rarr;</span>}
+                  {heroBanner.cta_label && <span className="text-blue-300 font-bold text-sm md:text-base inline-flex items-center gap-1">{heroBanner.cta_label} &rarr;</span>}
                 </div>
               )}
             </a>

@@ -28,11 +28,11 @@ export default async function AdminProgramPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                <FolderHeart className="w-6 h-6 text-emerald-600" /> Program Sinergi
+                <FolderHeart className="w-6 h-6 text-blue-600" /> Program Sinergi
               </h1>
               <p className="text-slate-500 text-sm mt-1">Kelola program unggulan dan galang donasi antar pesantren.</p>
             </div>
-            <Link href="/admin/program/new" className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition-colors whitespace-nowrap">
+            <Link href="/admin/program/new" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition-colors whitespace-nowrap">
               <Plus className="w-5 h-5" /> Tambah Program
             </Link>
           </div>
@@ -62,14 +62,14 @@ export default async function AdminProgramPage() {
                       </td>
                       <td className="px-4 py-4">
                         {prog.status === 'published' ? (
-                          <span className="inline-block px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-100">Published</span>
+                          <span className="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg border border-blue-100">Published</span>
                         ) : (
                           <span className="inline-block px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg border border-amber-100 capitalize">{prog.status}</span>
                         )}
                       </td>
                       <td className="px-4 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/admin/program/${prog.id}/edit`} className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                          <Link href={`/admin/program/${prog.id}/edit`} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                             <Edit className="w-4 h-4" />
                           </Link>
                         </div>

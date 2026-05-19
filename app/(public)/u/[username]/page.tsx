@@ -106,7 +106,7 @@ export default async function PublicProfilePage({
               {profile.cover_url ? (
                 <img src={resolveMediaUrl(profile.cover_url)!} alt="Cover" className="w-full h-full object-cover" />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-800 to-emerald-600 opacity-80" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-800 to-blue-600 opacity-80" />
               )}
             </div>
             
@@ -128,7 +128,7 @@ export default async function PublicProfilePage({
                       {profile.is_verified && <BadgeCheck className="w-5 h-5 text-blue-500 shrink-0" />}
                     </h1>
                     <p className="text-slate-500 font-medium">@{username}</p>
-                    <p className="text-sm font-bold text-emerald-700 capitalize mt-1">
+                    <p className="text-sm font-bold text-blue-700 capitalize mt-1">
                       {getDisplayRole(profile)}
                     </p>
                   </div>
@@ -174,11 +174,11 @@ export default async function PublicProfilePage({
               </div>
 
               <div className="mt-4 flex gap-6">
-                <div className="flex items-center gap-1.5 cursor-pointer hover:text-emerald-600 transition-colors">
+                <div className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600 transition-colors">
                   <span className="font-bold text-slate-800">{followingCount || 0}</span>
                   <span className="text-slate-500 text-sm">Mengikuti</span>
                 </div>
-                <div className="flex items-center gap-1.5 cursor-pointer hover:text-emerald-600 transition-colors">
+                <div className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600 transition-colors">
                   <span className="font-bold text-slate-800">{followersCount || 0}</span>
                   <span className="text-slate-500 text-sm">Pengikut</span>
                 </div>
@@ -189,19 +189,19 @@ export default async function PublicProfilePage({
             {/* TABS */}
           <div className="px-4 sm:px-8 max-w-[800px] mx-auto py-8">
             <div className="flex border-b border-slate-200 mb-8 overflow-x-auto hide-scrollbar gap-6 text-sm font-bold">
-              <Link href={`/u/${username}?tab=postingan`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'postingan' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+              <Link href={`/u/${username}?tab=postingan`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'postingan' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
                 Postingan
               </Link>
-              <Link href={`/u/${username}?tab=tentang`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'tentang' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+              <Link href={`/u/${username}?tab=tentang`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'tentang' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
                 Tentang
               </Link>
               {products.length > 0 && (
-                <Link href={`/u/${username}?tab=produk`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'produk' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                <Link href={`/u/${username}?tab=produk`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'produk' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
                   Produk Toko
                 </Link>
               )}
               {profile.has_pesantren && profile.pesantren && (
-                <Link href={`/u/${username}?tab=pesantren`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'pesantren' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
+                <Link href={`/u/${username}?tab=pesantren`} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${activeTab === 'pesantren' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
                   Pesantren
                 </Link>
               )}
@@ -243,7 +243,7 @@ export default async function PublicProfilePage({
                         </div>
                         <div className="p-3">
                           <h4 className="font-bold text-slate-800 text-sm line-clamp-1">{p.name}</h4>
-                          <p className="text-emerald-600 font-bold text-xs mt-1">Rp {p.price?.toLocaleString('id-ID')}</p>
+                          <p className="text-blue-600 font-bold text-xs mt-1">Rp {p.price?.toLocaleString('id-ID')}</p>
                         </div>
                       </Link>
                     ))}
@@ -273,19 +273,19 @@ export default async function PublicProfilePage({
                 {profile.has_pesantren && profile.pesantren && (
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
                     <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                      <Landmark className="w-4 h-4 text-emerald-600" />
+                      <Landmark className="w-4 h-4 text-blue-600" />
                       Pesantren
                     </h3>
                     <Link href={`/pesantren/${profile.pesantren.id}`} className="group flex items-center gap-3 p-2 -m-2 rounded-xl hover:bg-slate-50 transition-colors">
-                      <div className="w-12 h-12 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 overflow-hidden">
+                      <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 overflow-hidden">
                         {resolveMediaUrl(profile.pesantren.logo_url) ? (
                           <img src={resolveMediaUrl(profile.pesantren.logo_url)!} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                         ) : (
-                          <Landmark className="w-6 h-6 text-emerald-600" />
+                          <Landmark className="w-6 h-6 text-blue-600" />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-bold text-slate-800 text-sm truncate group-hover:text-emerald-600 transition-colors">{profile.pesantren.name}</p>
+                        <p className="font-bold text-slate-800 text-sm truncate group-hover:text-blue-600 transition-colors">{profile.pesantren.name}</p>
                         <p className="text-xs text-slate-500 truncate mt-0.5">{profile.pesantren.city}</p>
                       </div>
                     </Link>
@@ -295,7 +295,7 @@ export default async function PublicProfilePage({
                 {products.length > 0 && (
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
                     <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                      <Store className="w-4 h-4 text-emerald-600" />
+                      <Store className="w-4 h-4 text-blue-600" />
                       Etalase Toko
                     </h3>
                     <div className="space-y-3">
@@ -305,8 +305,8 @@ export default async function PublicProfilePage({
                             {p.image_url && <img src={p.image_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="font-bold text-slate-800 text-sm truncate group-hover:text-emerald-600 transition-colors">{p.name}</p>
-                            <p className="font-bold text-emerald-600 text-xs mt-0.5">Rp {p.price?.toLocaleString('id-ID')}</p>
+                            <p className="font-bold text-slate-800 text-sm truncate group-hover:text-blue-600 transition-colors">{p.name}</p>
+                            <p className="font-bold text-blue-600 text-xs mt-0.5">Rp {p.price?.toLocaleString('id-ID')}</p>
                           </div>
                         </Link>
                       ))}

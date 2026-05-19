@@ -39,7 +39,7 @@ export function SellerApplyForm() {
               type="text"
               name="shop_name"
               required
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               placeholder="Contoh: Toko Berkah Santri"
             />
           </div>
@@ -52,7 +52,7 @@ export function SellerApplyForm() {
             <select
               name="business_category"
               required
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
             >
               <option value="">Pilih Kategori</option>
               <option value="fashion">Fashion & Pakaian</option>
@@ -74,7 +74,7 @@ export function SellerApplyForm() {
           <textarea
             name="description"
             rows={3}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
             placeholder="Jelaskan produk atau jasa yang Anda tawarkan..."
           ></textarea>
         </div>
@@ -89,7 +89,7 @@ export function SellerApplyForm() {
               type="tel"
               name="whatsapp"
               required
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               placeholder="081234567890"
             />
           </div>
@@ -103,7 +103,7 @@ export function SellerApplyForm() {
               type="text"
               name="address"
               required
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               placeholder="Kota / Kabupaten, Provinsi"
             />
           </div>
@@ -117,7 +117,7 @@ export function SellerApplyForm() {
           <textarea
             name="reason"
             rows={2}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
             placeholder="Alasan Anda bergabung sebagai seller di Wibawa Nusantara..."
           ></textarea>
         </div>
@@ -127,7 +127,7 @@ export function SellerApplyForm() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Store className="w-5 h-5" />}
           {loading ? 'Mengirim Pengajuan...' : 'Kirim Pengajuan Toko'}

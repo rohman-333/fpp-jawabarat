@@ -146,7 +146,7 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
       case 'kabar': return { label: 'Kabar', bg: 'bg-blue-50', text: 'text-blue-700' };
       case 'musyawarah': return { label: 'Musyawarah', bg: 'bg-purple-50', text: 'text-purple-700' };
       case 'kegiatan_santri': return { label: 'Kegiatan', bg: 'bg-orange-50', text: 'text-orange-700' };
-      case 'dakwah': return { label: 'Dakwah', bg: 'bg-emerald-50', text: 'text-emerald-700' };
+      case 'dakwah': return { label: 'Dakwah', bg: 'bg-blue-50', text: 'text-blue-700' };
       case 'produk': return { label: 'Produk', bg: 'bg-yellow-50', text: 'text-yellow-700' };
       case 'program': return { label: 'Program', bg: 'bg-indigo-50', text: 'text-indigo-700' };
       case 'donasi': return { label: 'Donasi', bg: 'bg-rose-50', text: 'text-rose-700' };
@@ -176,7 +176,7 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
           </Link>
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <Link href={authorUrl} className="font-bold text-slate-800 text-[15px] hover:underline hover:text-emerald-600 transition-colors flex items-center gap-1">
+              <Link href={authorUrl} className="font-bold text-slate-800 text-[15px] hover:underline hover:text-blue-600 transition-colors flex items-center gap-1">
                 {post.author?.name || 'User'}
                 {post.author?.is_verified && <BadgeCheck className="w-4 h-4 text-blue-500 shrink-0" />}
               </Link>
@@ -284,7 +284,7 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
               if (part.startsWith('@') && part.length > 1) {
                 const username = part.substring(1);
                 return (
-                  <Link key={i} href={`/u/${username}`} className="text-emerald-600 font-semibold hover:underline">
+                  <Link key={i} href={`/u/${username}`} className="text-blue-600 font-semibold hover:underline">
                     {part}
                   </Link>
                 );
@@ -297,13 +297,13 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
 
       {/* Embedded References Preview */}
       {post.product_id && (
-        <div className="mx-4 mb-3 p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl flex items-center gap-3 hover:bg-emerald-50 transition-colors cursor-pointer">
-          <div className="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-            <Store className="w-6 h-6 text-emerald-600" />
+        <div className="mx-4 mb-3 p-3 bg-blue-50/50 border border-blue-100 rounded-xl flex items-center gap-3 hover:bg-blue-50 transition-colors cursor-pointer">
+          <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+            <Store className="w-6 h-6 text-blue-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-emerald-900 text-sm truncate">Tautan Produk Tersedia</p>
-            <p className="text-xs text-emerald-600/80 truncate">Ketuk untuk melihat detail produk di Marketplace</p>
+            <p className="font-bold text-blue-900 text-sm truncate">Tautan Produk Tersedia</p>
+            <p className="text-xs text-blue-600/80 truncate">Ketuk untuk melihat detail produk di Marketplace</p>
           </div>
         </div>
       )}
@@ -338,7 +338,7 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
             <button 
               onClick={handleToggleLike}
               disabled={isLiking}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all group ${currentReaction ? 'text-emerald-600 bg-emerald-50' : 'text-slate-500 hover:text-emerald-600 hover:bg-emerald-50'}`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all group ${currentReaction ? 'text-blue-600 bg-blue-50' : 'text-slate-500 hover:text-blue-600 hover:bg-blue-50'}`}
             >
               {currentReaction ? (
                 <span className="text-lg group-active:scale-90 transition-transform">{REACTION_EMOJIS[currentReaction]}</span>
@@ -381,7 +381,7 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
 
           <button 
             onClick={() => setShowShareMenu(!showShareMenu)}
-            className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all group relative"
+            className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all group relative"
           >
             <Share2 className="w-5 h-5 group-active:scale-90 transition-transform" />
             <span className="text-xs font-bold hidden sm:inline">{shareText}</span>
@@ -402,11 +402,11 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
         <div className="absolute z-50 bottom-16 right-4 sm:left-40 bg-white border border-slate-200 rounded-xl shadow-lg p-2 w-48 text-sm flex flex-col">
           {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
             <button onClick={() => handleShareOption('native')} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg text-left text-slate-700">
-              <Share2 className="w-4 h-4 text-emerald-600" /> Share via OS
+              <Share2 className="w-4 h-4 text-blue-600" /> Share via OS
             </button>
           )}
           <button onClick={() => handleShareOption('wa')} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg text-left text-slate-700">
-            <span className="text-emerald-500 font-bold ml-1">W</span> WhatsApp
+            <span className="text-blue-500 font-bold ml-1">W</span> WhatsApp
           </button>
           <button onClick={() => handleShareOption('fb')} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg text-left text-slate-700">
             <span className="text-blue-600 font-bold ml-1">f</span> Facebook

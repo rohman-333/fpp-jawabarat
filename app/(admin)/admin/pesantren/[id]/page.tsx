@@ -57,7 +57,7 @@ export default async function AdminPesantrenDetailPage({ params }: { params: Pro
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                <Building2 className="w-6 h-6 text-emerald-600" /> Profil Lengkap Pesantren
+                <Building2 className="w-6 h-6 text-blue-600" /> Profil Lengkap Pesantren
               </h1>
               <p className="text-slate-500 text-sm mt-1">ID Pengajuan: {pesantren.id}</p>
             </div>

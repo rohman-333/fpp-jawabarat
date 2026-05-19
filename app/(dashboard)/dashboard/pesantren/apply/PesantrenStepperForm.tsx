@@ -62,7 +62,7 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
         <div className="flex items-center justify-between relative">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-200 rounded-full hidden sm:block"></div>
           <div 
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-emerald-500 rounded-full transition-all duration-500 hidden sm:block"
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-blue-500 rounded-full transition-all duration-500 hidden sm:block"
             style={{ width: `${((currentStep - 1) / 5) * 100}%` }}
           ></div>
           
@@ -75,14 +75,14 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
               <div key={step.id} className="relative z-10 flex flex-col items-center gap-2">
                 <div 
                   className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors duration-300 border-4 border-white ${
-                    isActive ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' : 
-                    isCompleted ? 'bg-emerald-100 text-emerald-600' : 
+                    isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 
+                    isCompleted ? 'bg-blue-100 text-blue-600' : 
                     'bg-slate-100 text-slate-400'
                   }`}
                 >
                   <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className={`text-[10px] sm:text-xs font-bold hidden sm:block ${isActive ? 'text-emerald-700' : 'text-slate-500'}`}>
+                <span className={`text-[10px] sm:text-xs font-bold hidden sm:block ${isActive ? 'text-blue-700' : 'text-slate-500'}`}>
                   {step.title}
                 </span>
               </div>
@@ -118,19 +118,19 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Nama Pondok Pesantren <span className="text-red-500">*</span></label>
-              <input required name="name" value={formData.name} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Contoh: PP. Darussalam" />
+              <input required name="name" value={formData.name} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Contoh: PP. Darussalam" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Nama Pendiri</label>
-              <input name="pendiri" value={formData.pendiri} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Nama lengkap pendiri" />
+              <input name="pendiri" value={formData.pendiri} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Nama lengkap pendiri" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Nama Pimpinan / Pengasuh <span className="text-red-500">*</span></label>
-              <input required name="pengasuh" value={formData.pengasuh} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Nama lengkap pimpinan saat ini" />
+              <input required name="pengasuh" value={formData.pengasuh} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Nama lengkap pimpinan saat ini" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Nomor HP / WhatsApp Aktif <span className="text-red-500">*</span></label>
-              <input required name="hp" value={formData.hp} onChange={handleChange} type="tel" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="0812xxxxxx" />
+              <input required name="hp" value={formData.hp} onChange={handleChange} type="tel" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="0812xxxxxx" />
             </div>
           </div>
         </div>
@@ -140,20 +140,20 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Alamat Desa / Jalan <span className="text-red-500">*</span></label>
-              <input required name="alamat_desa" value={formData.alamat_desa} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Nama Jalan, Blok, RT/RW, Desa" />
+              <input required name="alamat_desa" value={formData.alamat_desa} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Nama Jalan, Blok, RT/RW, Desa" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Kecamatan <span className="text-red-500">*</span></label>
-              <input required name="kecamatan" value={formData.kecamatan} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Nama Kecamatan" />
+              <input required name="kecamatan" value={formData.kecamatan} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Nama Kecamatan" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700">Tahun Berdiri</label>
-                <input name="tahun_berdiri" value={formData.tahun_berdiri} onChange={handleChange} type="number" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Contoh: 1990" />
+                <input name="tahun_berdiri" value={formData.tahun_berdiri} onChange={handleChange} type="number" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Contoh: 1990" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700">Jenis Pesantren <span className="text-red-500">*</span></label>
-                <select required name="jenis_pesantren" value={formData.jenis_pesantren} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none">
+                <select required name="jenis_pesantren" value={formData.jenis_pesantren} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none">
                   <option value="salafiyah">Salafiyah (Tradisional / Kitab Kuning)</option>
                   <option value="khalafiyah">Khalafiyah (Modern / Ashriyah)</option>
                   <option value="kombinasi">Kombinasi (Salaf & Modern)</option>
@@ -162,7 +162,7 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Memiliki Lembaga Pendidikan Formal?</label>
-              <select name="lembaga_formal" value={formData.lembaga_formal} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none">
+              <select name="lembaga_formal" value={formData.lembaga_formal} onChange={handleChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none">
                 <option value="false">Tidak Ada (Hanya Madrasah Diniyah/Salaf)</option>
                 <option value="true">Ada (SD/MI, SMP/MTs, SMA/MA, dll)</option>
               </select>
@@ -176,19 +176,19 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Jumlah Santri Tingkat Dasar (SD/MI/Sederajat)</label>
-              <input name="santri_sd" value={formData.santri_sd} onChange={handleChange} type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" />
+              <input name="santri_sd" value={formData.santri_sd} onChange={handleChange} type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Jumlah Santri Tingkat Menengah (SMP/MTs/Sederajat)</label>
-              <input name="santri_smp" value={formData.santri_smp} onChange={handleChange} type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" />
+              <input name="santri_smp" value={formData.santri_smp} onChange={handleChange} type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Jumlah Santri Tingkat Atas (SMA/MA/SMK/Sederajat)</label>
-              <input name="santri_sma" value={formData.santri_sma} onChange={handleChange} type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" />
+              <input name="santri_sma" value={formData.santri_sma} onChange={handleChange} type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Jumlah Total Guru / Ustadz</label>
-              <input name="guru_ustadz" value={formData.guru_ustadz} onChange={handleChange} type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" />
+              <input name="guru_ustadz" value={formData.guru_ustadz} onChange={handleChange} type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" />
             </div>
           </div>
         </div>
@@ -198,23 +198,23 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Program Unggulan Pesantren</label>
-              <textarea name="program_unggulan" value={formData.program_unggulan} onChange={handleChange} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Contoh: Tahfidz Qur'an 30 Juz, Kajian Kitab Kuning Alfiyah, Kewirausahaan Santri..." />
+              <textarea name="program_unggulan" value={formData.program_unggulan} onChange={handleChange} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Contoh: Tahfidz Qur'an 30 Juz, Kajian Kitab Kuning Alfiyah, Kewirausahaan Santri..." />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Link Media Sosial / Website</label>
-              <input name="media_sosial" value={formData.media_sosial} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Contoh: Instagram @pondokku, www.pondokku.com" />
+              <input name="media_sosial" value={formData.media_sosial} onChange={handleChange} type="text" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Contoh: Instagram @pondokku, www.pondokku.com" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Potensi Ekonomi / Produk Unggulan</label>
-              <textarea name="potensi_ekonomi" value={formData.potensi_ekonomi} onChange={handleChange} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Contoh: Peternakan Lele, Konveksi Busana Muslim, Air Minum Kemasan..." />
+              <textarea name="potensi_ekonomi" value={formData.potensi_ekonomi} onChange={handleChange} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Contoh: Peternakan Lele, Konveksi Busana Muslim, Air Minum Kemasan..." />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Koperasi / BMT / Unit Usaha Mandiri</label>
-              <textarea name="koperasi_bmt_usaha" value={formData.koperasi_bmt_usaha} onChange={handleChange} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Jelaskan jika pesantren memiliki Koperasi Santri atau lembaga keuangan mikro..." />
+              <textarea name="koperasi_bmt_usaha" value={formData.koperasi_bmt_usaha} onChange={handleChange} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Jelaskan jika pesantren memiliki Koperasi Santri atau lembaga keuangan mikro..." />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Kebutuhan Utama Pengembangan Saat Ini</label>
-              <textarea name="kebutuhan_utama" value={formData.kebutuhan_utama} onChange={handleChange} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Contoh: Bantuan modal usaha koperasi, Pembangunan asrama putri, Pelatihan manajemen..." />
+              <textarea name="kebutuhan_utama" value={formData.kebutuhan_utama} onChange={handleChange} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Contoh: Bantuan modal usaha koperasi, Pembangunan asrama putri, Pelatihan manajemen..." />
             </div>
           </div>
         </div>
@@ -224,26 +224,26 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Minat Pelatihan Santri Digitalpreneur / AI & Teknologi</label>
-              <textarea name="minat_digital_ai" value={formData.minat_digital_ai} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Seberapa berminat pesantren dalam mengikutsertakan santri dalam pelatihan teknologi digital dan AI?" />
+              <textarea name="minat_digital_ai" value={formData.minat_digital_ai} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Seberapa berminat pesantren dalam mengikutsertakan santri dalam pelatihan teknologi digital dan AI?" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Saran terhadap sinergi dengan Pemerintah Daerah</label>
-              <textarea name="saran_pemda" value={formData.saran_pemda} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Saran Anda agar kerjasama Pemerintah Daerah dengan Pesantren lebih efektif..." />
+              <textarea name="saran_pemda" value={formData.saran_pemda} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Saran Anda agar kerjasama Pemerintah Daerah dengan Pesantren lebih efektif..." />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Harapan terhadap Pemda dan Forum Pondok Pesantren</label>
-              <textarea name="harapan_pemda_forum" value={formData.harapan_pemda_forum} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none" placeholder="Harapan besar Anda untuk kemajuan pendidikan pesantren di Jawa Barat..." />
+              <textarea name="harapan_pemda_forum" value={formData.harapan_pemda_forum} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Harapan besar Anda untuk kemajuan pendidikan pesantren di Jawa Barat..." />
             </div>
           </div>
         </div>
 
         {/* Step 6: Review */}
         <div className={currentStep === 6 ? 'block space-y-6' : 'hidden'}>
-          <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 mb-6">
-            <h3 className="text-emerald-800 font-bold text-lg mb-2 flex items-center gap-2">
+          <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 mb-6">
+            <h3 className="text-blue-800 font-bold text-lg mb-2 flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5" /> Tinjauan Akhir
             </h3>
-            <p className="text-emerald-700/80 text-sm">Pastikan semua data di bawah ini sudah benar sebelum Anda mengirimkan pengajuan ke Admin WIBAWA NUSANTARA.</p>
+            <p className="text-blue-700/80 text-sm">Pastikan semua data di bawah ini sudah benar sebelum Anda mengirimkan pengajuan ke Admin WIBAWA NUSANTARA.</p>
           </div>
 
           <div className="space-y-6 divide-y divide-slate-100 text-sm">
@@ -304,7 +304,7 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
             <Button 
               type="submit" 
               disabled={loading}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 flex items-center gap-2"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
               {loading ? 'Menyimpan...' : 'Kirim Pengajuan'}

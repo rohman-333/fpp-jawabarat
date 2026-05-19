@@ -105,7 +105,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
       <div className="flex-1 space-y-6">
         <div className="bg-white p-6 rounded-2xl border border-slate-200">
           <h2 className="font-bold text-slate-800 text-lg flex items-center gap-2 mb-4">
-            <MapPin className="w-5 h-5 text-emerald-600" /> Alamat Pengiriman
+            <MapPin className="w-5 h-5 text-blue-600" /> Alamat Pengiriman
           </h2>
           <div className="space-y-4">
             <div>
@@ -113,7 +113,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
               <textarea 
                 value={address}
                 onChange={e => setAddress(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all h-24 resize-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all h-24 resize-none"
                 placeholder="Masukkan alamat lengkap (Jalan, RT/RW, Desa, Kecamatan, Kabupaten/Kota, Provinsi, Kode Pos)"
               />
             </div>
@@ -125,7 +125,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
                   type="text"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   placeholder="Contoh: 081234567890"
                 />
               </div>
@@ -140,7 +140,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
           return (
             <div key={sellerId} className="bg-white p-6 rounded-2xl border border-slate-200">
               <h2 className="font-bold text-slate-800 text-sm flex items-center gap-2 mb-4 pb-4 border-b border-slate-100">
-                <Store className="w-4 h-4 text-slate-500" /> Pesanan {idx + 1} dari <span className="text-emerald-600">{sellerName}</span>
+                <Store className="w-4 h-4 text-slate-500" /> Pesanan {idx + 1} dari <span className="text-blue-600">{sellerName}</span>
               </h2>
               <div className="space-y-4">
                 {sellerItems.map((item: any, i: number) => (
@@ -169,7 +169,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
           <textarea 
             value={notes}
             onChange={e => setNotes(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all h-20 resize-none"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all h-20 resize-none"
             placeholder="Tulis pesan untuk penjual di sini..."
           />
         </div>
@@ -178,11 +178,11 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
       <div className="lg:w-96 shrink-0">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 sticky top-24 shadow-sm">
           <h2 className="font-bold text-slate-800 mb-4 text-lg">Metode Pembayaran</h2>
-          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex gap-3 mb-6">
-            <CreditCard className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3 mb-6">
+            <CreditCard className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
             <div>
-              <div className="font-bold text-emerald-800 text-sm mb-1">Transfer Manual / Bayar di Tempat</div>
-              <div className="text-xs text-emerald-600/80 leading-relaxed">
+              <div className="font-bold text-blue-800 text-sm mb-1">Transfer Manual / Bayar di Tempat</div>
+              <div className="text-xs text-blue-600/80 leading-relaxed">
                 Pembayaran dilakukan langsung ke pihak penjual (seller). Instruksi akan diberikan setelah checkout selesai via WhatsApp.
               </div>
             </div>
@@ -201,12 +201,12 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
           </div>
           <div className="flex justify-between items-center mb-8">
             <span className="font-bold text-slate-800">Total Tagihan</span>
-            <span className="font-extrabold text-2xl text-emerald-600">{formatRupiah(total)}</span>
+            <span className="font-extrabold text-2xl text-blue-600">{formatRupiah(total)}</span>
           </div>
           <Button 
             onClick={handleCheckout}
             disabled={loading || !address || !phone}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold rounded-xl h-14 text-lg shadow-md shadow-emerald-600/20"
+            className="w-full bg-blue-600 hover:bg-blue-700 font-bold rounded-xl h-14 text-lg shadow-md shadow-blue-600/20"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (
               <>

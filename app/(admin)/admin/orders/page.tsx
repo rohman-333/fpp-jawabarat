@@ -44,7 +44,7 @@ export default async function AdminOrdersPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Receipt className="w-6 h-6 text-emerald-600" /> Semua Pesanan
+            <Receipt className="w-6 h-6 text-blue-600" /> Semua Pesanan
           </h1>
           <p className="text-slate-500 text-sm mt-1">Pantau seluruh transaksi di marketplace platform</p>
         </div>
@@ -73,7 +73,7 @@ export default async function AdminOrdersPage() {
                 orders.map((order: any) => (
                   <tr key={order.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-emerald-700">{order.invoice_number}</div>
+                      <div className="font-bold text-blue-700">{order.invoice_number}</div>
                       <div className="text-xs text-slate-500 mt-1">{new Date(order.created_at).toLocaleString('id-ID')}</div>
                     </td>
                     <td className="px-6 py-4">

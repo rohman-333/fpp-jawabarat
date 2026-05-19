@@ -89,8 +89,8 @@ export default function InviteTeamPage() {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
         {inviteLink ? (
           <div className="text-center py-8">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-8 h-8 text-blue-600" />
             </div>
             <h2 className="text-xl font-bold text-slate-800 mb-2">Undangan Berhasil Dibuat!</h2>
             <p className="text-slate-600 mb-6 max-w-md mx-auto">
@@ -106,13 +106,13 @@ export default function InviteTeamPage() {
               />
               <button 
                 onClick={copyToClipboard}
-                className="p-2 bg-white rounded-lg border border-slate-200 text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-colors shrink-0"
+                className="p-2 bg-white rounded-lg border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-colors shrink-0"
               >
                 <Copy className="w-4 h-4" />
               </button>
             </div>
 
-            <Link href="/admin/team" className="text-emerald-600 font-bold hover:underline">
+            <Link href="/admin/team" className="text-blue-600 font-bold hover:underline">
               Kembali ke Manajemen Team
             </Link>
           </div>
@@ -134,7 +134,7 @@ export default function InviteTeamPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     placeholder="Nama staf"
                   />
                 </div>
@@ -149,7 +149,7 @@ export default function InviteTeamPage() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     placeholder="email@contoh.com"
                   />
                 </div>
@@ -159,7 +159,7 @@ export default function InviteTeamPage() {
             <div className="space-y-3">
               <label className="text-sm font-bold text-slate-700 block">Level Akses (Role)</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className={`cursor-pointer border-2 rounded-xl p-4 flex gap-3 transition-colors ${formData.role === 'team' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                <label className={`cursor-pointer border-2 rounded-xl p-4 flex gap-3 transition-colors ${formData.role === 'team' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
                   <input 
                     type="radio" 
                     name="role" 
@@ -174,7 +174,7 @@ export default function InviteTeamPage() {
                   </div>
                 </label>
 
-                <label className={`cursor-pointer border-2 rounded-xl p-4 flex gap-3 transition-colors ${formData.role === 'admin' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-slate-300'}`}>
+                <label className={`cursor-pointer border-2 rounded-xl p-4 flex gap-3 transition-colors ${formData.role === 'admin' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
                   <input 
                     type="radio" 
                     name="role" 
@@ -199,7 +199,7 @@ export default function InviteTeamPage() {
                   <select
                     value={formData.team_division}
                     onChange={(e) => setFormData({...formData, team_division: e.target.value})}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
                   >
                     {divisions.map(div => (
                       <option key={div.id} value={div.id}>{div.label}</option>
@@ -213,7 +213,7 @@ export default function InviteTeamPage() {
               <button
                 type="submit"
                 disabled={loading || !formData.email || !formData.name}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {loading ? 'Membuat Undangan...' : 'Generate Invite Link'}
               </button>

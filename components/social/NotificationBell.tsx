@@ -78,8 +78,8 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
       case 'like': return <Heart className="w-4 h-4 text-red-500 fill-red-500" />;
       case 'reaction': return <span className="text-[12px] leading-none">❤️</span>;
       case 'comment': return <MessageCircle className="w-4 h-4 text-blue-500 fill-blue-100" />;
-      case 'mention': return <span className="font-bold text-emerald-500 text-sm leading-none">@</span>;
-      case 'follow': return <UserPlus className="w-4 h-4 text-emerald-500" />;
+      case 'mention': return <span className="font-bold text-blue-500 text-sm leading-none">@</span>;
+      case 'follow': return <UserPlus className="w-4 h-4 text-blue-500" />;
       default: return <Info className="w-4 h-4 text-slate-500" />;
     }
   };
@@ -88,7 +88,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors relative"
+        className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors relative"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -105,7 +105,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
+                  className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" /> Tandai semua dibaca
                 </button>
@@ -114,7 +114,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
 
             <div className="max-h-[400px] overflow-y-auto">
               {loading ? (
-                <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 text-emerald-500 animate-spin" /></div>
+                <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 text-blue-500 animate-spin" /></div>
               ) : notifications.length === 0 ? (
                 <div className="p-8 text-center text-slate-400 text-sm">
                   Belum ada notifikasi
@@ -124,7 +124,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
                   {notifications.map(notification => (
                     <div
                       key={notification.id}
-                      className={`p-4 flex gap-3 hover:bg-slate-50 transition-colors ${!notification.is_read ? 'bg-emerald-50/30' : ''}`}
+                      className={`p-4 flex gap-3 hover:bg-slate-50 transition-colors ${!notification.is_read ? 'bg-blue-50/30' : ''}`}
                       onClick={() => {
                         if (!notification.is_read) markAsRead(notification.id);
                         setIsOpen(false);
@@ -165,7 +165,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
                       </div>
 
                       {!notification.is_read && (
-                        <div className="shrink-0 w-2 h-2 bg-emerald-500 rounded-full mt-2"></div>
+                        <div className="shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                       )}
                     </div>
                   ))}

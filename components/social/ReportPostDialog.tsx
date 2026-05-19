@@ -83,7 +83,7 @@ export function ReportPostDialog({ isOpen, onClose, postId, currentUserId }: Rep
           <div className="p-6">
             {success ? (
               <div className="text-center py-6">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                 </div>
                 <h4 className="font-bold text-slate-800 text-lg mb-2">Laporan Terkirim</h4>

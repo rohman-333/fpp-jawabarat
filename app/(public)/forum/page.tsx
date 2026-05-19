@@ -22,7 +22,7 @@ export default async function ForumPage() {
             <h1 className="text-3xl font-bold text-slate-900 mb-2">Forum Komunitas</h1>
             <p className="text-slate-600">Diskusi, tanya jawab, dan silaturahmi antar pesantren se-Jawa Barat.</p>
           </div>
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Buat Diskusi</Button>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white">Buat Diskusi</Button>
         </div>
 
         <div className="space-y-4">

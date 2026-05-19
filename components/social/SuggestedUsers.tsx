@@ -63,7 +63,7 @@ export function SuggestedUsers({ currentUserId }: { currentUserId?: string }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       <div className="p-3 xl:p-4 border-b border-slate-100 flex items-center gap-2">
-        <Users className="w-4 h-4 text-emerald-600" />
+        <Users className="w-4 h-4 text-blue-600" />
         <h3 className="font-bold text-slate-800 text-sm">Disarankan Untuk Anda</h3>
       </div>
       <div className="p-3 xl:p-4 flex xl:flex-col gap-4 overflow-x-auto xl:overflow-visible hide-scrollbar snap-x">
@@ -80,7 +80,7 @@ export function SuggestedUsers({ currentUserId }: { currentUserId?: string }) {
               )}
             </Link>
             <div className="flex-1 min-w-0 text-center xl:text-left w-full">
-              <Link href={userUrl} className="flex items-center justify-center xl:justify-start gap-1 font-bold text-slate-800 text-sm hover:underline hover:text-emerald-600 w-full">
+              <Link href={userUrl} className="flex items-center justify-center xl:justify-start gap-1 font-bold text-slate-800 text-sm hover:underline hover:text-blue-600 w-full">
                 <span className="truncate">{u.name}</span>
                 {u.is_verified && <BadgeCheck className="w-3 h-3 text-blue-500 shrink-0" />}
               </Link>

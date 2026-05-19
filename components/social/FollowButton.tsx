@@ -39,7 +39,7 @@ export function FollowButton({ targetUserId, isFollowingInitial = false, classNa
     <button 
       onClick={toggleFollow}
       disabled={isLoading}
-      className={`flex justify-center items-center gap-1 px-3 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold transition-colors disabled:opacity-50 border border-emerald-200 ${className}`}
+      className={`flex justify-center items-center gap-1 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full text-xs font-bold transition-colors disabled:opacity-50 border border-blue-200 ${className}`}
     >
       {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" /> : <UserPlus className="w-3.5 h-3.5 shrink-0" />}
       <span>Ikuti</span>

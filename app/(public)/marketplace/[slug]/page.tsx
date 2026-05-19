@@ -65,7 +65,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       
       <main className="flex-1 max-w-[1200px] w-full mx-auto px-4 py-8">
         <div className="mb-6">
-          <Link href="/marketplace" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors">
+          <Link href="/marketplace" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Marketplace
           </Link>
         </div>
@@ -93,7 +93,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             {/* Product Info */}
             <div className="lg:col-span-3 flex flex-col p-6 md:p-0">
               <div className="flex items-center gap-2 mb-2">
-                <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded capitalize">{product.category || 'Lainnya'}</span>
+                <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded capitalize">{product.category || 'Lainnya'}</span>
                 <span className="flex items-center text-xs font-bold text-yellow-500">
                   <Star className="w-3.5 h-3.5 fill-current mr-1" /> 4.9 (120 Ulasan)
                 </span>
@@ -133,7 +133,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
 
               <div className="prose prose-slate max-w-none mb-8">
-                <h3 className="text-lg font-bold text-slate-800 mb-3 border-l-4 border-emerald-500 pl-3">Deskripsi Produk</h3>
+                <h3 className="text-lg font-bold text-slate-800 mb-3 border-l-4 border-blue-500 pl-3">Deskripsi Produk</h3>
                 <div className="text-slate-600 leading-relaxed whitespace-pre-wrap text-[15px]">
                   {product.description || 'Tidak ada deskripsi.'}
                 </div>
@@ -141,7 +141,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
               {/* Seller Info Card */}
               <div className="mt-auto bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full -z-0"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-bl-full -z-0"></div>
                 <div className="w-16 h-16 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center shrink-0 overflow-hidden relative z-10">
                   {sellerAvatar ? (
                     <img src={sellerAvatar} alt={sellerName} className="w-full h-full object-cover" />
@@ -157,7 +157,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <div className="flex items-center justify-center sm:justify-start gap-3 text-sm text-slate-500 font-medium">
                     <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {location}</span>
                     <span className="text-slate-300">•</span>
-                    <span className="text-emerald-600">Aktif 2 jam lalu</span>
+                    <span className="text-blue-600">Aktif 2 jam lalu</span>
                   </div>
                 </div>
                 <div className="relative z-10 w-full sm:w-auto">
@@ -177,7 +177,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <div className="mt-12 mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl md:text-2xl font-bold text-slate-800">Pilihan Lainnya Untukmu</h2>
-              <Link href="/marketplace" className="text-emerald-600 font-bold hover:underline text-sm">Lihat Semua</Link>
+              <Link href="/marketplace" className="text-blue-600 font-bold hover:underline text-sm">Lihat Semua</Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
               {relatedProducts.map(rp => (

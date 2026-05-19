@@ -77,32 +77,32 @@ export default async function AdminPage() {
             <StatCard 
               title="Pesantren" 
               value={pesantrenCount || 0} 
-              icon={<Landmark className="w-5 h-5 text-emerald-600" />}
+              icon={<Landmark className="w-5 h-5 text-blue-600" />}
             />
             <StatCard 
               title="Pengguna" 
               value={userCount || 0} 
-              icon={<Users className="w-5 h-5 text-emerald-600" />}
+              icon={<Users className="w-5 h-5 text-blue-600" />}
             />
             <StatCard 
               title="Produk" 
               value={productCount || 0} 
-              icon={<ShoppingBag className="w-5 h-5 text-emerald-600" />}
+              icon={<ShoppingBag className="w-5 h-5 text-blue-600" />}
             />
             <StatCard 
               title="Forum Post" 
               value={forumCount || 0} 
-              icon={<MessageSquare className="w-5 h-5 text-emerald-600" />}
+              icon={<MessageSquare className="w-5 h-5 text-blue-600" />}
             />
             <StatCard 
               title="Program" 
               value={programCount || 0} 
-              icon={<FolderHeart className="w-5 h-5 text-emerald-600" />}
+              icon={<FolderHeart className="w-5 h-5 text-blue-600" />}
             />
             <StatCard 
               title="Donasi" 
               value={donationCount || 0} 
-              icon={<Building2 className="w-5 h-5 text-emerald-600" />}
+              icon={<Building2 className="w-5 h-5 text-blue-600" />}
             />
           </div>
 
@@ -114,7 +114,7 @@ export default async function AdminPage() {
                     <h2 className="text-lg font-bold text-slate-800">Verifikasi Pesantren</h2>
                     <p className="text-slate-500 text-sm">Menunggu persetujuan admin</p>
                   </div>
-                  <Button variant="outline" size="sm" className="text-emerald-700 border-emerald-200 hover:bg-emerald-50 whitespace-nowrap">Lihat Semua</Button>
+                  <Button variant="outline" size="sm" className="text-blue-700 border-blue-200 hover:bg-blue-50 whitespace-nowrap">Lihat Semua</Button>
                 </div>
                 
                 {/* Desktop Table */}
@@ -136,7 +136,7 @@ export default async function AdminPage() {
                             <td className="py-4 text-slate-600 text-sm">{p.city || '-'}</td>
                             <td className="py-4 text-slate-500 text-sm">{new Date(p.created_at).toLocaleDateString('id-ID')}</td>
                             <td className="py-4 text-right">
-                              <Button size="sm" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 shadow-none">Tinjau</Button>
+                              <Button size="sm" className="bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-none">Tinjau</Button>
                             </td>
                           </tr>
                         ))
@@ -158,7 +158,7 @@ export default async function AdminPage() {
                       <div key={p.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50">
                         <h3 className="font-bold text-slate-800 text-sm mb-1">{p.name}</h3>
                         <p className="text-slate-500 text-xs mb-3">{p.city || '-'} • {new Date(p.created_at).toLocaleDateString('id-ID')}</p>
-                        <Button size="sm" className="w-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 shadow-none font-bold">Tinjau Data</Button>
+                        <Button size="sm" className="w-full bg-blue-100 text-blue-700 hover:bg-blue-200 shadow-none font-bold">Tinjau Data</Button>
                       </div>
                     ))
                   ) : (
@@ -181,7 +181,7 @@ export default async function AdminPage() {
                     <div>
                       <h3 className="text-sm font-bold text-slate-800">Pengajuan Toko</h3>
                       <p className="text-xs text-slate-500 mb-2">{pendingSellerCount || 0} pengajuan menunggu</p>
-                      <Link href="/admin/seller-applications" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Tinjau Toko &rarr;</Link>
+                      <Link href="/admin/seller-applications" className="text-xs font-bold text-blue-600 hover:text-blue-700">Tinjau Toko &rarr;</Link>
                     </div>
                   </div>
 
@@ -192,7 +192,7 @@ export default async function AdminPage() {
                     <div>
                       <h3 className="text-sm font-bold text-slate-800">Pengajuan Kurir</h3>
                       <p className="text-xs text-slate-500 mb-2">{pendingCourierCount || 0} pengajuan menunggu</p>
-                      <Link href="/admin/courier-applications" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Tinjau Kurir &rarr;</Link>
+                      <Link href="/admin/courier-applications" className="text-xs font-bold text-blue-600 hover:text-blue-700">Tinjau Kurir &rarr;</Link>
                     </div>
                   </div>
 
@@ -203,7 +203,7 @@ export default async function AdminPage() {
                     <div>
                       <h3 className="text-sm font-bold text-slate-800">Laporan Konten</h3>
                       <p className="text-xs text-slate-500 mb-2">{pendingReportsCount || 0} laporan masuk</p>
-                      <Link href="/admin/moderation" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Tinjau Laporan &rarr;</Link>
+                      <Link href="/admin/moderation" className="text-xs font-bold text-blue-600 hover:text-blue-700">Tinjau Laporan &rarr;</Link>
                     </div>
                   </div>
                 </div>
@@ -214,28 +214,28 @@ export default async function AdminPage() {
                 <div className="space-y-3">
                   <Link href="/admin/banners" className="p-4 rounded-xl border border-slate-100 flex items-center justify-between group hover:bg-slate-50 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
-                        <Landmark className="w-4 h-4 text-emerald-600" />
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 group-hover:bg-blue-200 transition-colors">
+                        <Landmark className="w-4 h-4 text-blue-600" />
                       </div>
                       <div>
                         <h3 className="text-sm font-bold text-slate-800">Kelola Banner/Iklan</h3>
                         <p className="text-xs text-slate-500">Atur banner sponsor & promo</p>
                       </div>
                     </div>
-                    <span className="text-slate-400 group-hover:text-emerald-600 transition-colors">&rarr;</span>
+                    <span className="text-slate-400 group-hover:text-blue-600 transition-colors">&rarr;</span>
                   </Link>
 
                   <Link href="/admin/program" className="p-4 rounded-xl border border-slate-100 flex items-center justify-between group hover:bg-slate-50 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
-                        <FolderHeart className="w-4 h-4 text-emerald-600" />
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 group-hover:bg-blue-200 transition-colors">
+                        <FolderHeart className="w-4 h-4 text-blue-600" />
                       </div>
                       <div>
                         <h3 className="text-sm font-bold text-slate-800">Kelola Program</h3>
                         <p className="text-xs text-slate-500">Atur program & donasi</p>
                       </div>
                     </div>
-                    <span className="text-slate-400 group-hover:text-emerald-600 transition-colors">&rarr;</span>
+                    <span className="text-slate-400 group-hover:text-blue-600 transition-colors">&rarr;</span>
                   </Link>
                 </div>
               </div>

@@ -20,11 +20,11 @@ export default async function AdminBannersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <ImageIcon className="w-6 h-6 text-emerald-600" /> Kelola Banner & Iklan
+            <ImageIcon className="w-6 h-6 text-blue-600" /> Kelola Banner & Iklan
           </h1>
           <p className="text-slate-500 text-sm mt-1">Atur tampilan banner promo dan sponsor di berbagai area.</p>
         </div>
-        <Link href="/admin/banners/new" className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition-colors whitespace-nowrap">
+        <Link href="/admin/banners/new" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl shadow-sm transition-colors whitespace-nowrap">
           <Plus className="w-5 h-5" /> Tambah Banner
         </Link>
       </div>
@@ -66,7 +66,7 @@ export default async function AdminBannersPage() {
                   </td>
                   <td className="px-4 py-4">
                     {banner.status === 'active' ? (
-                      <span className="inline-block px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-100">Aktif</span>
+                      <span className="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-lg border border-blue-100">Aktif</span>
                     ) : (
                       <span className="inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg border border-slate-200">{banner.status}</span>
                     )}
@@ -82,7 +82,7 @@ export default async function AdminBannersPage() {
                   </td>
                   <td className="px-4 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Link href={`/admin/banners/${banner.id}/edit`} className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                      <Link href={`/admin/banners/${banner.id}/edit`} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                         <Edit className="w-4 h-4" />
                       </Link>
                     </div>

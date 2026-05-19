@@ -80,11 +80,11 @@ export function ChangePasswordForm() {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden w-full max-w-xl mx-auto">
+    <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden w-full max-w-xl mx-auto">
       <div className="p-6 md:p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-emerald-600" />
+          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <Shield className="w-5 h-5 text-blue-600" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-800">Ubah Password</h2>
@@ -102,9 +102,9 @@ export function ChangePasswordForm() {
         )}
 
         {success && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-100 flex items-start gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-            <div className="text-sm text-emerald-700">
+          <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+            <div className="text-sm text-blue-700">
               <p className="font-semibold">Password Berhasil Diubah!</p>
               <p className="mt-1 opacity-90">Password Anda telah diperbarui. Anda dapat melanjutkan menggunakan aplikasi.</p>
             </div>
@@ -124,7 +124,7 @@ export function ChangePasswordForm() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Masukkan password saat ini"
-                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm"
                 required
               />
               <button
@@ -149,7 +149,7 @@ export function ChangePasswordForm() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Minimal 8 karakter"
-                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm"
                 required
               />
               <button
@@ -161,16 +161,16 @@ export function ChangePasswordForm() {
               </button>
             </div>
             <ul className="text-xs text-slate-500 space-y-1 mt-2">
-              <li className={`flex items-center gap-1.5 ${newPassword.length >= 8 ? 'text-emerald-600' : ''}`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${newPassword.length >= 8 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+              <li className={`flex items-center gap-1.5 ${newPassword.length >= 8 ? 'text-blue-600' : ''}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${newPassword.length >= 8 ? 'bg-blue-500' : 'bg-slate-300'}`}></div>
                 Minimal 8 karakter
               </li>
-              <li className={`flex items-center gap-1.5 ${/[A-Za-z]/.test(newPassword) ? 'text-emerald-600' : ''}`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${/[A-Za-z]/.test(newPassword) ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+              <li className={`flex items-center gap-1.5 ${/[A-Za-z]/.test(newPassword) ? 'text-blue-600' : ''}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${/[A-Za-z]/.test(newPassword) ? 'bg-blue-500' : 'bg-slate-300'}`}></div>
                 Mengandung huruf
               </li>
-              <li className={`flex items-center gap-1.5 ${/[0-9]/.test(newPassword) ? 'text-emerald-600' : ''}`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${/[0-9]/.test(newPassword) ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+              <li className={`flex items-center gap-1.5 ${/[0-9]/.test(newPassword) ? 'text-blue-600' : ''}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${/[0-9]/.test(newPassword) ? 'bg-blue-500' : 'bg-slate-300'}`}></div>
                 Mengandung angka
               </li>
             </ul>
@@ -188,7 +188,7 @@ export function ChangePasswordForm() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Ulangi password baru"
-                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 text-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-sm"
                 required
               />
             </div>
@@ -197,7 +197,7 @@ export function ChangePasswordForm() {
           <button
             type="submit"
             disabled={loading || !newPassword || !confirmPassword}
-            className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

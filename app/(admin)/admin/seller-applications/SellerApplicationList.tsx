@@ -37,7 +37,7 @@ export function SellerApplicationList({ initialData }: { initialData: any[] }) {
         <div key={app.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between gap-4">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
                 <Store className="w-6 h-6" />
               </div>
               <div>
@@ -45,7 +45,7 @@ export function SellerApplicationList({ initialData }: { initialData: any[] }) {
                 <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
                   <span className="flex items-center gap-1"><User className="w-3 h-3" /> {app.profiles?.name || 'User'}</span>
                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(app.created_at).toLocaleDateString('id-ID')}</span>
-                  <span className="uppercase font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">{app.business_category || app.category || 'Lainnya'}</span>
+                  <span className="uppercase font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{app.business_category || app.category || 'Lainnya'}</span>
                 </div>
               </div>
             </div>
@@ -63,13 +63,13 @@ export function SellerApplicationList({ initialData }: { initialData: any[] }) {
                   <button
                     onClick={() => handleUpdate(app.id, 'approved')}
                     disabled={loadingId === app.id}
-                    className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
                   >
                     {loadingId === app.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} Setujui
                   </button>
                 </>
               ) : (
-                <span className={`px-3 py-1.5 rounded-lg text-sm font-bold uppercase ${app.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                <span className={`px-3 py-1.5 rounded-lg text-sm font-bold uppercase ${app.status === 'approved' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
                   {app.status}
                 </span>
               )}

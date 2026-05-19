@@ -213,7 +213,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                 <button 
                   type="button" 
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors flex-shrink-0 hidden sm:block" 
+                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0 hidden sm:block" 
                   title="Lampirkan Gambar"
                 >
                   <ImageIcon className="w-5 h-5" />
@@ -236,7 +236,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                       fileInputRef.current?.click();
                     }
                   }}
-                  className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors flex-shrink-0 sm:hidden" 
+                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0 sm:hidden" 
                   title="Kamera Foto"
                 >
                   <Camera className="w-5 h-5" />
@@ -276,7 +276,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
               <button
                 type="submit"
                 disabled={isSubmitting || (!content.trim() && !mediaFile)}
-                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-full flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-full flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Posting

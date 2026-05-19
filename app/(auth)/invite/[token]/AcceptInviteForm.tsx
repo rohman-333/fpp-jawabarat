@@ -76,7 +76,7 @@ export function AcceptInviteForm({ token, inviteEmail, currentUserEmail }: { tok
       )}
 
       {isCorrectUserLoggedIn ? (
-        <div className="p-4 bg-emerald-50 text-emerald-800 rounded-xl text-sm border border-emerald-200 flex items-center gap-3">
+        <div className="p-4 bg-blue-50 text-blue-800 rounded-xl text-sm border border-blue-200 flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
           <p>Anda sudah login dengan email yang sesuai. Klik tombol di bawah untuk menerima undangan.</p>
         </div>
@@ -90,7 +90,7 @@ export function AcceptInviteForm({ token, inviteEmail, currentUserEmail }: { tok
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               placeholder="Minimal 8 karakter"
               minLength={8}
             />
@@ -102,7 +102,7 @@ export function AcceptInviteForm({ token, inviteEmail, currentUserEmail }: { tok
       <button
         type="submit"
         disabled={loading || (!isCorrectUserLoggedIn && password.length < 8)}
-        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
         {loading ? 'Memproses...' : 'Terima Undangan & Bergabung'}

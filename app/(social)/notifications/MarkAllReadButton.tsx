@@ -25,7 +25,7 @@ export function MarkAllReadButton({ userId }: { userId: string }) {
 
   if (done) {
     return (
-      <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+      <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
         <Check className="w-3.5 h-3.5" /> Semua dibaca
       </span>
     );
@@ -35,7 +35,7 @@ export function MarkAllReadButton({ userId }: { userId: string }) {
     <button
       onClick={handleMarkAll}
       disabled={loading}
-      className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 disabled:opacity-50 transition-colors"
+      className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 disabled:opacity-50 transition-colors"
     >
       {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
       Tandai semua dibaca

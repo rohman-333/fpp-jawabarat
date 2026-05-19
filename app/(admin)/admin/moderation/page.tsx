@@ -39,7 +39,7 @@ export default async function ModerationPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Shield className="w-6 h-6 text-emerald-600" />
+            <Shield className="w-6 h-6 text-blue-600" />
             Moderasi Konten
           </h1>
           <p className="text-slate-500 text-sm mt-1">Kelola laporan konten dari pengguna platform.</p>
@@ -99,7 +99,7 @@ export default async function ModerationPage() {
                     <td className="px-6 py-4">
                       {report.status === 'pending' && <span className="px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium">Menunggu</span>}
                       {report.status === 'reviewed' && <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">Ditinjau</span>}
-                      {report.status === 'resolved' && <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium">Selesai (Dihapus/Disembunyikan)</span>}
+                      {report.status === 'resolved' && <span className="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">Selesai (Dihapus/Disembunyikan)</span>}
                       {report.status === 'ignored' && <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">Diabaikan</span>}
                       
                       {report.post?.status === 'hidden' && (

@@ -35,12 +35,12 @@ export default async function NotificationsPage() {
       case 'like': return <Heart className="w-5 h-5 text-red-500 fill-red-500" />;
       case 'reaction': return <span className="text-lg">❤️</span>;
       case 'comment': return <MessageCircle className="w-5 h-5 text-blue-500 fill-blue-100" />;
-      case 'mention': return <span className="font-bold text-emerald-500 text-base">@</span>;
-      case 'follow': return <UserPlus className="w-5 h-5 text-emerald-500" />;
+      case 'mention': return <span className="font-bold text-blue-500 text-base">@</span>;
+      case 'follow': return <UserPlus className="w-5 h-5 text-blue-500" />;
       case 'order_update': return <ShoppingBag className="w-5 h-5 text-orange-500" />;
-      case 'seller_approved': return <Store className="w-5 h-5 text-emerald-600" />;
+      case 'seller_approved': return <Store className="w-5 h-5 text-blue-600" />;
       case 'seller_rejected': return <Store className="w-5 h-5 text-red-500" />;
-      case 'courier_approved': return <Truck className="w-5 h-5 text-emerald-600" />;
+      case 'courier_approved': return <Truck className="w-5 h-5 text-blue-600" />;
       case 'courier_rejected': return <Truck className="w-5 h-5 text-red-500" />;
       case 'pesantren_approved': return <span className="text-lg">🕌</span>;
       case 'pesantren_rejected': return <span className="text-lg">🕌</span>;
@@ -59,9 +59,9 @@ export default async function NotificationsPage() {
   return (
     <div className="max-w-2xl mx-auto w-full pt-20 md:pt-8 px-4 md:px-0">
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-emerald-50/30">
+        <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-blue-50/30">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
               <Bell className="w-5 h-5" />
             </div>
             <div>
@@ -80,7 +80,7 @@ export default async function NotificationsPage() {
               </div>
               <h2 className="font-bold text-slate-700">Belum ada notifikasi</h2>
               <p className="text-sm text-slate-500 mt-1">Saat ini belum ada aktivitas terkait akun Anda.</p>
-              <Link href="/feed" className="inline-flex items-center gap-2 mt-6 px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 transition-colors">
+              <Link href="/feed" className="inline-flex items-center gap-2 mt-6 px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl text-sm hover:bg-blue-700 transition-colors">
                 Ke Beranda
               </Link>
             </div>
@@ -91,7 +91,7 @@ export default async function NotificationsPage() {
               return (
                 <div
                   key={notification.id}
-                  className={`p-4 sm:p-6 flex gap-4 hover:bg-slate-50 transition-colors ${!notification.is_read ? 'bg-emerald-50/10' : ''}`}
+                  className={`p-4 sm:p-6 flex gap-4 hover:bg-slate-50 transition-colors ${!notification.is_read ? 'bg-blue-50/10' : ''}`}
                 >
                   <div className="w-12 h-12 rounded-full bg-slate-100 shrink-0 overflow-hidden border border-slate-200 relative">
                     {notification.actor?.avatar_url ? (
@@ -109,7 +109,7 @@ export default async function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     {href ? (
                       <Link href={href} className="block group">
-                        <p className={`text-slate-800 font-medium group-hover:text-emerald-600 transition-colors ${!notification.is_read ? 'font-bold' : ''}`}>
+                        <p className={`text-slate-800 font-medium group-hover:text-blue-600 transition-colors ${!notification.is_read ? 'font-bold' : ''}`}>
                           {notification.title}
                         </p>
                         {body && <p className="text-sm text-slate-500 mt-1">{body}</p>}
@@ -128,7 +128,7 @@ export default async function NotificationsPage() {
                   </div>
 
                   {!notification.is_read && (
-                    <div className="shrink-0 w-2.5 h-2.5 bg-emerald-500 rounded-full mt-2 shadow-sm shadow-emerald-200" />
+                    <div className="shrink-0 w-2.5 h-2.5 bg-blue-500 rounded-full mt-2 shadow-sm shadow-blue-200" />
                   )}
                 </div>
               );

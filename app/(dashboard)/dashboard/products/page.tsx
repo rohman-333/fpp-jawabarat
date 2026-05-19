@@ -54,7 +54,7 @@ export default async function ProductsPage() {
                 <p className="text-sm text-slate-500 mt-1">Kelola barang dan produk unggulan pesantren Anda</p>
               </div>
               <Link href="/dashboard/products/new">
-                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold">
                   <Plus className="w-4 h-4 mr-2" /> Tambah Produk
                 </Button>
               </Link>
@@ -83,7 +83,7 @@ export default async function ProductsPage() {
                   icon={<ShoppingBag className="w-8 h-8 text-slate-400" />}
                   action={
                     <Link href="/dashboard/products/new">
-                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold mt-2">
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold mt-2">
                         Tambah Produk Baru
                       </Button>
                     </Link>
@@ -127,14 +127,14 @@ export default async function ProductsPage() {
                           <td className="py-4 px-6 text-sm text-slate-600">
                             {product.product_categories?.name || '-'}
                           </td>
-                          <td className="py-4 px-6 font-semibold text-emerald-700 text-sm">
+                          <td className="py-4 px-6 font-semibold text-blue-700 text-sm">
                             Rp {product.price.toLocaleString('id-ID')}
                           </td>
                           <td className="py-4 px-6 text-sm text-slate-600 font-medium">
                             {product.stock}
                           </td>
                           <td className="py-4 px-6">
-                            {product.status === 'active' && <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase tracking-wider border border-emerald-200">Aktif</span>}
+                            {product.status === 'active' && <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider border border-blue-200">Aktif</span>}
                             {product.status === 'pending' && <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase tracking-wider border border-amber-200">Pending</span>}
                             {product.status === 'hidden' && <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 uppercase tracking-wider border border-slate-200">Hidden</span>}
                           </td>

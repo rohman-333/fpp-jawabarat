@@ -49,7 +49,7 @@ export function PesantrenDetailView({ pesantren }: { pesantren: any }) {
             <div>
               <h2 className="text-2xl font-bold text-slate-800">{pesantren.name}</h2>
               <div className="flex items-center gap-3 mt-2">
-                {pesantren.status === 'verified' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 uppercase tracking-wider"><CheckCircle2 className="w-3.5 h-3.5"/> Verified</span>}
+                {pesantren.status === 'verified' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 uppercase tracking-wider"><CheckCircle2 className="w-3.5 h-3.5"/> Verified</span>}
                 {pesantren.status === 'pending' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 uppercase tracking-wider"><Clock className="w-3.5 h-3.5"/> Pending</span>}
                 {pesantren.status === 'rejected' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 uppercase tracking-wider"><XCircle className="w-3.5 h-3.5"/> Rejected</span>}
                 
@@ -63,7 +63,7 @@ export function PesantrenDetailView({ pesantren }: { pesantren: any }) {
               <Button 
                 onClick={() => handleUpdateStatus('verified')}
                 disabled={loading}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex-1 md:flex-none"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold flex-1 md:flex-none"
               >
                 Setujui (Verify)
               </Button>
@@ -215,7 +215,7 @@ export function PesantrenDetailView({ pesantren }: { pesantren: any }) {
               </div>
               <div className="flex justify-between items-center pt-2">
                 <span className="font-bold text-slate-800">Total Santri Aktif</span>
-                <span className="font-black text-emerald-600 text-lg">
+                <span className="font-black text-blue-600 text-lg">
                   {(pesantren.santri_sd || 0) + (pesantren.santri_smp || 0) + (pesantren.santri_sma || 0)}
                 </span>
               </div>

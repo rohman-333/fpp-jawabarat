@@ -48,7 +48,7 @@ export default async function PesantrenDashboardPage() {
                 icon={<Building2 className="w-8 h-8 text-slate-400" />}
                 action={
                   <Link href="/dashboard/pesantren/edit">
-                    <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold mt-2">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold mt-2">
                       Lengkapi Data Pesantren
                     </Button>
                   </Link>
@@ -67,16 +67,16 @@ export default async function PesantrenDashboardPage() {
               </div>
 
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="h-48 bg-emerald-900 relative">
+                <div className="h-48 bg-blue-900 relative">
                   {resolveMediaUrl(pesantren.foto_url) ? (
                     <img src={resolveMediaUrl(pesantren.foto_url)!} alt="Foto Pesantren" className="w-full h-full object-cover opacity-80" />
                   ) : (
                     <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] mix-blend-overlay"></div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-950/80 to-transparent"></div>
                 </div>
                 <div className="px-8 pb-8 relative">
-                  <div className="w-24 h-24 bg-white rounded-xl shadow-md border-4 border-white flex items-center justify-center text-4xl font-bold text-emerald-600 -mt-12 mb-4 overflow-hidden z-10 relative">
+                  <div className="w-24 h-24 bg-white rounded-xl shadow-md border-4 border-white flex items-center justify-center text-4xl font-bold text-blue-600 -mt-12 mb-4 overflow-hidden z-10 relative">
                     {resolveMediaUrl(pesantren.logo_url) ? (
                       <img src={resolveMediaUrl(pesantren.logo_url)!} alt="" className="w-full h-full object-cover" />
                     ) : pesantren.name.charAt(0)}

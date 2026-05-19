@@ -62,7 +62,7 @@ export function ProductActionButtons({ product, currentUserId }: { product: any,
         disabled={loading || product.stock === 0}
         size="lg" 
         variant="outline"
-        className="flex-1 sm:flex-none border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-bold rounded-xl h-12 px-6"
+        className="flex-1 sm:flex-none border-blue-600 text-blue-600 hover:bg-blue-50 font-bold rounded-xl h-12 px-6"
       >
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5 mr-2" />}
         Keranjang
@@ -72,7 +72,7 @@ export function ProductActionButtons({ product, currentUserId }: { product: any,
         onClick={handleBuyNow}
         disabled={loading || product.stock === 0}
         size="lg" 
-        className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-12 px-8 shadow-md shadow-emerald-600/20"
+        className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl h-12 px-8 shadow-md shadow-blue-600/20"
       >
         <ShoppingBag className="w-5 h-5 mr-2" /> Beli Langsung
       </Button>

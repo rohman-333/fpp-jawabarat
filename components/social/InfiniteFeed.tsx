@@ -267,7 +267,7 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
                   {(banner.title || banner.cta_label) && (
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                       {banner.title && <h4 className="text-white font-bold text-lg mb-1">{banner.title}</h4>}
-                      {banner.cta_label && <span className="text-emerald-300 font-bold text-xs">{banner.cta_label} &rarr;</span>}
+                      {banner.cta_label && <span className="text-blue-300 font-bold text-xs">{banner.cta_label} &rarr;</span>}
                     </div>
                   )}
                 </a>
@@ -275,18 +275,18 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
             )}
 
             {program && (
-              <div className="my-4 bg-white rounded-2xl border border-emerald-100 shadow-sm p-4 bg-gradient-to-br from-emerald-50 to-white flex gap-4 items-center">
-                <div className="w-16 h-16 rounded-xl bg-emerald-100 shrink-0 overflow-hidden flex items-center justify-center">
+              <div className="my-4 bg-white rounded-2xl border border-blue-100 shadow-sm p-4 bg-gradient-to-br from-blue-50 to-white flex gap-4 items-center">
+                <div className="w-16 h-16 rounded-xl bg-blue-100 shrink-0 overflow-hidden flex items-center justify-center">
                   {program.image_url ? (
                     <img src={program.image_url} alt={program.title} className="w-full h-full object-cover" />
                   ) : (
-                    <Users className="w-8 h-8 text-emerald-300" />
+                    <Users className="w-8 h-8 text-blue-300" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Program Sinergi: {program.category || 'Umum'}</p>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-1">Program Sinergi: {program.category || 'Umum'}</p>
                   <h4 className="font-bold text-slate-800 text-sm truncate mb-1">{program.title}</h4>
-                  <a href={`/program/${program.slug}`} className="inline-block bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors">Lihat Detail</a>
+                  <a href={`/program/${program.slug}`} className="inline-block bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">Lihat Detail</a>
                 </div>
               </div>
             )}
@@ -301,7 +301,7 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
       
       {hasMore && (
         <div ref={ref} className="py-6 flex justify-center">
-          {loading && <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />}
+          {loading && <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />}
         </div>
       )}
       

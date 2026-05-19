@@ -62,11 +62,11 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
   return (
     <div>
       {/* Hero Search Section */}
-      <div className="bg-gradient-to-r from-emerald-900 to-emerald-700 -mx-4 sm:-mx-8 px-4 sm:px-8 py-8 sm:py-12 mb-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-900 to-blue-700 -mx-4 sm:-mx-8 px-4 sm:px-8 py-8 sm:py-12 mb-8 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
         <div className="max-w-3xl mx-auto relative z-10 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold mb-3">Marketplace Pesantren</h1>
-          <p className="text-emerald-100 mb-8 max-w-xl mx-auto text-sm sm:text-base">Dukung kemandirian ekonomi pesantren Jawa Barat dengan membeli produk-produk berkualitas langsung dari santri dan pengasuh.</p>
+          <p className="text-blue-100 mb-8 max-w-xl mx-auto text-sm sm:text-base">Dukung kemandirian ekonomi pesantren Jawa Barat dengan membeli produk-produk berkualitas langsung dari santri dan pengasuh.</p>
           
           <div className="relative max-w-2xl mx-auto flex items-center bg-white rounded-full p-1.5 shadow-xl">
             <div className="pl-4 text-slate-400">
@@ -79,7 +79,7 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Button className="rounded-full bg-emerald-600 hover:bg-emerald-700 px-6 sm:px-8 py-2.5 h-auto">Cari</Button>
+            <Button className="rounded-full bg-blue-600 hover:bg-blue-700 px-6 sm:px-8 py-2.5 h-auto">Cari</Button>
           </div>
         </div>
       </div>
@@ -116,8 +116,8 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
                 onClick={() => setCategory(c.id)}
                 className={`snap-center flex items-center gap-2 px-4 py-2.5 rounded-full border whitespace-nowrap transition-all duration-300 text-sm font-medium ${
                   isActive 
-                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20' 
-                    : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50'
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-600/20' 
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50'
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />

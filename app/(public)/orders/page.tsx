@@ -33,7 +33,7 @@ export default async function OrdersPage() {
       
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <h1 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-          <Package className="w-6 h-6 text-emerald-600" /> Pesanan Saya
+          <Package className="w-6 h-6 text-blue-600" /> Pesanan Saya
         </h1>
 
         {!orders || orders.length === 0 ? (
@@ -41,7 +41,7 @@ export default async function OrdersPage() {
             <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-slate-800 mb-2">Belum Ada Pesanan</h2>
             <p className="text-slate-500 mb-6">Anda belum pernah melakukan pemesanan di marketplace.</p>
-            <Link href="/marketplace" className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors">
+            <Link href="/marketplace" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
               Mulai Belanja
             </Link>
           </div>
@@ -61,7 +61,7 @@ export default async function OrdersPage() {
                     </div>
                     <div>
                       <div className="text-xs text-slate-500 mb-1">No. Invoice</div>
-                      <div className="font-bold text-emerald-700">{order.invoice_number}</div>
+                      <div className="font-bold text-blue-700">{order.invoice_number}</div>
                     </div>
                     <div>
                       <div className="text-xs text-slate-500 mb-1">Total Belanja</div>
@@ -73,14 +73,14 @@ export default async function OrdersPage() {
                     {order.status === 'paid' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider"><CheckCircle2 className="w-3.5 h-3.5" /> Dibayar</span>}
                     {order.status === 'processing' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-xs font-bold uppercase tracking-wider"><Package className="w-3.5 h-3.5" /> Diproses</span>}
                     {order.status === 'shipped' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold uppercase tracking-wider"><Package className="w-3.5 h-3.5" /> Dikirim</span>}
-                    {order.status === 'delivered' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider"><CheckCircle2 className="w-3.5 h-3.5" /> Selesai</span>}
+                    {order.status === 'delivered' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider"><CheckCircle2 className="w-3.5 h-3.5" /> Selesai</span>}
                     {order.status === 'cancelled' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-bold uppercase tracking-wider"><XCircle className="w-3.5 h-3.5" /> Dibatalkan</span>}
                   </div>
                 </div>
                 
                 <div className="p-6">
                   <div className="flex items-center gap-2 text-slate-700 font-bold mb-4">
-                    <Store className="w-5 h-5 text-emerald-600" /> {order.seller?.name || 'Seller'}
+                    <Store className="w-5 h-5 text-blue-600" /> {order.seller?.name || 'Seller'}
                   </div>
                   
                   <div className="space-y-4">
@@ -106,7 +106,7 @@ export default async function OrdersPage() {
                         href={`https://wa.me/?text=Halo, saya ingin konfirmasi pesanan ${order.invoice_number}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-colors text-sm"
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm"
                       >
                         WhatsApp Seller
                       </a>

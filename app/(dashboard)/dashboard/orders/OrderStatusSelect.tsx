@@ -40,7 +40,7 @@ export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string,
       case 'paid': return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'processing': return 'bg-purple-50 text-purple-700 border-purple-200';
       case 'shipped': return 'bg-orange-50 text-orange-700 border-orange-200';
-      case 'delivered': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'delivered': return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'cancelled': return 'bg-red-50 text-red-700 border-red-200';
       default: return 'bg-slate-50 text-slate-700 border-slate-200';
     }
@@ -48,7 +48,7 @@ export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string,
 
   return (
     <div className="flex items-center gap-2">
-      {loading && <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />}
+      {loading && <Loader2 className="w-4 h-4 animate-spin text-blue-600" />}
       <select 
         defaultValue={currentStatus}
         onChange={handleStatusChange}

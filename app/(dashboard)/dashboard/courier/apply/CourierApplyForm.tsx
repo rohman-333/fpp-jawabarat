@@ -39,7 +39,7 @@ export function CourierApplyForm() {
               type="text"
               name="full_name"
               required
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               placeholder="Nama sesuai KTP"
             />
           </div>
@@ -53,7 +53,7 @@ export function CourierApplyForm() {
               type="tel"
               name="whatsapp"
               required
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               placeholder="081234567890"
             />
           </div>
@@ -68,7 +68,7 @@ export function CourierApplyForm() {
             name="service_area"
             required
             rows={2}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
             placeholder="Contoh: Kota Bandung, Kab. Bandung, dan sekitarnya"
           ></textarea>
         </div>
@@ -82,7 +82,7 @@ export function CourierApplyForm() {
             <select
               name="vehicle_type"
               required
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white"
             >
               <option value="">Pilih Kendaraan</option>
               <option value="Motor">Motor</option>
@@ -100,7 +100,7 @@ export function CourierApplyForm() {
             <input
               type="text"
               name="license_plate"
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               placeholder="Contoh: D 1234 ABC (Opsional)"
             />
           </div>
@@ -114,7 +114,7 @@ export function CourierApplyForm() {
           <textarea
             name="experience"
             rows={3}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
             placeholder="Ceritakan singkat pengalaman Anda di bidang ekspedisi atau pengiriman barang..."
           ></textarea>
         </div>
@@ -124,7 +124,7 @@ export function CourierApplyForm() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           {loading ? 'Mengirim Lamaran...' : 'Kirim Lamaran Kurir'}

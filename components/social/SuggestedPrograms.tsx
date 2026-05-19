@@ -51,17 +51,17 @@ export function SuggestedPrograms() {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-6 xl:mt-6">
       <div className="p-3 xl:p-4 border-b border-slate-100 flex items-center gap-2">
-        <Target className="w-4 h-4 text-emerald-600" />
+        <Target className="w-4 h-4 text-blue-600" />
         <h3 className="font-bold text-slate-800 text-sm">Program Unggulan</h3>
       </div>
       <div className="p-3 xl:p-4 flex xl:flex-col gap-3 overflow-x-auto xl:overflow-visible hide-scrollbar snap-x">
         {programs.map(p => (
           <Link key={p.id} href={`#`} className="flex flex-col xl:flex-row items-center gap-2 xl:gap-3 group min-w-[120px] xl:min-w-0 p-3 xl:p-0 border border-slate-100 xl:border-none rounded-xl snap-center shrink-0 text-center xl:text-left">
-            <div className="w-10 h-10 xl:w-8 xl:h-8 rounded-full bg-emerald-50 shrink-0 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+            <div className="w-10 h-10 xl:w-8 xl:h-8 rounded-full bg-blue-50 shrink-0 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
               <Target className="w-5 h-5 xl:w-4 xl:h-4" />
             </div>
             <div className="flex-1 min-w-0 w-full">
-              <h4 className="font-bold text-slate-700 text-xs xl:text-sm group-hover:text-emerald-600 truncate transition-colors">{p.title}</h4>
+              <h4 className="font-bold text-slate-700 text-xs xl:text-sm group-hover:text-blue-600 truncate transition-colors">{p.title}</h4>
             </div>
           </Link>
         ))}

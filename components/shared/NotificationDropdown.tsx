@@ -67,13 +67,13 @@ export function NotificationDropdown({ userId }: { userId: string }) {
       case 'like': return <Heart className="w-4 h-4 text-rose-500" />;
       case 'reaction': return <span className="text-sm">❤️</span>;
       case 'comment': return <MessageSquare className="w-4 h-4 text-blue-500" />;
-      case 'mention': return <span className="font-bold text-emerald-500 text-sm">@</span>;
-      case 'follow': return <UserPlus className="w-4 h-4 text-emerald-500" />;
+      case 'mention': return <span className="font-bold text-blue-500 text-sm">@</span>;
+      case 'follow': return <UserPlus className="w-4 h-4 text-blue-500" />;
       case 'order_update': return <ShoppingBag className="w-4 h-4 text-orange-500" />;
       case 'seller_approved':
-      case 'seller_rejected': return <Store className="w-4 h-4 text-emerald-500" />;
+      case 'seller_rejected': return <Store className="w-4 h-4 text-blue-500" />;
       case 'courier_approved':
-      case 'courier_rejected': return <Truck className="w-4 h-4 text-emerald-500" />;
+      case 'courier_rejected': return <Truck className="w-4 h-4 text-blue-500" />;
       default: return <Info className="w-4 h-4 text-slate-500" />;
     }
   };
@@ -85,7 +85,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-slate-400 hover:text-emerald-600 transition-colors rounded-full hover:bg-slate-50 focus:outline-none"
+        className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors rounded-full hover:bg-slate-50 focus:outline-none"
         aria-label={`Notifikasi${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
       >
         <Bell className="w-5 h-5" />
@@ -103,7 +103,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-bold text-slate-800">Notifikasi</h3>
               {unreadCount > 0 && (
-                <button onClick={markAllAsRead} className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                <button onClick={markAllAsRead} className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1">
                   <Check className="w-3 h-3" /> Tandai semua dibaca
                 </button>
               )}
@@ -122,7 +122,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
                       key={notif.id}
                       href={getHref(notif)}
                       onClick={() => !notif.is_read && markAsRead(notif.id)}
-                      className={`block p-4 hover:bg-slate-50 transition-colors ${notif.is_read ? 'opacity-70' : 'bg-emerald-50/30'}`}
+                      className={`block p-4 hover:bg-slate-50 transition-colors ${notif.is_read ? 'opacity-70' : 'bg-blue-50/30'}`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="mt-0.5 shrink-0">
@@ -142,7 +142,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
                           </p>
                         </div>
                         {!notif.is_read && (
-                          <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1" />
+                          <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1" />
                         )}
                       </div>
                     </Link>
@@ -152,7 +152,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
             </div>
 
             <div className="p-3 border-t border-slate-100 bg-slate-50 text-center">
-              <Link href="/notifications" className="text-sm font-bold text-emerald-600 hover:text-emerald-700">
+              <Link href="/notifications" className="text-sm font-bold text-blue-600 hover:text-blue-700">
                 Lihat Semua Notifikasi
               </Link>
             </div>

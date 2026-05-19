@@ -65,12 +65,12 @@ export default async function DashboardPage() {
             />
 
             {/* Welcome Banner */}
-            <div className="bg-emerald-950 rounded-2xl p-6 md:p-8 mb-8 relative overflow-hidden shadow-lg border border-emerald-900">
+            <div className="bg-blue-950 rounded-2xl p-6 md:p-8 mb-8 relative overflow-hidden shadow-lg border border-blue-900">
               <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
               <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Halo, {profile.name}!</h2>
-                  <p className="text-emerald-100/80 max-w-xl text-sm md:text-base">
+                  <p className="text-blue-100/80 max-w-xl text-sm md:text-base">
                     Selamat datang di pusat kontrol akun Anda. Anda dapat berinteraksi di Feed, berbelanja, atau melengkapi peran Anda di WIBAWA NUSANTARA.
                   </p>
                 </div>
@@ -117,7 +117,7 @@ export default async function DashboardPage() {
                     <h2 className="text-lg font-bold text-slate-800">Informasi Pesantren</h2>
                     {pesantren && (
                       <Link href="/dashboard/pesantren/edit">
-                        <Button variant="ghost" size="sm" className="text-emerald-600">
+                        <Button variant="ghost" size="sm" className="text-blue-600">
                           <PenSquare className="w-4 h-4 mr-2" /> Edit
                         </Button>
                       </Link>
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
                       </div>
                       <p className="text-slate-500 text-sm mb-4">Akun Anda belum terafiliasi dengan data Pesantren.</p>
                       <Link href="/dashboard/pesantren/apply">
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Ajukan Pesantren</Button>
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">Ajukan Pesantren</Button>
                       </Link>
                     </div>
                   )}
@@ -165,33 +165,33 @@ export default async function DashboardPage() {
                   <h2 className="text-lg font-bold text-slate-800 mb-6 border-b border-slate-100 pb-4">Lengkapi Peran Anda</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {!profile.has_pesantren && (
-                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-emerald-500 hover:shadow-md transition-all">
-                        <Landmark className="w-8 h-8 text-emerald-600 mx-auto mb-3" />
+                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-blue-500 hover:shadow-md transition-all">
+                        <Landmark className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                         <h3 className="font-bold text-slate-800 mb-1">Punya Pesantren?</h3>
                         <p className="text-xs text-slate-500 mb-4 line-clamp-2">Daftarkan pesantren Anda ke direktori FPP.</p>
-                        <Link href="/dashboard/pesantren/apply" className="block w-full py-2 bg-slate-100 hover:bg-emerald-50 text-emerald-700 font-semibold rounded-lg text-sm transition-colors">
+                        <Link href="/dashboard/pesantren/apply" className="block w-full py-2 bg-slate-100 hover:bg-blue-50 text-blue-700 font-semibold rounded-lg text-sm transition-colors">
                           Ajukan Pesantren
                         </Link>
                       </div>
                     )}
                     {!profile.is_seller && (
-                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-emerald-500 hover:shadow-md transition-all">
-                        <ShoppingBag className="w-8 h-8 text-emerald-600 mx-auto mb-3" />
+                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-blue-500 hover:shadow-md transition-all">
+                        <ShoppingBag className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                         <h3 className="font-bold text-slate-800 mb-1">Ingin Berjualan?</h3>
                         <p className="text-xs text-slate-500 mb-4 line-clamp-2">Buka toko dan mulai jual produk di marketplace.</p>
-                        <Link href="/dashboard/seller/apply" className="block w-full py-2 bg-slate-100 hover:bg-emerald-50 text-emerald-700 font-semibold rounded-lg text-sm transition-colors">
+                        <Link href="/dashboard/seller/apply" className="block w-full py-2 bg-slate-100 hover:bg-blue-50 text-blue-700 font-semibold rounded-lg text-sm transition-colors">
                           Ajukan Buka Toko
                         </Link>
                       </div>
                     )}
                     {!profile.is_courier && (
-                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-emerald-500 hover:shadow-md transition-all">
-                        <svg className="w-8 h-8 text-emerald-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-blue-500 hover:shadow-md transition-all">
+                        <svg className="w-8 h-8 text-blue-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                         <h3 className="font-bold text-slate-800 mb-1">Menjadi Kurir?</h3>
                         <p className="text-xs text-slate-500 mb-4 line-clamp-2">Bergabung sebagai kurir untuk pengiriman lokal.</p>
-                        <Link href="/dashboard/courier/apply" className="block w-full py-2 bg-slate-100 hover:bg-emerald-50 text-emerald-700 font-semibold rounded-lg text-sm transition-colors">
+                        <Link href="/dashboard/courier/apply" className="block w-full py-2 bg-slate-100 hover:bg-blue-50 text-blue-700 font-semibold rounded-lg text-sm transition-colors">
                           Lamar Jadi Kurir
                         </Link>
                       </div>
@@ -205,8 +205,8 @@ export default async function DashboardPage() {
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                   <h2 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-3">Aksi Cepat</h2>
                   <div className="grid gap-3">
-                    <Link href="/dashboard/products/new" className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50 transition-colors group">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <Link href="/dashboard/products/new" className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors group">
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                         <ShoppingBag className="w-5 h-5" />
                       </div>
                       <div>
@@ -215,8 +215,8 @@ export default async function DashboardPage() {
                       </div>
                     </Link>
                     
-                    <Link href="/forum" className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50 transition-colors group">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <Link href="/forum" className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors group">
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                         <MessageSquare className="w-5 h-5" />
                       </div>
                       <div>
@@ -225,8 +225,8 @@ export default async function DashboardPage() {
                       </div>
                     </Link>
 
-                    <Link href="/pesantren" className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50 transition-colors group">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <Link href="/pesantren" className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors group">
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                         <Eye className="w-5 h-5" />
                       </div>
                       <div>

@@ -83,8 +83,8 @@ export function ImageUploader({ name, label, defaultValue, type, userId, bucket 
             />
             {isUploading ? (
               <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center">
-                <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mb-2" />
-                {!isAvatar && <span className="text-sm font-bold text-emerald-800">Mengunggah...</span>}
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
+                {!isAvatar && <span className="text-sm font-bold text-blue-800">Mengunggah...</span>}
               </div>
             ) : (
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
@@ -110,7 +110,7 @@ export function ImageUploader({ name, label, defaultValue, type, userId, bucket 
             onClick={() => !isUploading && fileInputRef.current?.click()}
             className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-4 text-center"
           >
-            <div className={`w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center ${isAvatar ? 'mb-1' : 'mb-3'}`}>
+            <div className={`w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center ${isAvatar ? 'mb-1' : 'mb-3'}`}>
               <UploadCloud className="w-5 h-5" />
             </div>
             {!isAvatar && (

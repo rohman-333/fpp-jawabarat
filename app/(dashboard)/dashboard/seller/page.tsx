@@ -54,7 +54,7 @@ export default async function SellerStatusPage() {
               <Link href="/dashboard" className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3 rounded-xl transition-colors">
                 Kembali
               </Link>
-              <Link href="/dashboard/seller/apply" className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-colors">
+              <Link href="/dashboard/seller/apply" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-colors">
                 <Store className="w-4 h-4" /> Ajukan Ulang
               </Link>
             </div>

@@ -36,7 +36,7 @@ export function StoriesTray({ user }: { user: any }) {
         <div className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer" onClick={() => setIsComposerOpen(true)}>
           <div className="w-16 h-16 rounded-full border-2 border-slate-200 p-0.5 relative mb-1.5 bg-slate-50 flex items-center justify-center">
             <Plus className="w-6 h-6 text-slate-400" />
-            <div className="absolute bottom-0 right-0 w-5 h-5 bg-emerald-600 rounded-full border-2 border-white flex items-center justify-center">
+            <div className="absolute bottom-0 right-0 w-5 h-5 bg-blue-600 rounded-full border-2 border-white flex items-center justify-center">
               <Plus className="w-3 h-3 text-white" />
             </div>
           </div>
@@ -45,7 +45,7 @@ export function StoriesTray({ user }: { user: any }) {
 
         {stories.map(story => (
           <div key={story.id} className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer" onClick={() => setActiveStory(story)}>
-            <div className="w-16 h-16 rounded-full border-2 border-emerald-500 p-0.5 mb-1.5 relative overflow-hidden">
+            <div className="w-16 h-16 rounded-full border-2 border-blue-500 p-0.5 mb-1.5 relative overflow-hidden">
               <div className="w-full h-full rounded-full overflow-hidden bg-slate-100">
                 {story.author?.avatar_url ? (
                   <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -105,7 +105,7 @@ function StoryViewerModal({ story, user, onClose, onDelete }: { story: any, user
             {story.author?.avatar_url ? (
               <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-emerald-100 text-emerald-600 font-bold uppercase">{story.author?.name?.charAt(0) || '?'}</div>
+              <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 font-bold uppercase">{story.author?.name?.charAt(0) || '?'}</div>
             )}
           </div>
           <div>
@@ -234,7 +234,7 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
               <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files && setFile(e.target.files[0])} />
             </label>
             <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
-              <Camera className="w-4 h-4 text-emerald-500" /> Kamera
+              <Camera className="w-4 h-4 text-blue-500" /> Kamera
               <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files && setFile(e.target.files[0])} />
             </label>
             <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
@@ -250,7 +250,7 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
               <option value={24}>24 Jam</option>
             </select>
             
-            <Button onClick={handleSubmit} disabled={submitting || (!content && !file)} className="bg-emerald-600 hover:bg-emerald-700 font-bold rounded-full px-6">
+            <Button onClick={handleSubmit} disabled={submitting || (!content && !file)} className="bg-blue-600 hover:bg-blue-700 font-bold rounded-full px-6">
               {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Bagikan
             </Button>

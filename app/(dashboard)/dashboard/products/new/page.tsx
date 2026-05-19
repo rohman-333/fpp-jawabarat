@@ -70,7 +70,7 @@ export default async function NewProductPage() {
               <h2 className="text-xl font-bold text-slate-800 mb-2">Anda Belum Menjadi Seller</h2>
               <p className="text-slate-500 mb-6">Silakan ajukan pembukaan toko terlebih dahulu untuk mulai berjualan di Marketplace WIBAWA NUSANTARA.</p>
               <div className="space-y-3">
-                <Link href="/dashboard/seller/apply" className="block w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-200">
+                <Link href="/dashboard/seller/apply" className="block w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
                   Ajukan Buka Toko
                 </Link>
                 <Link href="/dashboard" className="block w-full bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">
@@ -82,7 +82,7 @@ export default async function NewProductPage() {
         ) : (
           <main className="p-4 md:p-8">
           <div className="max-w-3xl mx-auto">
-            <Link href="/dashboard/products" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-emerald-600 mb-6 transition-colors">
+            <Link href="/dashboard/products" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-blue-600 mb-6 transition-colors">
               <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Katalog
             </Link>
 
@@ -113,7 +113,7 @@ export default async function NewProductPage() {
                       required 
                       name="name" 
                       type="text" 
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                       placeholder="Contoh: Madu Hutan Asli 500ml" 
                     />
                   </div>
@@ -125,7 +125,7 @@ export default async function NewProductPage() {
                     <select 
                       required 
                       name="category_id" 
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
                     >
                       <option value="">Pilih Kategori</option>
                       {categories?.map(c => (
@@ -139,7 +139,7 @@ export default async function NewProductPage() {
                     <select 
                       name="status" 
                       defaultValue="pending"
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
                     >
                       <option value="pending">Pending (Menunggu Review)</option>
                       <option value="active">Active (Tampil di Marketplace)</option>
@@ -154,7 +154,7 @@ export default async function NewProductPage() {
                       name="price" 
                       type="number" 
                       min="0"
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                       placeholder="0" 
                     />
                   </div>
@@ -166,7 +166,7 @@ export default async function NewProductPage() {
                       name="stock" 
                       type="number" 
                       min="0"
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                       placeholder="0" 
                     />
                   </div>
@@ -177,7 +177,7 @@ export default async function NewProductPage() {
                       required 
                       name="description" 
                       rows={5}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                       placeholder="Jelaskan detail produk, bahan, ukuran, dan keunggulan..." 
                     />
                   </div>
@@ -187,7 +187,7 @@ export default async function NewProductPage() {
                   <Link href="/dashboard/products">
                     <Button type="button" variant="outline">Batal</Button>
                   </Link>
-                  <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8">
+                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8">
                     Simpan Produk
                   </Button>
                 </div>

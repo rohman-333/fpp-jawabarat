@@ -32,7 +32,7 @@ export default async function CourierApplyPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Truck className="w-6 h-6 text-emerald-600" /> Melamar Jadi Kurir FPP
+            <Truck className="w-6 h-6 text-blue-600" /> Melamar Jadi Kurir FPP
           </h1>
           <p className="text-slate-500 text-sm">Bergabung menjadi mitra pengiriman untuk mendukung logistik pesantren.</p>
         </div>

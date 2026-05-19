@@ -94,7 +94,7 @@ export default async function DashboardOrdersPage() {
                   </div>
                   <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
                     <span className="font-bold text-slate-800">Total Pesanan</span>
-                    <span className="font-extrabold text-lg text-emerald-600">{formatRupiah(order.total_amount)}</span>
+                    <span className="font-extrabold text-lg text-blue-600">{formatRupiah(order.total_amount)}</span>
                   </div>
                 </div>
               </div>

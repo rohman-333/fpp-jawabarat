@@ -23,7 +23,7 @@ export function CommissionForm({ initialSetting }: { initialSetting: any }) {
           name="commission_type" 
           value={type} 
           onChange={(e) => setType(e.target.value)}
-          className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+          className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
         >
           <option value="percentage">Persentase (%)</option>
           <option value="fixed">Nominal Tetap (Rp)</option>
@@ -40,7 +40,7 @@ export function CommissionForm({ initialSetting }: { initialSetting: any }) {
             min="0"
             max="100"
             defaultValue={initialSetting?.percentage_rate || 0}
-            className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
           />
         </div>
       ) : (
@@ -51,7 +51,7 @@ export function CommissionForm({ initialSetting }: { initialSetting: any }) {
             name="fixed_amount" 
             min="0"
             defaultValue={initialSetting?.fixed_amount || 0}
-            className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+            className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
           />
         </div>
       )}
@@ -59,7 +59,7 @@ export function CommissionForm({ initialSetting }: { initialSetting: any }) {
       <button 
         type="submit" 
         disabled={loading}
-        className="w-full py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center"
+        className="w-full py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center"
       >
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Simpan Pengaturan'}
       </button>

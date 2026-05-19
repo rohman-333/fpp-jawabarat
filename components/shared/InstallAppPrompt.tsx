@@ -56,9 +56,9 @@ export function InstallAppPrompt() {
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-[90] md:hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-2xl border border-emerald-100/50 p-4 flex items-center gap-4 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl -mr-10 -mt-10 pointer-events-none"></div>
-        <div className="w-12 h-12 rounded-xl bg-emerald-950 flex items-center justify-center shrink-0 border border-emerald-800 shadow-inner">
+      <div className="bg-white rounded-2xl shadow-2xl border border-blue-100/50 p-4 flex items-center gap-4 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div className="w-12 h-12 rounded-xl bg-blue-950 flex items-center justify-center shrink-0 border border-blue-800 shadow-inner">
           <BrandLogo variant="icon" isDark={true} />
         </div>
         <div className="flex-1 min-w-0">
@@ -68,7 +68,7 @@ export function InstallAppPrompt() {
         <div className="flex items-center gap-2 shrink-0">
           <button 
             onClick={handleInstall}
-            className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-md shadow-emerald-600/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all active:scale-95 flex items-center gap-1.5"
+            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-md shadow-blue-600/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all active:scale-95 flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" /> Install
           </button>

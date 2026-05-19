@@ -44,13 +44,13 @@ export default async function TeamPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Shield className="w-6 h-6 text-emerald-600" /> Manajemen Team Internal
+            <Shield className="w-6 h-6 text-blue-600" /> Manajemen Team Internal
           </h1>
           <p className="text-slate-500 text-sm mt-1">Kelola akses tim dan administrator WIBAWA NUSANTARA</p>
         </div>
         <Link 
           href="/admin/team/invite"
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-sm transition-colors"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm transition-colors"
         >
           <Plus className="w-4 h-4" /> Undang Team Baru
         </Link>
@@ -111,7 +111,7 @@ export default async function TeamPage() {
                 <tr key={member.id} className="hover:bg-slate-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold shrink-0">
                         {member.name?.charAt(0) || 'U'}
                       </div>
                       <div>
@@ -123,7 +123,7 @@ export default async function TeamPage() {
                     <span className={`px-2 py-1 rounded-lg text-xs font-bold ${
                       member.role === 'superadmin' ? 'bg-red-50 text-red-700' :
                       member.role === 'admin' ? 'bg-purple-50 text-purple-700' :
-                      'bg-emerald-50 text-emerald-700'
+                      'bg-blue-50 text-blue-700'
                     }`}>
                       {member.role === 'superadmin' ? 'Superadmin' : member.role === 'admin' ? 'Admin' : 'Team Internal'}
                     </span>

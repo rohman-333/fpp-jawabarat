@@ -73,28 +73,28 @@ export function BannerForm({ initialData = null }: { initialData?: any }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Judul Banner</label>
-                <input type="text" name="title" defaultValue={initialData?.title} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Misal: Promo Bulan Ini" />
+                <input type="text" name="title" defaultValue={initialData?.title} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Misal: Promo Bulan Ini" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Sub Judul</label>
-                <input type="text" name="subtitle" defaultValue={initialData?.subtitle} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Deskripsi singkat" />
+                <input type="text" name="subtitle" defaultValue={initialData?.subtitle} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Deskripsi singkat" />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1">URL Gambar *</label>
-              <input type="url" name="image_url" required defaultValue={initialData?.image_url} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="https://..." />
+              <input type="url" name="image_url" required defaultValue={initialData?.image_url} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="https://..." />
               <p className="text-xs text-slate-500 mt-1">Gunakan URL gambar yang valid. Pastikan gambar sudah di-host (contoh dari Supabase Storage).</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Teks Tombol (CTA)</label>
-                <input type="text" name="cta_label" defaultValue={initialData?.cta_label} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="Beli Sekarang" />
+                <input type="text" name="cta_label" defaultValue={initialData?.cta_label} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Beli Sekarang" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">URL Tombol</label>
-                <input type="text" name="cta_url" defaultValue={initialData?.cta_url} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="/marketplace" />
+                <input type="text" name="cta_url" defaultValue={initialData?.cta_url} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="/marketplace" />
               </div>
             </div>
           </div>
@@ -105,7 +105,7 @@ export function BannerForm({ initialData = null }: { initialData?: any }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Penempatan *</label>
-                <select name="placement" required defaultValue={initialData?.placement || 'landing_hero'} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                <select name="placement" required defaultValue={initialData?.placement || 'landing_hero'} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                   <option value="landing_hero">Landing Page - Hero (Atas)</option>
                   <option value="landing_card">Landing Page - Card (Bawah)</option>
                   <option value="marketplace_hero">Marketplace - Hero</option>
@@ -116,7 +116,7 @@ export function BannerForm({ initialData = null }: { initialData?: any }) {
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Status Banner *</label>
-                <select name="status" required defaultValue={initialData?.status || 'active'} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
+                <select name="status" required defaultValue={initialData?.status || 'active'} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                   <option value="active">Aktif</option>
                   <option value="inactive">Nonaktif</option>
                   <option value="draft">Draft</option>
@@ -126,18 +126,18 @@ export function BannerForm({ initialData = null }: { initialData?: any }) {
 
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
               <label className="flex items-center gap-3 mb-4 cursor-pointer">
-                <input type="checkbox" name="is_sponsored" defaultChecked={initialData?.is_sponsored} className="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" />
+                <input type="checkbox" name="is_sponsored" defaultChecked={initialData?.is_sponsored} className="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500" />
                 <span className="font-bold text-slate-700">Ini adalah iklan sponsor (Sponsored)</span>
               </label>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-1">Nama Sponsor</label>
-                  <input type="text" name="sponsor_name" defaultValue={initialData?.sponsor_name} className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="PT Contoh" />
+                  <input type="text" name="sponsor_name" defaultValue={initialData?.sponsor_name} className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="PT Contoh" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-1">URL Website Sponsor</label>
-                  <input type="url" name="sponsor_url" defaultValue={initialData?.sponsor_url} className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="https://" />
+                  <input type="url" name="sponsor_url" defaultValue={initialData?.sponsor_url} className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="https://" />
                 </div>
               </div>
             </div>
@@ -147,7 +147,7 @@ export function BannerForm({ initialData = null }: { initialData?: any }) {
             <Link href="/admin/banners" className="px-5 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors">
               Batal
             </Link>
-            <Button type="submit" disabled={loading} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-emerald-200">
+            <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-blue-200">
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> Simpan Banner</>}
             </Button>
           </div>

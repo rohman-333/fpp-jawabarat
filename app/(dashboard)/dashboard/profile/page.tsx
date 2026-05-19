@@ -39,7 +39,7 @@ export default async function ProfilePage() {
                 <h2 className="text-xl font-bold text-slate-800">Pengaturan Akun</h2>
                 <p className="text-slate-500 text-sm mt-1">Kelola identitas dan kredensial Anda di platform WIBAWA NUSANTARA.</p>
               </div>
-              <div className="hidden sm:flex w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 items-center justify-center">
+              <div className="hidden sm:flex w-12 h-12 rounded-full bg-blue-100 text-blue-600 items-center justify-center">
                 <User className="w-6 h-6" />
               </div>
             </div>
@@ -85,7 +85,7 @@ export default async function ProfilePage() {
                       defaultValue={profile?.name || ''} 
                       name="name" 
                       type="text" 
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                       placeholder="Nama Anda" 
                     />
                   </div>
@@ -96,7 +96,7 @@ export default async function ProfilePage() {
                       defaultValue={profile?.bio || ''} 
                       name="bio" 
                       rows={3}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none resize-none" 
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none" 
                       placeholder="Ceritakan sedikit tentang Anda..." 
                     />
                   </div>
@@ -108,7 +108,7 @@ export default async function ProfilePage() {
                         defaultValue={profile?.location || ''} 
                         name="location" 
                         type="text" 
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                         placeholder="Misal: Bandung, Jawa Barat" 
                       />
                     </div>
@@ -118,7 +118,7 @@ export default async function ProfilePage() {
                         defaultValue={profile?.birth_date || ''} 
                         name="birth_date" 
                         type="date" 
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                       />
                     </div>
                   </div>
@@ -130,7 +130,7 @@ export default async function ProfilePage() {
                         defaultValue={profile?.phone || ''} 
                         name="phone" 
                         type="tel" 
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                         placeholder="Contoh: 081234567890" 
                       />
                     </div>
@@ -140,7 +140,7 @@ export default async function ProfilePage() {
                         defaultValue={profile?.website || ''} 
                         name="website" 
                         type="url" 
-                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                         placeholder="https://" 
                       />
                     </div>
@@ -150,9 +150,9 @@ export default async function ProfilePage() {
                   <div className="pt-2 border-t border-slate-100">
                     <h3 className="text-sm font-bold text-slate-800 mb-3">Sosial Media</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <input defaultValue={profile?.social_links?.instagram || ''} name="instagram" type="text" placeholder="Username Instagram" className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-emerald-500" />
-                      <input defaultValue={profile?.social_links?.facebook || ''} name="facebook" type="text" placeholder="Username Facebook" className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-emerald-500" />
-                      <input defaultValue={profile?.social_links?.tiktok || ''} name="tiktok" type="text" placeholder="Username TikTok" className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-emerald-500" />
+                      <input defaultValue={profile?.social_links?.instagram || ''} name="instagram" type="text" placeholder="Username Instagram" className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500" />
+                      <input defaultValue={profile?.social_links?.facebook || ''} name="facebook" type="text" placeholder="Username Facebook" className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500" />
+                      <input defaultValue={profile?.social_links?.tiktok || ''} name="tiktok" type="text" placeholder="Username TikTok" className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500" />
                     </div>
                   </div>
 
@@ -171,7 +171,7 @@ export default async function ProfilePage() {
               </div>
 
               <div className="pt-6 border-t border-slate-100 flex justify-end">
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-lg h-auto">
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-2.5 rounded-lg h-auto">
                   Simpan Profil
                 </Button>
               </div>

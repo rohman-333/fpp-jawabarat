@@ -26,7 +26,7 @@ export function TopbarUserMenu({ userName, avatarUrl }: TopbarUserMenuProps) {
     <div className="relative" ref={menuRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-emerald-100 border-2 border-white shadow-sm flex items-center justify-center font-bold text-emerald-700 overflow-hidden shrink-0 hover:ring-2 hover:ring-emerald-500/50 transition-all focus:outline-none"
+        className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center font-bold text-blue-700 overflow-hidden shrink-0 hover:ring-2 hover:ring-blue-500/50 transition-all focus:outline-none"
       >
         {avatarUrl ? (
           <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
@@ -40,10 +40,10 @@ export function TopbarUserMenu({ userName, avatarUrl }: TopbarUserMenuProps) {
           <div className="px-4 py-2 border-b border-slate-100">
             <p className="text-sm font-bold text-slate-800 truncate">{userName}</p>
           </div>
-          <Link href="/dashboard/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition-colors">
+          <Link href="/dashboard/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors">
             <User className="w-4 h-4" /> Profil Akun
           </Link>
-          <Link href="/dashboard/security" onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition-colors">
+          <Link href="/dashboard/security" onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors">
             <Settings className="w-4 h-4" /> Keamanan Akun
           </Link>
           <div className="border-t border-slate-100 my-1"></div>

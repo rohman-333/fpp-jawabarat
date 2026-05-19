@@ -19,7 +19,7 @@ export function FeedPostCard({ post }: FeedPostCardProps) {
     <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-100 transition-all duration-300">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-emerald-100 border-2 border-white shadow-sm flex items-center justify-center text-emerald-700 font-bold overflow-hidden">
+          <div className="w-12 h-12 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center text-blue-700 font-bold overflow-hidden">
             {post.profiles?.avatar_url ? (
               <img src={post.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -50,10 +50,10 @@ export function FeedPostCard({ post }: FeedPostCardProps) {
       <p className="text-slate-600 mb-6 leading-relaxed line-clamp-3">{post.content}</p>
       
       <div className="flex items-center gap-6 text-sm font-medium border-t border-slate-100 pt-4">
-        <button className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors">
+        <button className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors">
           <ThumbsUp className="w-5 h-5" /> 0 Suka
         </button>
-        <button className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors">
+        <button className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors">
           <MessageSquare className="w-5 h-5" /> Balas
         </button>
       </div>

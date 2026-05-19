@@ -62,7 +62,7 @@ export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] })
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Cari nama / kecamatan..." 
-              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </form>
           <div className="relative shrink-0">
@@ -73,7 +73,7 @@ export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] })
                 setStatusFilter(e.target.value);
                 updateUrl(q, e.target.value);
               }}
-              className="w-full sm:w-auto pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all appearance-none cursor-pointer font-medium text-slate-700"
+              className="w-full sm:w-auto pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer font-medium text-slate-700"
             >
               <option value="all">Semua Status</option>
               <option value="pending">Tertunda (Pending)</option>
@@ -87,7 +87,7 @@ export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] })
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
         {isPending && (
           <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] flex items-center justify-center z-10">
-             <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
           </div>
         )}
         
@@ -143,7 +143,7 @@ export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] })
                       {new Date(p.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="py-4 px-6">
-                      {p.status === 'verified' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase tracking-wider border border-emerald-200"><CheckCircle className="w-3 h-3"/> Verified</span>}
+                      {p.status === 'verified' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider border border-blue-200"><CheckCircle className="w-3 h-3"/> Verified</span>}
                       {p.status === 'pending' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase tracking-wider border border-amber-200"><Clock className="w-3 h-3"/> Pending</span>}
                       {p.status === 'rejected' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 uppercase tracking-wider border border-red-200"><XCircle className="w-3 h-3"/> Rejected</span>}
                     </td>

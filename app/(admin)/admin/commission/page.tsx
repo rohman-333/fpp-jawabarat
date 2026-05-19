@@ -42,7 +42,7 @@ export default async function AdminCommissionPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Percent className="w-6 h-6 text-emerald-600" /> Komisi Platform
+            <Percent className="w-6 h-6 text-blue-600" /> Komisi Platform
           </h1>
           <p className="text-slate-500 text-sm mt-1">Atur potongan fee dan pantau pendapatan platform</p>
         </div>
@@ -56,16 +56,16 @@ export default async function AdminCommissionPage() {
           <CommissionForm initialSetting={currentSetting} />
         </div>
 
-        <div className="bg-emerald-600 text-white rounded-2xl shadow-sm p-6 relative overflow-hidden">
-          <div className="absolute -right-6 -top-6 text-emerald-500 opacity-50">
+        <div className="bg-blue-600 text-white rounded-2xl shadow-sm p-6 relative overflow-hidden">
+          <div className="absolute -right-6 -top-6 text-blue-500 opacity-50">
             <DollarSign className="w-48 h-48" />
           </div>
           <div className="relative z-10">
-            <h2 className="font-medium text-emerald-100 mb-1">Total Pendapatan Platform</h2>
+            <h2 className="font-medium text-blue-100 mb-1">Total Pendapatan Platform</h2>
             <div className="text-4xl font-extrabold tracking-tight mb-2">
               {formatRupiah(totalCommission)}
             </div>
-            <p className="text-sm text-emerald-200">Berdasarkan seluruh transaksi di marketplace.</p>
+            <p className="text-sm text-blue-200">Berdasarkan seluruh transaksi di marketplace.</p>
           </div>
         </div>
       </div>
@@ -101,7 +101,7 @@ export default async function AdminCommissionPage() {
                     </td>
                     <td className="px-6 py-4 font-medium text-slate-800">{l.seller?.name || 'Seller'}</td>
                     <td className="px-6 py-4 text-slate-600">{formatRupiah(l.gross_amount)}</td>
-                    <td className="px-6 py-4 font-bold text-emerald-600">+{formatRupiah(l.commission_amount)}</td>
+                    <td className="px-6 py-4 font-bold text-blue-600">+{formatRupiah(l.commission_amount)}</td>
                     <td className="px-6 py-4 font-medium text-blue-600">{formatRupiah(l.seller_net_amount)}</td>
                   </tr>
                 ))

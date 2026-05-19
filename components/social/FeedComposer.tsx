@@ -125,7 +125,7 @@ export function FeedComposer({ user }: { user: any }) {
                 <button 
                   type="button" 
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors" 
+                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors" 
                   title="Lampirkan Gambar"
                 >
                   <ImageIcon className="w-5 h-5" />
@@ -135,7 +135,7 @@ export function FeedComposer({ user }: { user: any }) {
               <button
                 type="submit"
                 disabled={isSubmitting || (!content.trim() && !imageFile)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-full flex items-center gap-2 transition-colors disabled:opacity-50"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-full flex items-center gap-2 transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Posting

@@ -29,7 +29,7 @@ export function CartItemControls({ itemId, quantity: initialQuantity }: { itemId
         <button 
           onClick={() => handleUpdate(qty - 1)}
           disabled={isUpdating || qty <= 1}
-          className="p-1.5 text-slate-500 hover:text-emerald-600 disabled:opacity-50"
+          className="p-1.5 text-slate-500 hover:text-blue-600 disabled:opacity-50"
         >
           <Minus className="w-4 h-4" />
         </button>
@@ -37,7 +37,7 @@ export function CartItemControls({ itemId, quantity: initialQuantity }: { itemId
         <button 
           onClick={() => handleUpdate(qty + 1)}
           disabled={isUpdating}
-          className="p-1.5 text-slate-500 hover:text-emerald-600 disabled:opacity-50"
+          className="p-1.5 text-slate-500 hover:text-blue-600 disabled:opacity-50"
         >
           <Plus className="w-4 h-4" />
         </button>

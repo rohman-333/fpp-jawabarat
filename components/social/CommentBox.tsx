@@ -117,7 +117,7 @@ export function CommentBox({ postId, currentUserId }: { postId: string, currentU
       {/* Comment Form */}
       {currentUserId && (
         <div className="flex items-start gap-2 mt-2 relative">
-          <form onSubmit={handleSubmit} className="flex-1 relative flex items-center bg-white border border-slate-200 rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
+          <form onSubmit={handleSubmit} className="flex-1 relative flex items-center bg-white border border-slate-200 rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
             <button 
               type="button" 
               onClick={() => setShowEmoji(!showEmoji)}
@@ -140,7 +140,7 @@ export function CommentBox({ postId, currentUserId }: { postId: string, currentU
             <button
               type="submit"
               disabled={isSubmitting || !comment.trim()}
-              className="p-2 mr-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-colors disabled:opacity-50 disabled:bg-slate-300"
+              className="p-2 mr-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors disabled:opacity-50 disabled:bg-slate-300"
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>

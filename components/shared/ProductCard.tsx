@@ -43,7 +43,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         )}
       </div>
       <div className="p-3 flex-1 flex flex-col">
-        <h3 className="font-medium text-slate-800 text-xs sm:text-sm leading-[1.4] mb-1 line-clamp-2 group-hover:text-emerald-600 transition-colors h-[2.8em]">{product.name}</h3>
+        <h3 className="font-medium text-slate-800 text-xs sm:text-sm leading-[1.4] mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors h-[2.8em]">{product.name}</h3>
         
         <div className="font-bold text-slate-900 text-sm sm:text-base mb-1.5">
           Rp {product.price.toLocaleString('id-ID')}
@@ -71,7 +71,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             }}
             disabled={stock === 0}
             size="sm" 
-            className="w-full sm:w-auto h-8 text-xs bg-emerald-50 hover:bg-emerald-600 text-emerald-600 hover:text-white font-bold rounded-lg border-0"
+            className="w-full sm:w-auto h-8 text-xs bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white font-bold rounded-lg border-0"
           >
             <Plus className="w-4 h-4 sm:mr-1 shrink-0" /> <span className="hidden sm:inline">Keranjang</span>
           </Button>

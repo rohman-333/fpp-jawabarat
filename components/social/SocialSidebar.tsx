@@ -71,11 +71,11 @@ export function SocialSidebar({ profile }: { profile: any }) {
                 href={link.href}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold transition-all ${
                   isActive 
-                    ? 'bg-emerald-50 text-emerald-700' 
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-600'
+                    ? 'bg-blue-50 text-blue-700' 
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                 {link.name}
               </Link>
             );
@@ -88,7 +88,7 @@ export function SocialSidebar({ profile }: { profile: any }) {
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt={profile.name} className="w-10 h-10 rounded-full object-cover border border-slate-200" />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold uppercase">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold uppercase">
                   {(profile?.name || 'U').charAt(0)}
                 </div>
               )}

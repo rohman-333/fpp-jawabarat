@@ -32,7 +32,7 @@ export function AdminMarketplaceTable({ products }: { products: any[] }) {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
         {isPending && (
           <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] flex items-center justify-center z-10">
-             <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
           </div>
         )}
         
@@ -68,11 +68,11 @@ export function AdminMarketplaceTable({ products }: { products: any[] }) {
                       {product.pesantren?.name || 'Tidak diketahui'}
                     </td>
                     <td className="py-4 px-6 text-sm">
-                      <p className="font-bold text-emerald-700">Rp {product.price.toLocaleString('id-ID')}</p>
+                      <p className="font-bold text-blue-700">Rp {product.price.toLocaleString('id-ID')}</p>
                       <p className="text-xs text-slate-500 mt-0.5">Stok: {product.stock}</p>
                     </td>
                     <td className="py-4 px-6">
-                      {product.status === 'active' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase tracking-wider border border-emerald-200"><CheckCircle className="w-3 h-3"/> Aktif</span>}
+                      {product.status === 'active' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider border border-blue-200"><CheckCircle className="w-3 h-3"/> Aktif</span>}
                       {product.status === 'pending' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase tracking-wider border border-amber-200"><Clock className="w-3 h-3"/> Pending</span>}
                       {product.status === 'hidden' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 uppercase tracking-wider border border-slate-200"><XCircle className="w-3 h-3"/> Hidden</span>}
                     </td>

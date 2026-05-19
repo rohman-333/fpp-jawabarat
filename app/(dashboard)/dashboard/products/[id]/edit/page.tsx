@@ -56,7 +56,7 @@ export default async function EditProductPage({ params }: { params: { id: string
 
         <main className="p-4 md:p-8">
           <div className="max-w-3xl mx-auto">
-            <Link href="/dashboard/products" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-emerald-600 mb-6 transition-colors">
+            <Link href="/dashboard/products" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-blue-600 mb-6 transition-colors">
               <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Katalog
             </Link>
 
@@ -92,7 +92,7 @@ export default async function EditProductPage({ params }: { params: { id: string
                       defaultValue={product.name}
                       name="name" 
                       type="text" 
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                     />
                   </div>
 
@@ -102,7 +102,7 @@ export default async function EditProductPage({ params }: { params: { id: string
                       required 
                       defaultValue={product.category_id || ''}
                       name="category_id" 
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
                     >
                       <option value="">Pilih Kategori</option>
                       {categories?.map(c => (
@@ -116,7 +116,7 @@ export default async function EditProductPage({ params }: { params: { id: string
                     <select 
                       name="status" 
                       defaultValue={product.status || 'pending'}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
                     >
                       <option value="pending">Pending (Menunggu Review)</option>
                       <option value="active">Active (Tampil di Marketplace)</option>
@@ -132,7 +132,7 @@ export default async function EditProductPage({ params }: { params: { id: string
                       name="price" 
                       type="number" 
                       min="0"
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                     />
                   </div>
 
@@ -144,7 +144,7 @@ export default async function EditProductPage({ params }: { params: { id: string
                       name="stock" 
                       type="number" 
                       min="0"
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                     />
                   </div>
 
@@ -155,7 +155,7 @@ export default async function EditProductPage({ params }: { params: { id: string
                       defaultValue={product.description || ''}
                       name="description" 
                       rows={5}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" 
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none" 
                     />
                   </div>
                 </div>
@@ -164,7 +164,7 @@ export default async function EditProductPage({ params }: { params: { id: string
                   <Link href="/dashboard/products">
                     <Button type="button" variant="outline">Batal</Button>
                   </Link>
-                  <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8">
+                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8">
                     Simpan Perubahan
                   </Button>
                 </div>

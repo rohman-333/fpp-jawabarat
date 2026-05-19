@@ -24,7 +24,7 @@ export function FeedTabs({ activeTab, onTabChange }: { activeTab: string, onTabC
             onClick={() => onTabChange(tab.id)}
             className={`whitespace-nowrap px-4 py-2 rounded-full font-bold text-sm transition-all active:scale-95 ${
               isActive 
-                ? 'bg-emerald-600 text-white shadow-sm' 
+                ? 'bg-blue-600 text-white shadow-sm' 
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >

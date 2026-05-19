@@ -140,7 +140,7 @@ export function PushNotificationManager() {
     <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${subscription ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${subscription ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
             <Bell className="w-5 h-5" />
           </div>
           <div>
@@ -163,7 +163,7 @@ export function PushNotificationManager() {
             onClick={subscription ? unsubscribeFromPush : subscribeToPush}
             disabled={saving}
             variant={subscription ? 'outline' : 'default'}
-            className={subscription ? 'border-slate-200 hover:bg-slate-50' : 'bg-emerald-600 hover:bg-emerald-700 font-bold'}
+            className={subscription ? 'border-slate-200 hover:bg-slate-50' : 'bg-blue-600 hover:bg-blue-700 font-bold'}
           >
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
             {subscription ? 'Nonaktifkan' : 'Aktifkan Notifikasi'}

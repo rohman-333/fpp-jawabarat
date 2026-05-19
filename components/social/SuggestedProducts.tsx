@@ -49,7 +49,7 @@ export function SuggestedProducts() {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-6 xl:mt-6">
       <div className="p-3 xl:p-4 border-b border-slate-100 flex items-center gap-2">
-        <Store className="w-4 h-4 text-emerald-600" />
+        <Store className="w-4 h-4 text-blue-600" />
         <h3 className="font-bold text-slate-800 text-sm">Produk Terbaru</h3>
       </div>
       <div className="p-3 xl:p-4 flex xl:flex-col gap-4 overflow-x-auto xl:overflow-visible hide-scrollbar snap-x">
@@ -63,8 +63,8 @@ export function SuggestedProducts() {
               )}
             </div>
             <div className="flex-1 min-w-0 text-center xl:text-left w-full">
-              <h4 className="font-bold text-slate-800 text-sm group-hover:text-emerald-600 truncate transition-colors">{p.name}</h4>
-              <p className="text-emerald-600 font-bold text-xs mt-0.5">Rp {p.price?.toLocaleString('id-ID')}</p>
+              <h4 className="font-bold text-slate-800 text-sm group-hover:text-blue-600 truncate transition-colors">{p.name}</h4>
+              <p className="text-blue-600 font-bold text-xs mt-0.5">Rp {p.price?.toLocaleString('id-ID')}</p>
               <p className="text-[10px] text-slate-500 truncate mt-0.5">{p.pesantren?.name}</p>
             </div>
           </Link>

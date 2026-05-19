@@ -41,7 +41,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       <div className="max-w-2xl mx-auto w-full pt-20 px-4 text-center">
         <h1 className="text-2xl font-bold text-slate-800">Postingan tidak tersedia</h1>
         <p className="text-slate-500 mt-2">Postingan ini mungkin telah dihapus oleh penulisnya atau disembunyikan.</p>
-        <Link href="/feed" className="inline-block mt-6 px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700">
+        <Link href="/feed" className="inline-block mt-6 px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">
           Kembali ke Beranda
         </Link>
       </div>
@@ -74,7 +74,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="max-w-2xl mx-auto w-full pt-4 md:pt-8 px-4 md:px-0">
       <div className="mb-4">
-        <Link href="/feed" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-600 transition-colors bg-white px-4 py-2 rounded-full border border-slate-200 shadow-sm">
+        <Link href="/feed" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-full border border-slate-200 shadow-sm">
           <ArrowLeft className="w-4 h-4" /> Kembali ke Feed
         </Link>
       </div>

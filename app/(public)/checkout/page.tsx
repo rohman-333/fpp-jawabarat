@@ -46,7 +46,7 @@ export default async function CheckoutPage() {
       
       <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
         <h1 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-          <CheckCircle2 className="w-6 h-6 text-emerald-600" /> Checkout
+          <CheckCircle2 className="w-6 h-6 text-blue-600" /> Checkout
         </h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -78,7 +78,7 @@ export default async function CheckoutPage() {
               <div className="p-4 bg-slate-50 border-t border-slate-200">
                 <div className="flex justify-between font-bold text-lg text-slate-800 mb-4">
                   <span>Total Bayar</span>
-                  <span className="text-emerald-600">Rp {totalPrice.toLocaleString('id-ID')}</span>
+                  <span className="text-blue-600">Rp {totalPrice.toLocaleString('id-ID')}</span>
                 </div>
               </div>
             </div>

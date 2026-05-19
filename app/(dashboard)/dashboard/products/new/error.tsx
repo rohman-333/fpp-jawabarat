@@ -29,7 +29,7 @@ export default function ErrorBoundary({
       <div className="flex gap-4">
         <Button 
           onClick={() => reset()}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           Coba Lagi (Reload)
         </Button>

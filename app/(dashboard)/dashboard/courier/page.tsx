@@ -54,7 +54,7 @@ export default async function CourierDashboardPage() {
             <Link href="/dashboard" className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3 rounded-xl transition-colors">
               Kembali
             </Link>
-            <Link href="/dashboard/courier/apply" className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-colors">
+            <Link href="/dashboard/courier/apply" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-colors">
               <Truck className="w-4 h-4" /> Lamar Ulang
             </Link>
           </div>
@@ -69,11 +69,11 @@ export default async function CourierDashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Truck className="w-6 h-6 text-emerald-600" /> Dashboard Kurir
+            <Truck className="w-6 h-6 text-blue-600" /> Dashboard Kurir
           </h1>
           <p className="text-slate-500 text-sm mt-1">Kelola dan pantau tugas pengiriman barang Anda.</p>
         </div>
-        <div className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
+        <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4" /> Status Aktif
         </div>
       </div>

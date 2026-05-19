@@ -38,7 +38,7 @@ export function PesantrenActionButtons({ phone, pesantrenId, lat, lng }: { phone
       )}
       
       <Link href={`/marketplace?pesantren=${pesantrenId}`} className="flex-1 sm:flex-none">
-        <Button variant="outline" className="w-full flex items-center gap-2 text-emerald-700 border-emerald-200 hover:bg-emerald-50 bg-white shadow-sm">
+        <Button variant="outline" className="w-full flex items-center gap-2 text-blue-700 border-blue-200 hover:bg-blue-50 bg-white shadow-sm">
           <Store className="w-4 h-4" /> Etalase
         </Button>
       </Link>

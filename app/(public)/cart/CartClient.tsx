@@ -51,7 +51,7 @@ export function CartClient({ initialItems, currentUserId }: { initialItems: any[
         />
         <div className="flex justify-center mt-6">
           <Link href="/marketplace">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 font-bold rounded-xl px-8 h-12">Belanja Sekarang</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 font-bold rounded-xl px-8 h-12">Belanja Sekarang</Button>
           </Link>
         </div>
       </div>
@@ -76,11 +76,11 @@ export function CartClient({ initialItems, currentUserId }: { initialItems: any[
                 )}
               </div>
               <div className="flex-1 flex flex-col min-w-0">
-                <Link href={`/marketplace/${product.slug}`} className="font-bold text-slate-800 text-sm sm:text-base line-clamp-2 hover:text-emerald-600 transition-colors mb-1">
+                <Link href={`/marketplace/${product.slug}`} className="font-bold text-slate-800 text-sm sm:text-base line-clamp-2 hover:text-blue-600 transition-colors mb-1">
                   {product.name}
                 </Link>
                 <div className="text-xs text-slate-500 mb-2 truncate">{sellerName}</div>
-                <div className="font-bold text-emerald-600 mb-3">{formatRupiah(product.price)}</div>
+                <div className="font-bold text-blue-600 mb-3">{formatRupiah(product.price)}</div>
                 
                 <div className="mt-auto flex items-center justify-between gap-4">
                   <button 
@@ -122,7 +122,7 @@ export function CartClient({ initialItems, currentUserId }: { initialItems: any[
               <span>Total Harga ({items.length} Barang)</span>
               <span>{formatRupiah(total)}</span>
             </div>
-            <div className="flex justify-between text-emerald-600 text-sm font-medium">
+            <div className="flex justify-between text-blue-600 text-sm font-medium">
               <span>Diskon</span>
               <span>Rp 0</span>
             </div>
@@ -132,7 +132,7 @@ export function CartClient({ initialItems, currentUserId }: { initialItems: any[
             <span className="font-extrabold text-xl text-slate-900">{formatRupiah(total)}</span>
           </div>
           <Link href="/checkout">
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold rounded-xl h-12 shadow-md shadow-emerald-600/20">
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 font-bold rounded-xl h-12 shadow-md shadow-blue-600/20">
               Beli ({items.length}) <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
