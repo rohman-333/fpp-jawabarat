@@ -16,7 +16,7 @@ export default async function SecurityPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect('/login')
   }
 
   const { data: profile } = await supabase
@@ -26,7 +26,7 @@ export default async function SecurityPage() {
     .single()
 
   if (!profile) {
-    redirect('/auth/login')
+    redirect('/login')
   }
 
   return (
