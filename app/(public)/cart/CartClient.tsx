@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 export function CartClient({ initialItems, currentUserId }: { initialItems: any[], currentUserId: string }) {
   const [items, setItems] = useState(initialItems);
   const [loadingIds, setLoadingIds] = useState<string[]>([]);
+  const [showDeleteId, setShowDeleteId] = useState<string | null>(null);
   const supabase = createClient();
   const router = useRouter();
 
@@ -30,7 +31,6 @@ export function CartClient({ initialItems, currentUserId }: { initialItems: any[
   };
 
   const removeItem = async (id: string) => {
-    if (!confirm('Hapus produk ini dari keranjang?')) return;
     setLoadingIds(prev => [...prev, id]);
     
     await supabase.from('cart_items').delete().eq('id', id);
@@ -84,7 +84,7 @@ export function CartClient({ initialItems, currentUserId }: { initialItems: any[
                 
                 <div className="mt-auto flex items-center justify-between gap-4">
                   <button 
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => setShowDeleteId(item.id)}
                     className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1"
                   >
                     <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Hapus</span>
@@ -138,6 +138,34 @@ export function CartClient({ initialItems, currentUserId }: { initialItems: any[
           </Link>
         </div>
       </div>
+
+      {showDeleteId && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-slate-800 mb-2">Hapus dari Keranjang?</h3>
+            <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+              Apakah Anda yakin ingin menghapus produk ini dari keranjang belanja Anda?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setShowDeleteId(null)}
+                className="px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors h-11"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={() => {
+                  removeItem(showDeleteId);
+                  setShowDeleteId(null);
+                }}
+                className="px-5 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-md shadow-red-600/20 h-11"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

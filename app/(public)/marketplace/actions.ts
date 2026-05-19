@@ -10,34 +10,105 @@ export async function addToCart(productId: string, quantity: number = 1) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect('/login?returnUrl=/marketplace');
   }
 
-  // Check if item already in cart
-  const { data: existingItem } = await supabase
-    .from('cart_items')
-    .select('id, quantity')
-    .eq('user_id', user.id)
-    .eq('product_id', productId)
-    .single();
+  let finalError: any = null;
 
-  if (existingItem) {
-    const { error } = await supabase
-      .from('cart_items')
-      .update({ quantity: existingItem.quantity + quantity })
-      .eq('id', existingItem.id);
-    
-    if (error) throw error;
-  } else {
-    const { error } = await supabase
-      .from('cart_items')
-      .insert({
-        user_id: user.id,
-        product_id: productId,
-        quantity
-      });
+  try {
+    // 1. Try calling add_to_cart_v2 as the primary RPC
+    const { error: rpcErrorV2 } = await supabase.rpc('add_to_cart_v2', {
+      p_product_id: productId,
+      p_quantity: quantity
+    });
+
+    if (rpcErrorV2) {
+      console.warn('RPC add_to_cart_v2 failed, trying fallback add_to_cart...', rpcErrorV2.message);
       
-    if (error) throw error;
+      // 2. Fallback to add_to_cart RPC
+      const { error: rpcErrorV1 } = await supabase.rpc('add_to_cart', {
+        p_product_id: productId,
+        p_quantity: quantity
+      });
+
+      if (rpcErrorV1) {
+        finalError = rpcErrorV1;
+      }
+    }
+  } catch (rpcErr: any) {
+    finalError = rpcErr;
+  }
+
+  // 3. Fallback Update if RPC failed or unique key constraint was encountered
+  if (finalError) {
+    console.warn('RPC addition failed, triggering manual fallback update strategy...', finalError.message);
+    try {
+      // Find existing item
+      const { data: existingItem } = await supabase
+        .from('cart_items')
+        .select('id, quantity')
+        .eq('user_id', user.id)
+        .eq('product_id', productId)
+        .maybeSingle();
+
+      if (existingItem) {
+        const { error: updateError } = await supabase
+          .from('cart_items')
+          .update({ 
+            quantity: (existingItem.quantity || 0) + quantity,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingItem.id);
+        
+        if (updateError) throw updateError;
+      } else {
+        // Safe manual insert
+        const { data: product } = await supabase
+          .from('products')
+          .select('seller_id')
+          .eq('id', productId)
+          .maybeSingle();
+
+        const { error: insertError } = await supabase
+          .from('cart_items')
+          .insert({
+            user_id: user.id,
+            product_id: productId,
+            seller_id: product?.seller_id || null,
+            quantity: quantity
+          });
+
+        if (insertError) {
+          // If a race condition occurred and unique constraint violation (23505) occurs
+          if (insertError.code === '23505' || insertError.message?.includes('duplicate key')) {
+            const { data: retryItem } = await supabase
+              .from('cart_items')
+              .select('id, quantity')
+              .eq('user_id', user.id)
+              .eq('product_id', productId)
+              .maybeSingle();
+            
+            if (retryItem) {
+              const { error: finalUpdateError } = await supabase
+                .from('cart_items')
+                .update({ 
+                  quantity: (retryItem.quantity || 0) + quantity,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', retryItem.id);
+              if (finalUpdateError) throw finalUpdateError;
+            } else {
+              throw insertError;
+            }
+          } else {
+            throw insertError;
+          }
+        }
+      }
+    } catch (manualErr: any) {
+      console.error('Centralized addToCart manual fallback failure:', manualErr);
+      return { error: 'Gagal menambahkan ke keranjang. Coba lagi.' };
+    }
   }
 
   revalidatePath('/cart');
@@ -127,12 +198,12 @@ export async function createOrder(formData: FormData) {
   // Get active commission setting
   const { data: commissionSettings } = await supabase
     .from('platform_commission_settings')
-    .select('*')
+    .select('commission_percentage')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(1);
     
-  const commissionSetting = commissionSettings?.[0] || { commission_type: 'percentage', percentage_rate: 0, fixed_amount: 0 };
+  const commissionPercentage = commissionSettings?.[0]?.commission_percentage ?? 10; // Default 10% platform fee
 
   for (const sellerId of Object.keys(itemsBySeller)) {
     const sellerItems = itemsBySeller[sellerId];
@@ -145,13 +216,7 @@ export async function createOrder(formData: FormData) {
     const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     // Calculate commission
-    let commissionAmount = 0;
-    if (commissionSetting.commission_type === 'percentage') {
-      commissionAmount = (totalAmount * (commissionSetting.percentage_rate || 0)) / 100;
-    } else {
-      commissionAmount = commissionSetting.fixed_amount || 0;
-    }
-    
+    const commissionAmount = (totalAmount * commissionPercentage) / 100;
     const sellerNetAmount = totalAmount - commissionAmount;
 
     // Create Order
@@ -162,11 +227,14 @@ export async function createOrder(formData: FormData) {
         seller_id: sellerId,
         invoice_number: invoiceNumber,
         total_amount: totalAmount,
+        subtotal: totalAmount,
+        platform_fee: commissionAmount,
         shipping_cost: 0, // Placeholder for future logic
         shipping_address: shippingAddress,
         customer_phone: customerPhone,
         notes: notes,
-        status: 'pending'
+        status: 'pending',
+        payment_status: 'unpaid'
       })
       .select('id')
       .single();
@@ -181,6 +249,7 @@ export async function createOrder(formData: FormData) {
         product_id: item.product.id,
         product_name: item.product.name,
         product_price: price,
+        seller_id: sellerId,
         quantity: item.quantity,
         subtotal: price * item.quantity
       };
@@ -193,23 +262,29 @@ export async function createOrder(formData: FormData) {
     if (itemsError) throw itemsError;
     
     // Create Commission Ledger
-    await supabase.from('platform_commission_ledger').insert({
-      order_id: orderData.id,
-      seller_id: sellerId,
-      buyer_id: user.id,
-      gross_amount: totalAmount,
-      commission_amount: commissionAmount,
-      seller_net_amount: sellerNetAmount,
-      status: 'pending'
-    });
+    try {
+      await supabase.from('platform_commission_ledger').insert({
+        order_id: orderData.id,
+        gross_amount: totalAmount,
+        commission_amount: commissionAmount,
+        seller_net_amount: sellerNetAmount,
+        status: 'recorded'
+      });
+    } catch (e) {
+      console.error('Failed to create platform_commission_ledger record:', e);
+    }
 
     // Create Order Status Log
-    await supabase.from('order_status_logs').insert({
-      order_id: orderData.id,
-      status: 'pending',
-      notes: 'Order placed',
-      created_by: user.id
-    });
+    try {
+      await supabase.from('order_status_logs').insert({
+        order_id: orderData.id,
+        status: 'pending',
+        notes: 'Order placed',
+        created_by: user.id
+      });
+    } catch (e) {
+      console.error('Failed to create order_status_logs record:', e);
+    }
 
     // Notify Buyer
     await createNotification({

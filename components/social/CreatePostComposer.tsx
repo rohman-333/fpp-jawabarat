@@ -29,6 +29,14 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const showError = (message: string) => {
+    setError(message);
+    setTimeout(() => {
+      setError(null);
+    }, 4500);
+  };
   
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
@@ -59,7 +67,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
 
       if (type === 'video') {
         if (file.size > 30 * 1024 * 1024) {
-          alert('Ukuran video maksimal 30MB');
+          showError('Ukuran video maksimal 30MB');
           setOriginalName(null);
           setOriginalSize(null);
           return;
@@ -73,7 +81,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
           URL.revokeObjectURL(video.src);
           setIsCompressing(false);
           if (video.duration > 60) {
-            alert('Durasi video postingan maksimal 60 detik');
+            showError('Durasi video postingan maksimal 60 detik');
             if (videoInputRef.current) videoInputRef.current.value = '';
             if (cameraVideoInputRef.current) cameraVideoInputRef.current.value = '';
             setOriginalName(null);
@@ -140,7 +148,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
           const { url, error } = await uploadPostImage(mediaFile, user.id);
           if (error) {
             console.error('[UPLOAD_IMAGE_ERROR]', error);
-            alert('Gagal mengunggah gambar: ' + error + '. Silakan klik Posting untuk mencoba kembali.');
+            showError('Gagal mengunggah gambar. Silakan klik Posting untuk mencoba kembali.');
             setIsSubmitting(false);
             return;
           } else {
@@ -150,7 +158,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
           const { url, error } = await uploadSocialVideo(mediaFile, user.id);
           if (error) {
             console.error('[UPLOAD_VIDEO_ERROR]', error);
-            alert('Gagal mengunggah video: ' + error + '. Silakan klik Posting untuk mencoba kembali.');
+            showError('Gagal mengunggah video. Silakan klik Posting untuk mencoba kembali.');
             setIsSubmitting(false);
             return;
           } else {
@@ -172,7 +180,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
       
       if (res?.error) {
         console.error('[CREATE_POST_CLIENT_ERROR]', res.error);
-        alert('Gagal memposting: ' + res.error);
+        showError('Gagal memposting: ' + res.error);
       } else {
         setContent('');
         removeMedia();
@@ -183,7 +191,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
       }
     } catch (err) {
       console.error('[CREATE_POST_CLIENT_EXCEPTION]', err);
-      alert('Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
+      showError('Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
     }
@@ -572,6 +580,15 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
           </button>
         </div>
       </MobileBottomSheet>
+
+      {/* Floating Custom Error Notification */}
+      {error && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-5 py-3.5 rounded-2xl shadow-xl border bg-white border-red-100 text-slate-800 text-xs sm:text-sm font-extrabold animate-bounce">
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+          <span>{error}</span>
+          <button type="button" onClick={() => setError(null)} className="ml-2 text-slate-400 hover:text-slate-600 font-normal">✕</button>
+        </div>
+      )}
     </div>
   );
 }

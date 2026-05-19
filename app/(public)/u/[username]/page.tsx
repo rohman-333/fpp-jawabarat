@@ -13,11 +13,20 @@ import { Button } from '@/components/ui/button';
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const supabase = await createClient();
-  const { data: profile } = await supabase.from('public_profiles').select('name, bio').eq('username', username).single();
+  
+  let query = supabase.from('public_profiles').select('name, bio');
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(username);
+  if (isUUID) {
+    query = query.eq('id', username);
+  } else {
+    query = query.eq('username', username);
+  }
+  
+  const { data: profile } = await query.maybeSingle();
   
   if (!profile) return { title: 'User Not Found' };
   return {
-    title: `${profile.name} (@${username}) - WIBAWA NUSANTARA`,
+    title: `${profile.name} - WIBAWA NUSANTARA`,
     description: profile.bio || `Profil ${profile.name} di WIBAWA NUSANTARA`,
   };
 }
@@ -36,11 +45,17 @@ export default async function PublicProfilePage({
   
   const { data: { user: currentUser } } = await supabase.auth.getUser();
 
-  const { data: profile } = await supabase
-    .from('public_profiles')
-    .select('*')
-    .eq('username', username)
-    .single();
+  // Support both username OR UUID id lookup in the same page
+  let query = supabase.from('public_profiles').select('*');
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(username);
+  
+  if (isUUID) {
+    query = query.eq('id', username);
+  } else {
+    query = query.eq('username', username);
+  }
+
+  const { data: profile } = await query.maybeSingle();
 
   if (!profile) {
     notFound();

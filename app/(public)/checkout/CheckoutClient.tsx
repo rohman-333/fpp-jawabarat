@@ -30,9 +30,24 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
     return acc;
   }, {} as Record<string, any[]>);
 
+  const [errorToast, setErrorToast] = useState<string | null>(null);
+  
+  const showError = (message: string) => {
+    setErrorToast(message);
+    setTimeout(() => {
+      setErrorToast(null);
+    }, 4000);
+  };
+
   const handleCheckout = async () => {
-    if (!address) return alert('Mohon isi alamat pengiriman.');
-    if (!phone) return alert('Mohon isi nomor telepon aktif.');
+    if (!address) {
+      showError('Mohon isi alamat pengiriman.');
+      return;
+    }
+    if (!phone) {
+      showError('Mohon isi nomor telepon aktif.');
+      return;
+    }
 
     setLoading(true);
 
@@ -95,7 +110,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
       router.push('/orders');
       router.refresh();
     } catch (err: any) {
-      alert('Terjadi kesalahan: ' + err.message);
+      showError('Terjadi kesalahan: ' + err.message);
       setLoading(false);
     }
   };
@@ -219,6 +234,13 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
           </p>
         </div>
       </div>
+
+      {errorToast && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3.5 rounded-2xl shadow-xl border text-xs sm:text-sm font-extrabold transition-all duration-300 animate-bounce bg-white border-red-100 text-slate-800">
+          <span className="text-rose-500">⚠</span>
+          <span>{errorToast}</span>
+        </div>
+      )}
     </div>
   );
 }

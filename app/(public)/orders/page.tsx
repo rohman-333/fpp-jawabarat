@@ -68,13 +68,19 @@ export default async function OrdersPage() {
                       <div className="font-bold text-slate-800">Rp {order.total_amount.toLocaleString('id-ID')}</div>
                     </div>
                   </div>
-                  <div>
-                    {order.status === 'pending' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold uppercase tracking-wider"><Clock className="w-3.5 h-3.5" /> Menunggu Pembayaran</span>}
-                    {order.status === 'paid' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider"><CheckCircle2 className="w-3.5 h-3.5" /> Dibayar</span>}
-                    {order.status === 'processing' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-xs font-bold uppercase tracking-wider"><Package className="w-3.5 h-3.5" /> Diproses</span>}
-                    {order.status === 'shipped' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold uppercase tracking-wider"><Package className="w-3.5 h-3.5" /> Dikirim</span>}
-                    {order.status === 'delivered' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider"><CheckCircle2 className="w-3.5 h-3.5" /> Selesai</span>}
-                    {order.status === 'cancelled' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-bold uppercase tracking-wider"><XCircle className="w-3.5 h-3.5" /> Dibatalkan</span>}
+                  <div className="flex flex-wrap gap-2">
+                    {/* General Order Status */}
+                    {order.status === 'pending' && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">Menunggu</span>}
+                    {order.status === 'processing' && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider">Diproses</span>}
+                    {order.status === 'shipped' && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-bold uppercase tracking-wider">Dikirim</span>}
+                    {order.status === 'delivered' && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider">Selesai</span>}
+                    {order.status === 'cancelled' && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-800 text-[10px] font-bold uppercase tracking-wider">Dibatalkan</span>}
+
+                    {/* Payment Status */}
+                    {(order.payment_status === 'unpaid' || !order.payment_status) && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider">Belum Bayar</span>}
+                    {order.payment_status === 'waiting_payment' && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold uppercase tracking-wider">Verifikasi Pembayaran</span>}
+                    {order.payment_status === 'paid' && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider">Lunas</span>}
+                    {order.payment_status === 'rejected' && <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold uppercase tracking-wider">Pembayaran Ditolak</span>}
                   </div>
                 </div>
                 
@@ -88,7 +94,7 @@ export default async function OrdersPage() {
                       <div key={item.id} className="flex gap-4">
                         <div className="flex-1">
                           <div className="font-medium text-slate-800">{item.product_name}</div>
-                          <div className="text-slate-500 text-sm">{item.quantity} x Rp {item.product_price.toLocaleString('id-ID')}</div>
+                          <div className="text-slate-500 text-sm">{item.quantity} x Rp {(item.product_price || item.price || 0).toLocaleString('id-ID')}</div>
                         </div>
                         <div className="font-bold text-slate-800">
                           Rp {item.subtotal.toLocaleString('id-ID')}
@@ -96,6 +102,34 @@ export default async function OrdersPage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Payment Prompt Banner */}
+                  {order.status === 'pending' && (order.payment_status === 'unpaid' || order.payment_status === 'rejected' || !order.payment_status) && (
+                    <div className="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div>
+                        <div className="font-extrabold text-slate-800 text-xs sm:text-sm">Segera lakukan Pembayaran Manual</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">Transfer ke Bank Mandiri 1310022345678 atau BSI 7110023456 a.n FPP Jabar</div>
+                        {order.payment_status === 'rejected' && (
+                          <div className="text-rose-600 font-bold text-xs mt-1">⚠ Bukti bayar sebelumnya ditolak. Silakan unggah ulang bukti transfer yang valid.</div>
+                        )}
+                      </div>
+                      <Link href={`/orders/${order.id}/payment`} className="shrink-0 w-full sm:w-auto">
+                        <button className="w-full text-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer">
+                          Unggah Bukti Transfer
+                        </button>
+                      </Link>
+                    </div>
+                  )}
+
+                  {order.payment_status === 'waiting_payment' && (
+                    <div className="mt-6 p-4 rounded-2xl bg-blue-50 border border-blue-100 flex items-center gap-3">
+                      <Clock className="w-5 h-5 text-blue-600 shrink-0" />
+                      <div>
+                        <div className="font-extrabold text-slate-800 text-xs sm:text-sm">Pembayaran sedang diverifikasi</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">Mohon tunggu, admin sedang memeriksa bukti transfer Anda.</div>
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="mt-6 pt-6 border-t border-slate-100 flex flex-wrap gap-4 items-center justify-between">
                     <p className="text-sm text-slate-500">

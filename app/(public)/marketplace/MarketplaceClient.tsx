@@ -7,6 +7,7 @@ import { ProductCard } from '@/components/shared/ProductCard';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { createClient } from '@/lib/supabase/client';
 import { useDebounce } from '@/hooks/useDebounce';
+import { addToCart } from './actions';
 
 const CATEGORIES = [
   { id: 'all', name: 'Semua Kategori', icon: Sparkles },
@@ -25,6 +26,14 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3000);
+  };
   
   const debouncedSearch = useDebounce(searchQuery, 500);
   const supabase = createClient();
@@ -165,24 +174,28 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
               onAddToCart={async (p) => {
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user) {
-                  alert('Silakan login terlebih dahulu untuk berbelanja.');
-                  window.location.href = '/login?redirect=/marketplace';
+                  showToast('Silakan login terlebih dahulu untuk berbelanja.', 'error');
+                  setTimeout(() => {
+                    window.location.href = `/login?redirect=/marketplace`;
+                  }, 1200);
                   return;
                 }
-                
-                const { error } = await supabase
-                  .from('cart_items')
-                  .insert({
-                    user_id: user.id,
-                    product_id: p.id,
-                    quantity: 1
-                  });
-                  
-                if (error) {
-                  console.error(error);
-                  alert('Gagal menambahkan ke keranjang: ' + error.message);
-                } else {
-                  alert('Berhasil ditambahkan ke keranjang!');
+
+                if (!p || !p.id) {
+                  showToast('Produk tidak valid.', 'error');
+                  return;
+                }
+
+                try {
+                  const res = await addToCart(p.id, 1);
+                  if (res && 'error' in res && res.error) {
+                    showToast('Gagal menambahkan ke keranjang. Coba lagi.', 'error');
+                  } else {
+                    showToast('Produk ditambahkan ke keranjang', 'success');
+                  }
+                } catch (err: any) {
+                  console.error(err);
+                  showToast('Gagal menambahkan ke keranjang. Coba lagi.', 'error');
                 }
               }}
             />
@@ -195,6 +208,15 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
             description="Coba gunakan kata kunci lain atau pilih kategori yang berbeda." 
             icon={<ShoppingBag className="w-8 h-8 text-slate-400" />}
           />
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3.5 rounded-2xl shadow-xl border text-xs sm:text-sm font-extrabold transition-all duration-300 animate-bounce bg-white border-slate-200 text-slate-800">
+          <span className={toast.type === 'success' ? 'text-emerald-500' : 'text-rose-500'}>
+            {toast.type === 'success' ? '✓' : '⚠'}
+          </span>
+          <span>{toast.message}</span>
         </div>
       )}
     </div>
