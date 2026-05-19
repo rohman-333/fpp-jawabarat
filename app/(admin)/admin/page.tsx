@@ -70,7 +70,7 @@ export default async function AdminPage() {
         <main className="p-4 md:p-8 max-w-7xl mx-auto w-full">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-slate-800">Statistik Platform</h1>
-            <p className="text-slate-500 text-sm">Ringkasan aktivitas platform FPP JAWABARAT</p>
+            <p className="text-slate-500 text-sm">Ringkasan aktivitas platform WIBAWA NUSANTARA</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6 mb-10">

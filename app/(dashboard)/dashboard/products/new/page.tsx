@@ -68,7 +68,7 @@ export default async function NewProductPage() {
                 <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
               </div>
               <h2 className="text-xl font-bold text-slate-800 mb-2">Anda Belum Menjadi Seller</h2>
-              <p className="text-slate-500 mb-6">Silakan ajukan pembukaan toko terlebih dahulu untuk mulai berjualan di Marketplace FPP JAWABARAT.</p>
+              <p className="text-slate-500 mb-6">Silakan ajukan pembukaan toko terlebih dahulu untuk mulai berjualan di Marketplace WIBAWA NUSANTARA.</p>
               <div className="space-y-3">
                 <Link href="/dashboard/seller/apply" className="block w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-200">
                   Ajukan Buka Toko

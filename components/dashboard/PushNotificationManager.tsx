@@ -57,35 +57,37 @@ export function PushNotificationManager() {
     try {
       setSaving(true);
       setError(null);
-      
-      const registration = await navigator.serviceWorker.ready;
 
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
-        throw new Error('VAPID key belum dikonfigurasi di server.');
+        throw new Error('Push notification belum dikonfigurasi server.');
       }
+
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        throw new Error('Izin notifikasi ditolak oleh browser.');
+      }
+
+      const registration = await navigator.serviceWorker.ready;
 
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
       });
-      
+
       setSubscription(sub);
 
-      // Save to database
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Unauthenticated');
+      // Send to server via API route (not directly to Supabase)
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub.toJSON()),
+      });
 
-      const p256dh = sub.getKey('p256dh') ? btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh') as ArrayBuffer) as any)) : null;
-      const auth = sub.getKey('auth') ? btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('auth') as ArrayBuffer) as any)) : null;
-
-      await supabase.from('push_subscriptions').upsert({
-        user_id: user.id,
-        endpoint: sub.endpoint,
-        p256dh,
-        auth,
-        user_agent: navigator.userAgent
-      }, { onConflict: 'user_id, endpoint' });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Gagal menyimpan subscription ke server.');
+      }
 
     } catch (err: any) {
       console.error(err);

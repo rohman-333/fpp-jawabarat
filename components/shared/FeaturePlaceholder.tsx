@@ -13,7 +13,7 @@ export function FeaturePlaceholder({ title = 'Fitur Sedang Disiapkan' }: Feature
       </div>
       <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-3">{title}</h1>
       <p className="text-slate-600 max-w-md mx-auto mb-8 leading-relaxed">
-        Kami sedang bekerja keras membangun fitur ini untuk memberikan pengalaman terbaik di platform FPP JAWABARAT. Nantikan segera!
+        Kami sedang bekerja keras membangun fitur ini untuk memberikan pengalaman terbaik di platform WIBAWA NUSANTARA. Nantikan segera!
       </p>
       <Link 
         href="javascript:history.back()"

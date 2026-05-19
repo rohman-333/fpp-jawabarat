@@ -4,7 +4,7 @@ import { Percent, Activity, DollarSign } from 'lucide-react';
 import { CommissionForm } from './CommissionForm';
 
 export const metadata = {
-  title: 'Komisi Platform - FPP JAWABARAT',
+  title: 'Komisi Platform - WIBAWA NUSANTARA',
 };
 
 export default async function AdminCommissionPage() {

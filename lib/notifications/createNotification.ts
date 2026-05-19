@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import webpush from 'web-push';
+import { sendWebPush } from './sendWebPush';
 
 export async function createNotification({ 
   userId, 
@@ -16,75 +16,68 @@ export async function createNotification({
   body: string;
   href?: string;
 }) {
-  const supabase = await createClient();
-
-  // 1. Insert to notifications table
-  const { data: notification, error } = await supabase
-    .from('notifications')
-    .insert({
-      user_id: userId,
-      actor_id: actorId,
-      type,
-      title,
-      message: body,
-      target_url: href
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('[CREATE_NOTIFICATION_ERROR]', error);
+  if (userId === actorId) {
+    // Don't send notification to self
     return null;
   }
 
-  // 2. Try Web Push if configured
-  if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY && process.env.VAPID_SUBJECT) {
-    try {
-      webpush.setVapidDetails(
-        process.env.VAPID_SUBJECT,
-        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-        process.env.VAPID_PRIVATE_KEY
-      );
+  const supabase = await createClient();
 
-      // Get subscriptions for this user
+  // Build payload — always include the new columns.
+  // Legacy columns (message, target_url) included for backward compatibility.
+  // If the columns don't exist, Postgres will ignore them gracefully when using upsert/insert.
+  const payload: Record<string, any> = {
+    user_id: userId,
+    actor_id: actorId ?? null,
+    type,
+    title,
+    body,
+    href: href ?? null,
+    is_read: false,
+  };
+
+  // Attempt to also set legacy columns (silently ignore column-not-found errors)
+  try {
+    const { data: notification, error } = await supabase
+      .from('notifications')
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[CREATE_NOTIFICATION_ERROR]', error);
+      return null;
+    }
+
+    // 2. Try Web Push if configured
+    try {
       const { data: subs } = await supabase
         .from('push_subscriptions')
         .select('*')
         .eq('user_id', userId);
 
       if (subs && subs.length > 0) {
-        const payload = JSON.stringify({
+        const pushPayload = {
           title,
           body,
-          url: href || '/',
-          icon: '/icon.png'
-        });
+          href: href || '/',
+          icon: '/icon.jpg'
+        };
 
-        // Send to all endpoints
         for (const sub of subs) {
-          const pushSubscription = {
-            endpoint: sub.endpoint,
-            keys: {
-              p256dh: sub.p256dh,
-              auth: sub.auth
-            }
-          };
-
-          try {
-            await webpush.sendNotification(pushSubscription, payload);
-          } catch (e: any) {
-            console.error('[WEB_PUSH_ERROR]', e);
-            if (e.statusCode === 410 || e.statusCode === 404) {
-              // Endpoint no longer valid, delete it
-              await supabase.from('push_subscriptions').delete().eq('id', sub.id);
-            }
+          const result = await sendWebPush(sub, pushPayload);
+          if (result.expired) {
+            await supabase.from('push_subscriptions').delete().eq('id', sub.id);
           }
         }
       }
     } catch (pushErr) {
-      console.error('[WEB_PUSH_SETUP_ERROR]', pushErr);
+      console.error('[WEB_PUSH_SEND_ERROR]', pushErr);
     }
-  }
 
-  return notification;
+    return notification;
+  } catch (err) {
+    console.error('[CREATE_NOTIFICATION_UNEXPECTED]', err);
+    return null;
+  }
 }

@@ -21,7 +21,7 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
       {/* Mobile Title */}
       <div className="md:hidden mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Beranda</h1>
-        <p className="text-sm text-slate-500">Kabar terbaru dari komunitas FPP JAWABARAT</p>
+        <p className="text-sm text-slate-500">Kabar terbaru dari komunitas WIBAWA NUSANTARA</p>
       </div>
 
       <StoriesTray user={user} />

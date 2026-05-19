@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { createNotification } from '@/lib/notifications/createNotification'
 
 export async function submitSellerApplication(formData: FormData) {
   const supabase = await createClient();
@@ -114,6 +115,31 @@ export async function updateSellerApplicationStatus(applicationId: string, newSt
       seller_status: newStatus 
     })
     .eq('id', targetUserId);
+
+  // Send notification to applicant
+  try {
+    if (newStatus === 'approved') {
+      await createNotification({
+        userId: targetUserId,
+        actorId: user.id,
+        type: 'seller_approved',
+        title: 'Pengajuan Toko Disetujui 🎉',
+        body: 'Selamat! Pengajuan toko Anda telah disetujui. Mulai berjualan sekarang.',
+        href: '/dashboard/products',
+      });
+    } else {
+      await createNotification({
+        userId: targetUserId,
+        actorId: user.id,
+        type: 'seller_rejected',
+        title: 'Pengajuan Toko Ditolak',
+        body: 'Pengajuan toko Anda belum dapat disetujui saat ini. Hubungi admin untuk informasi lebih lanjut.',
+        href: '/dashboard/seller/apply',
+      });
+    }
+  } catch (notifErr) {
+    console.error('[SELLER_APPROVAL_NOTIF_ERROR]', notifErr);
+  }
 
   return { success: true };
 }

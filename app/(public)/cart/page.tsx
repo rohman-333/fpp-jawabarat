@@ -9,7 +9,7 @@ import { updateCartQuantity, removeFromCart } from '../marketplace/actions';
 import { CartItemControls } from './CartItemControls';
 
 export const metadata = {
-  title: 'Keranjang Belanja - FPP JAWABARAT',
+  title: 'Keranjang Belanja - WIBAWA NUSANTARA',
 };
 
 export default async function CartPage() {

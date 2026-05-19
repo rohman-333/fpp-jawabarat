@@ -29,7 +29,7 @@ export default async function CourierDashboardPage() {
           </div>
           <h1 className="text-2xl font-bold text-slate-800 mb-4">Lamaran Sedang Diproses</h1>
           <p className="text-slate-600 mb-8 max-w-md mx-auto">
-            Terima kasih telah melamar sebagai kurir FPP JAWABARAT. Tim admin kami sedang meninjau aplikasi Anda. Mohon tunggu informasi selanjutnya.
+            Terima kasih telah melamar sebagai kurir WIBAWA NUSANTARA. Tim admin kami sedang meninjau aplikasi Anda. Mohon tunggu informasi selanjutnya.
           </p>
           <Link href="/dashboard" className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3 rounded-xl transition-colors">
             Kembali ke Dashboard

@@ -243,7 +243,7 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
             <h3 className="text-emerald-800 font-bold text-lg mb-2 flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5" /> Tinjauan Akhir
             </h3>
-            <p className="text-emerald-700/80 text-sm">Pastikan semua data di bawah ini sudah benar sebelum Anda mengirimkan pengajuan ke Admin FPP JAWABARAT.</p>
+            <p className="text-emerald-700/80 text-sm">Pastikan semua data di bawah ini sudah benar sebelum Anda mengirimkan pengajuan ke Admin WIBAWA NUSANTARA.</p>
           </div>
 
           <div className="space-y-6 divide-y divide-slate-100 text-sm">

@@ -118,7 +118,7 @@ export function SellerApplyForm() {
             name="reason"
             rows={2}
             className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none"
-            placeholder="Alasan Anda bergabung sebagai seller di FPP Jawabarat..."
+            placeholder="Alasan Anda bergabung sebagai seller di Wibawa Nusantara..."
           ></textarea>
         </div>
       </div>

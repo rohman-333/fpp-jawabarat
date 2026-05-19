@@ -11,7 +11,7 @@ export function SocialRightbar() {
       <div className="relative mb-8">
         <input 
           type="text" 
-          placeholder="Cari di FPP JAWABARAT..." 
+          placeholder="Cari di WIBAWA NUSANTARA..." 
           className="w-full bg-white border-0 shadow-sm rounded-full py-3 pl-5 pr-10 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
         />
         <svg className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -64,7 +64,7 @@ export function SocialRightbar() {
         <Link href="#" className="hover:underline">Bantuan</Link>
         <Link href="#" className="hover:underline">Privasi</Link>
         <Link href="#" className="hover:underline">Ketentuan</Link>
-        <span className="w-full mt-2">© 2026 FPP JAWABARAT</span>
+        <span className="w-full mt-2">© 2026 WIBAWA NUSANTARA</span>
       </div>
     </aside>
   );

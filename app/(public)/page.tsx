@@ -1,18 +1,22 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Users, ShoppingBag, Landmark, Database, Handshake, FileText, BookOpen, Bot, ShieldCheck, BarChart3 } from 'lucide-react';
+import { ArrowRight, Users, ShoppingBag, Landmark, Database, Handshake, FileText, BookOpen, Bot, ShieldCheck, BarChart3, Globe, Zap, Star } from 'lucide-react';
 import { BrandLogo } from '@/components/shared/BrandLogo';
+import { BRAND } from '@/lib/branding';
 import { createClient } from '@/lib/supabase/server';
 import { ProductCard } from '@/components/shared/ProductCard';
-import { FeedPostCard } from '@/components/shared/FeedPostCard';
 import { PublicNavbar } from '@/components/shared/PublicNavbar';
 import { PublicFooter } from '@/components/shared/PublicFooter';
 import { EmptyState } from '@/components/shared/EmptyState';
 
+export const metadata = {
+  title: `${BRAND.name} — Platform Sosial & Komunitas Nusantara`,
+  description: BRAND.description,
+};
+
 export default async function LandingPage() {
   const supabase = await createClient();
 
-  // Fetch some dummy or real data for marketplace
   const { data: products } = await supabase
     .from('products')
     .select('*, pesantren(name, city)')
@@ -20,7 +24,6 @@ export default async function LandingPage() {
     .order('created_at', { ascending: false })
     .limit(4);
 
-  // Fetch real programs
   const { data: programs } = await supabase
     .from('programs')
     .select('*')
@@ -28,227 +31,138 @@ export default async function LandingPage() {
     .order('created_at', { ascending: false })
     .limit(3);
 
-  // Fetch banners
   const { data: landingHeroBanners } = await supabase
     .from('site_banners')
     .select('*')
     .eq('status', 'active')
     .eq('placement', 'landing_hero')
     .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false })
-    .limit(1);
-    
-  const { data: landingCardBanners } = await supabase
-    .from('site_banners')
-    .select('*')
-    .eq('status', 'active')
-    .eq('placement', 'landing_card')
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false })
     .limit(1);
 
   const heroBanner = landingHeroBanners?.[0];
-  const cardBanner = landingCardBanners?.[0];
 
-  // Fetch some data for forum
-  const { data: posts } = await supabase
-    .from('forum_posts')
-    .select('*, profiles(name, avatar_url, role)')
-    .order('created_at', { ascending: false })
-    .limit(3);
-
-  // Stats
   const { count: pesantrenCount } = await supabase.from('pesantren').select('*', { count: 'exact', head: true });
   const { count: productCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
-  const { count: forumCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }); // approximation for active forum members
+  const { count: memberCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
 
   return (
-    <div className="min-h-screen font-sans selection:bg-yellow-500/30">
+    <div className="min-h-screen font-sans">
       <PublicNavbar transparent={true} />
 
-      {/* Hero Section */}
-      <section className="relative pt-12 pb-24 md:pt-20 md:pb-32 bg-emerald-950 overflow-hidden">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-emerald-900/40 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3"></div>
-        
-        <div className="container relative mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-            
-            {/* Left Content */}
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-900/60 border border-emerald-800 text-yellow-400 text-sm font-semibold mb-8 shadow-inner">
-                <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
-                Sosial Media & Komunitas Jawa Barat
-              </div>
-              
-              <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-4 leading-[1.1]">
-                Terhubung dengan <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200">Komunitas</span> Pesantren
-              </h1>
-              
-              <p className="text-xl md:text-2xl text-emerald-100 font-medium mb-6">
-                FPP JAWABARAT
-              </p>
-              
-              <p className="text-lg text-emerald-200/80 mb-10 leading-relaxed max-w-xl">
-                Bagikan kabar, ikuti pesantren favorit, temukan program, dan belanja produk komunitas dalam satu platform.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <Link href="/register" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full h-14 px-8 text-lg bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 text-emerald-950 font-bold rounded-xl shadow-[0_0_30px_-5px_rgba(234,179,8,0.4)] transition-all hover:-translate-y-1">
-                    Buat Akun Gratis <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </Link>
-                <Link href="/marketplace" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="w-full h-14 px-8 text-lg border-emerald-700 bg-emerald-900/30 text-emerald-50 hover:bg-emerald-800 hover:text-white rounded-xl backdrop-blur-sm transition-all hover:-translate-y-1">
-                    Jelajahi Marketplace
-                  </Button>
-                </Link>
-              </div>
+      {/* ── Hero Section ── */}
+      <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 overflow-hidden">
+        {/* Decorative blobs */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-400/10 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-blue-600/5 rounded-full blur-[80px]" />
+        </div>
+
+        <div className="container relative mx-auto px-4 py-24 md:py-32">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900/60 border border-blue-700/50 text-blue-300 text-sm font-semibold mb-8 shadow-inner">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              Platform Sosial & Komunitas Digital
             </div>
 
-            {/* Right Content */}
-            <div className="relative mx-auto w-full max-w-lg lg:max-w-none perspective-1000 hidden md:block">
-              {heroBanner ? (
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-emerald-800/50 group">
-                  <img src={heroBanner.image_url} alt={heroBanner.title || 'Banner'} className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-700" />
-                  {(heroBanner.title || heroBanner.subtitle) && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent flex flex-col justify-end p-8">
-                      {heroBanner.is_sponsored && (
-                        <span className="bg-yellow-500 text-emerald-950 text-xs font-bold px-3 py-1 rounded-full w-fit mb-3">Sponsor: {heroBanner.sponsor_name || 'Partner'}</span>
-                      )}
-                      <h3 className="text-3xl font-bold text-white mb-2">{heroBanner.title}</h3>
-                      <p className="text-emerald-100 mb-6">{heroBanner.subtitle}</p>
-                      {heroBanner.cta_label && heroBanner.cta_url && (
-                        <Link href={heroBanner.cta_url}>
-                          <Button className="bg-yellow-500 hover:bg-yellow-400 text-emerald-950 font-bold rounded-xl shadow-lg border-none w-fit">
-                            {heroBanner.cta_label} <ArrowRight className="w-4 h-4 ml-2" />
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="relative rounded-2xl bg-emerald-900/40 border border-emerald-800/50 p-2 shadow-2xl backdrop-blur-md transform rotate-y-[-5deg] rotate-x-[2deg]">
-                  <div className="flex items-center gap-2 px-4 py-3 border-b border-emerald-800/50 bg-emerald-950/80 rounded-t-xl">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                      <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                      <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-                    </div>
-                    <div className="mx-auto bg-emerald-900/50 rounded-md px-32 py-1.5 border border-emerald-800/50"></div>
-                  </div>
-                  <div className="bg-emerald-950 rounded-b-xl p-4 sm:p-6 grid grid-cols-12 gap-4">
-                    <div className="col-span-3 space-y-3">
-                      <div className="h-6 w-3/4 bg-emerald-800/50 rounded animate-pulse mb-6"></div>
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="flex gap-3 items-center">
-                          <div className="w-5 h-5 rounded bg-emerald-800/50"></div>
-                          <div className="h-3 w-full bg-emerald-800/30 rounded"></div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="col-span-9 space-y-4">
-                      <div className="h-32 rounded-xl bg-gradient-to-r from-emerald-900 to-emerald-800 border border-emerald-700/50 p-6 flex flex-col justify-end relative overflow-hidden">
-                        <div className="absolute right-0 bottom-0 opacity-20 transform translate-x-1/4 translate-y-1/4">
-                           <Landmark className="w-32 h-32 text-emerald-100" />
-                        </div>
-                        <p className="text-emerald-300 text-xs font-semibold mb-1">Selamat datang di</p>
-                        <h3 className="text-white text-2xl font-bold">FPP JAWABARAT</h3>
-                      </div>
-                      <div className="grid grid-cols-3 gap-3">
-                        {[1, 2, 3].map((i) => (
-                          <div key={i} className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3">
-                            <div className="w-8 h-8 rounded-full bg-emerald-800/50 mb-2"></div>
-                            <div className="h-4 w-1/2 bg-yellow-500/80 rounded mb-1"></div>
-                            <div className="h-2 w-3/4 bg-emerald-700/50 rounded"></div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3 h-24"></div>
-                        <div className="bg-emerald-900/40 border border-emerald-800/50 rounded-lg p-3 h-24"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {!heroBanner && (
-                <>
-                  <div className="absolute -left-6 top-12 bg-white text-emerald-950 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce shadow-emerald-900/20">
-                    <ShieldCheck className="w-6 h-6 text-emerald-600" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-500">Terpercaya</p>
-                      <p className="text-sm font-bold">Aman & Akurat</p>
-                    </div>
-                  </div>
-                  
-                  <div className="absolute -right-6 bottom-24 bg-yellow-400 text-emerald-950 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-pulse">
-                    <Users className="w-6 h-6" />
-                    <div>
-                      <p className="text-xs font-bold text-emerald-800">Kolaboratif</p>
-                      <p className="text-sm font-bold">Sinergi Umat</p>
-                    </div>
-                  </div>
-                </>
-              )}
+            <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6 leading-[1.1]">
+              Terhubung dengan{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200">
+                Komunitas
+              </span>
+              {' '}Nusantara
+            </h1>
+
+            <p className="text-xl md:text-2xl text-blue-100/80 mb-4 font-medium">
+              {BRAND.name}
+            </p>
+
+            <p className="text-lg text-blue-200/60 mb-12 max-w-2xl mx-auto leading-relaxed">
+              Bagikan kabar, ikuti komunitas favorit, temukan program, dan belanja produk dalam satu platform modern yang cepat dan mudah.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/register">
+                <Button size="lg" className="h-14 px-10 text-lg bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-[0_0_40px_-5px_rgba(59,130,246,0.5)] transition-all hover:-translate-y-1 border-none">
+                  Buat Akun Gratis <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Link href="/feed">
+                <Button size="lg" variant="outline" className="h-14 px-10 text-lg border-blue-700/50 bg-blue-900/30 text-blue-50 hover:bg-blue-800/60 hover:text-white rounded-xl backdrop-blur-sm transition-all hover:-translate-y-1">
+                  Jelajahi Konten
+                </Button>
+              </Link>
             </div>
-            
+
+            {/* Social proof chips */}
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-12 text-sm text-blue-300/70">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-blue-400" />
+                <span>Gratis selamanya</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-blue-400" />
+                <span>Daftar dalam 30 detik</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-blue-400" />
+                <span>Komunitas se-Nusantara</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Platform Section */}
-      <section className="py-12 bg-emerald-900 border-y border-emerald-800 relative z-10">
+      {/* ── Stats Bar ── */}
+      <section className="py-10 bg-blue-600 border-y border-blue-500">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-x-0 md:divide-x divide-emerald-800/50">
+          <div className="grid grid-cols-3 md:grid-cols-3 gap-4 text-center">
             <div className="p-4">
-              <p className="text-4xl font-black text-yellow-400 mb-2">{pesantrenCount || '12K+'}</p>
-              <p className="text-emerald-100 font-medium">Pesantren Terdata</p>
+              <p className="text-3xl md:text-4xl font-black text-white mb-1">{pesantrenCount || '500+'}</p>
+              <p className="text-blue-100 font-medium text-sm">Komunitas Terdata</p>
+            </div>
+            <div className="p-4 border-x border-blue-500/50">
+              <p className="text-3xl md:text-4xl font-black text-white mb-1">{productCount || '750+'}</p>
+              <p className="text-blue-100 font-medium text-sm">Produk Marketplace</p>
             </div>
             <div className="p-4">
-              <p className="text-4xl font-black text-yellow-400 mb-2">328</p>
-              <p className="text-emerald-100 font-medium">Program Sinergi</p>
-            </div>
-            <div className="p-4">
-              <p className="text-4xl font-black text-yellow-400 mb-2">{productCount || '750+'}</p>
-              <p className="text-emerald-100 font-medium">Produk Marketplace</p>
-            </div>
-            <div className="p-4">
-              <p className="text-4xl font-black text-yellow-400 mb-2">{forumCount || '1.2K+'}</p>
-              <p className="text-emerald-100 font-medium">Anggota Aktif Forum</p>
+              <p className="text-3xl md:text-4xl font-black text-white mb-1">{memberCount || '1.2K+'}</p>
+              <p className="text-blue-100 font-medium text-sm">Anggota Aktif</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Fitur Utama Section */}
-      <section className="py-24 bg-slate-50 relative">
+      {/* ── Fitur Utama ── */}
+      <section className="py-24 bg-slate-50">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-emerald-950 mb-4">Layanan Terpadu Komunitas</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto text-lg">Platform interaktif untuk mendukung sinergi masyarakat, pengelola pesantren, dan donatur dalam satu wadah digital.</p>
+            <div className="inline-flex items-center gap-2 text-blue-600 font-semibold text-sm mb-3">
+              <Star className="w-4 h-4 fill-blue-600" /> Fitur Unggulan
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Semua yang Anda Butuhkan</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto text-lg">Platform terpadu untuk mendukung komunitas, pengembangan, dan pemberdayaan ekonomi masyarakat.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Database, title: "Database Pesantren", desc: "Sistem pendataan terpusat dan valid untuk seluruh pesantren di Jawa Barat." },
-              { icon: Handshake, title: "Program Sinergi", desc: "Kolaborasi program bantuan, beasiswa, dan pengembangan infrastruktur." },
-              { icon: ShoppingBag, title: "Marketplace", desc: "Pasar digital mempromosikan produk UMKM pesantren ke masyarakat luas." },
-              { icon: Users, title: "Forum Musyawarah", desc: "Ruang diskusi interaktif untuk pengurus, kyai, dan anggota komunitas." },
-              { icon: FileText, title: "Dokumen / Library", desc: "Pusat arsip, regulasi, panduan, dan laporan terpusat." },
-              { icon: BookOpen, title: "Artikel & Dakwah", desc: "Media publikasi kajian ilmiah, fiqih, dan syiar agama Islam." },
-              { icon: Bot, title: "Ruang AI", desc: "Asisten cerdas pendukung pembuatan kurikulum dan tanya jawab regulasi.", badge: "BETA" },
-              { icon: BarChart3, title: "Transparan", desc: "Dashboard monitoring program dan distribusi bantuan terintegrasi." },
+              { icon: Database, title: 'Direktori Komunitas', desc: 'Sistem pendataan terpusat untuk seluruh komunitas dan organisasi.' },
+              { icon: Handshake, title: 'Program Sosial', desc: 'Kolaborasi program bantuan, beasiswa, dan pengembangan bersama.' },
+              { icon: ShoppingBag, title: 'Marketplace', desc: 'Pasar digital untuk mempromosikan produk UMKM dan komunitas.' },
+              { icon: Users, title: 'Forum Diskusi', desc: 'Ruang diskusi interaktif untuk anggota dan pengurus komunitas.' },
+              { icon: FileText, title: 'Perpustakaan Digital', desc: 'Pusat arsip, regulasi, panduan, dan dokumen terpusat.' },
+              { icon: BookOpen, title: 'Artikel & Konten', desc: 'Media publikasi dan penyebaran informasi komunitas.' },
+              { icon: Bot, title: 'Asisten AI', desc: 'Asisten cerdas berbasis AI untuk produktivitas komunitas.', badge: 'BETA' },
+              { icon: BarChart3, title: 'Dashboard Transparan', desc: 'Monitoring program dan distribusi bantuan terintegrasi.' },
             ].map((feat, idx) => (
-              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all group flex flex-col">
-                <div className="w-14 h-14 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-5 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                  <feat.icon className="w-7 h-7" />
+              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all group flex flex-col">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <feat.icon className="w-6 h-6" />
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold text-slate-800 text-lg">{feat.title}</h3>
-                  {feat.badge && <span className="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">{feat.badge}</span>}
+                  <h3 className="font-bold text-slate-800">{feat.title}</h3>
+                  {feat.badge && <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">{feat.badge}</span>}
                 </div>
                 <p className="text-slate-500 text-sm leading-relaxed flex-1">{feat.desc}</p>
               </div>
@@ -257,27 +171,27 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Program Sinergi Real */}
-      <section className="py-20 bg-white border-t border-slate-100">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Program Sinergi Terbaru</h2>
-              <p className="text-slate-500">Kesempatan kolaborasi dan dukungan untuk pesantren.</p>
+      {/* ── Program Section ── */}
+      {programs && programs.length > 0 && (
+        <section className="py-20 bg-white border-t border-slate-100">
+          <div className="container mx-auto px-4 max-w-6xl">
+            <div className="flex justify-between items-end mb-10">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Program Terbaru</h2>
+                <p className="text-slate-500">Kesempatan kolaborasi dan dukungan komunitas.</p>
+              </div>
+              <Link href="/program">
+                <Button variant="ghost" className="text-blue-600 font-semibold hidden sm:flex hover:bg-blue-50">
+                  Lihat Semua
+                </Button>
+              </Link>
             </div>
-            <Link href="/program">
-              <Button variant="ghost" className="text-emerald-600 font-semibold hidden sm:flex hover:bg-emerald-50">
-                Lihat Semua
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {programs && programs.length > 0 ? (
-              programs.map((prog) => (
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {programs.map((prog) => (
                 <Link href={`/program/${prog.slug}`} key={prog.id} className="group rounded-2xl border border-slate-200 overflow-hidden bg-white hover:shadow-lg transition-shadow">
                   <div className="h-48 overflow-hidden relative bg-slate-100">
-                    <div className="absolute inset-0 bg-emerald-900/20 group-hover:bg-transparent transition-colors z-10"></div>
+                    <div className="absolute inset-0 bg-blue-900/20 group-hover:bg-transparent transition-colors z-10" />
                     {prog.image_url ? (
                       <img src={prog.image_url} alt={prog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
@@ -285,116 +199,75 @@ export default async function LandingPage() {
                         <Handshake className="w-12 h-12 text-slate-300" />
                       </div>
                     )}
-                    <div className="absolute top-4 right-4 z-20 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                    <div className="absolute top-4 right-4 z-20 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                       Aktif
                     </div>
                   </div>
                   <div className="p-6">
-                    <p className="text-emerald-600 text-xs font-bold uppercase tracking-wider mb-2">{prog.category || 'Umum'}</p>
+                    <p className="text-blue-600 text-xs font-bold uppercase tracking-wider mb-2">{prog.category || 'Umum'}</p>
                     <h3 className="font-bold text-lg text-slate-900 line-clamp-2 leading-snug">{prog.title}</h3>
                   </div>
                 </Link>
-              ))
-            ) : (
-              <div className="col-span-full">
-                <EmptyState title="Belum ada program" description="Program sinergi sedang dipersiapkan." icon={<Handshake className="w-8 h-8 text-slate-300"/>} />
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {cardBanner && (
-        <section className="py-10 bg-slate-50 border-t border-slate-200">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <Link href={cardBanner.cta_url || '#'} className="block rounded-3xl overflow-hidden shadow-lg border border-slate-200 group relative">
-              <img src={cardBanner.image_url} alt={cardBanner.title || 'Promo'} className="w-full h-[150px] md:h-[250px] object-cover group-hover:scale-[1.02] transition-transform duration-500" />
-              {(cardBanner.title || cardBanner.subtitle) && (
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 to-transparent flex flex-col justify-center p-8 md:p-12">
-                  {cardBanner.is_sponsored && (
-                    <span className="bg-yellow-500 text-slate-900 text-[10px] uppercase font-black tracking-widest px-3 py-1 rounded w-fit mb-4">Sponsor Resmi: {cardBanner.sponsor_name}</span>
-                  )}
-                  <h3 className="text-2xl md:text-4xl font-bold text-white mb-2 max-w-lg">{cardBanner.title}</h3>
-                  <p className="text-slate-200 mb-6 max-w-md hidden md:block">{cardBanner.subtitle}</p>
-                  {cardBanner.cta_label && (
-                    <span className="bg-white text-emerald-700 font-bold px-6 py-2.5 rounded-xl w-fit group-hover:bg-emerald-50 transition-colors shadow-lg">
-                      {cardBanner.cta_label}
-                    </span>
-                  )}
-                </div>
-              )}
-            </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* Marketplace Preview */}
+      {/* ── Marketplace Preview ── */}
       <section className="py-20 bg-slate-50 border-t border-slate-200">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex justify-between items-end mb-10">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Marketplace Unggulan</h2>
-              <p className="text-slate-500">Dukung ekonomi umat dengan membeli produk pesantren.</p>
+              <p className="text-slate-500">Dukung ekonomi komunitas dengan membeli produk lokal.</p>
             </div>
             <Link href="/marketplace">
-              <Button variant="ghost" className="text-emerald-600 font-semibold hidden sm:flex hover:bg-emerald-50">
+              <Button variant="ghost" className="text-blue-600 font-semibold hidden sm:flex hover:bg-blue-50">
                 Kunjungi Toko
               </Button>
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products && products.length > 0 ? (
               products.map(p => <ProductCard key={p.id} product={p as any} />)
             ) : (
               <div className="col-span-full">
-                <EmptyState title="Belum ada produk" description="Toko digital sedang dalam tahap penyiapan." icon={<ShoppingBag className="w-8 h-8 text-slate-300"/>} />
+                <EmptyState title="Belum ada produk" description="Toko digital sedang dalam tahap penyiapan." icon={<ShoppingBag className="w-8 h-8 text-slate-300" />} />
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* Forum Preview */}
-      <section className="py-20 bg-white border-t border-slate-100">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Diskusi Komunitas Terbaru</h2>
-            <p className="text-slate-500">Bergabung dalam percakapan dan perkuat ukhuwah antar kyai & santri.</p>
-          </div>
-          
-          <div className="space-y-4">
-            {posts && posts.length > 0 ? (
-              posts.map(post => <FeedPostCard key={post.id} post={post as any} />)
-            ) : (
-              <EmptyState title="Forum masih sepi" description="Jadilah yang pertama memulai topik diskusi." icon={<Users className="w-8 h-8 text-slate-300"/>} />
-            )}
-          </div>
-          
-          <div className="mt-8 text-center">
-            <Link href="/forum">
-              <Button className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-full px-8">
-                Buka Halaman Forum
+      {/* ── CTA Final ── */}
+      <section className="py-24 relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-[100px]" />
+          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10 text-center max-w-3xl">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+            Bergabung dengan <span className="text-blue-400">{BRAND.name}</span>
+          </h2>
+          <p className="text-blue-200/70 text-lg mb-10 max-w-xl mx-auto">
+            Daftar gratis sekarang dan mulai terhubung dengan ribuan anggota komunitas Nusantara di seluruh Indonesia.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/register">
+              <Button size="lg" className="h-14 px-10 text-lg bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full shadow-[0_0_40px_-5px_rgba(59,130,246,0.4)] transition-all hover:-translate-y-1 border-none">
+                Gabung Sekarang — Gratis
+              </Button>
+            </Link>
+            <Link href="/feed">
+              <Button size="lg" variant="ghost" className="text-blue-300 hover:text-white hover:bg-blue-900/50">
+                Lihat Beranda Dulu
               </Button>
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Akhir */}
-      <section className="py-24 relative overflow-hidden bg-emerald-950">
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-500/20 rounded-full blur-[100px]"></div>
-        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/20 rounded-full blur-[100px]"></div>
-        
-        <div className="container mx-auto px-4 relative z-10 text-center max-w-3xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">Majukan Pesantren Anda di Era Digital</h2>
-          <p className="text-emerald-100 text-lg mb-10">Daftarkan pesantren Anda sekarang untuk mendapatkan akses ke seluruh layanan, program sinergi, dan ekosistem mandiri FPP JAWABARAT.</p>
-          
-          <Link href="/register">
-            <Button size="lg" className="h-14 px-10 text-lg bg-yellow-500 hover:bg-yellow-400 text-emerald-950 font-bold rounded-full shadow-[0_0_30px_-5px_rgba(234,179,8,0.3)] transition-all hover:-translate-y-1">
-              Daftar Sekarang Secara Gratis
-            </Button>
-          </Link>
         </div>
       </section>
 

@@ -4,7 +4,7 @@ import { Shield, CheckCircle, EyeOff, Trash2, XCircle } from 'lucide-react';
 import { ModerationActions } from './ModerationActions';
 
 export const metadata = {
-  title: 'Moderasi Konten - Admin FPP JAWABARAT',
+  title: 'Moderasi Konten - Admin WIBAWA NUSANTARA',
 };
 
 export default async function ModerationPage() {

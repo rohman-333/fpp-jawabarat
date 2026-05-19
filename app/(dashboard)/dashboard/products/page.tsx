@@ -79,7 +79,7 @@ export default async function ProductsPage() {
               <div className="mt-10">
                 <EmptyState 
                   title="Belum Ada Produk" 
-                  description="Mulai tambahkan produk pertama Anda agar dapat dilihat oleh pengunjung marketplace FPP JAWABARAT."
+                  description="Mulai tambahkan produk pertama Anda agar dapat dilihat oleh pengunjung marketplace WIBAWA NUSANTARA."
                   icon={<ShoppingBag className="w-8 h-8 text-slate-400" />}
                   action={
                     <Link href="/dashboard/products/new">

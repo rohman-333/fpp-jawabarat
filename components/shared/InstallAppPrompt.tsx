@@ -62,7 +62,7 @@ export function InstallAppPrompt() {
           <BrandLogo variant="icon" isDark={true} />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-slate-800 text-sm">Install FPP JABAR</h3>
+          <h3 className="font-bold text-slate-800 text-sm">Install WIBAWA</h3>
           <p className="text-xs text-slate-500 truncate">Akses lebih cepat & mudah</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">

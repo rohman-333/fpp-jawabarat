@@ -86,7 +86,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
 
   return (
     <div className="relative">
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors relative"
       >
@@ -103,7 +103,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-bold text-slate-800">Notifikasi</h3>
               {unreadCount > 0 && (
-                <button 
+                <button
                   onClick={markAllAsRead}
                   className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
                 >
@@ -111,7 +111,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
                 </button>
               )}
             </div>
-            
+
             <div className="max-h-[400px] overflow-y-auto">
               {loading ? (
                 <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 text-emerald-500 animate-spin" /></div>
@@ -122,8 +122,8 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
               ) : (
                 <div className="divide-y divide-slate-100">
                   {notifications.map(notification => (
-                    <div 
-                      key={notification.id} 
+                    <div
+                      key={notification.id}
                       className={`p-4 flex gap-3 hover:bg-slate-50 transition-colors ${!notification.is_read ? 'bg-emerald-50/30' : ''}`}
                       onClick={() => {
                         if (!notification.is_read) markAsRead(notification.id);
@@ -142,7 +142,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
                           {getIcon(notification.type)}
                         </div>
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         {notification.target_url ? (
                           <Link href={notification.target_url} className="block group">
@@ -163,7 +163,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
                           {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: id })}
                         </p>
                       </div>
-                      
+
                       {!notification.is_read && (
                         <div className="shrink-0 w-2 h-2 bg-emerald-500 rounded-full mt-2"></div>
                       )}
@@ -172,7 +172,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
                 </div>
               )}
             </div>
-            
+
             <div className="p-3 border-t border-slate-100 text-center bg-slate-50 hover:bg-slate-100 transition-colors">
               <Link href="/notifications" className="text-xs font-bold text-slate-600 block" onClick={() => setIsOpen(false)}>
                 Lihat Semua Notifikasi

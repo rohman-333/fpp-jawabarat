@@ -16,8 +16,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   if (!product) return { title: 'Product Not Found' };
   return {
-    title: `${product.name} - Marketplace FPP JAWABARAT`,
-    description: product.description || `Beli ${product.name} di Marketplace FPP JAWABARAT`,
+    title: `${product.name} - Marketplace WIBAWA NUSANTARA`,
+    description: product.description || `Beli ${product.name} di Marketplace WIBAWA NUSANTARA`,
   };
 }
 
@@ -49,12 +49,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
   };
 
-  const sellerName = product.seller?.name || product.pesantren?.name || 'Seller FPP JAWABARAT';
+  const sellerName = product.seller?.name || product.pesantren?.name || 'Seller WIBAWA NUSANTARA';
   const location = product.seller?.location || product.pesantren?.city || 'Jawa Barat';
   const isVerified = product.seller?.is_verified || false;
   const sellerAvatar = product.seller?.avatar_url || product.pesantren?.logo_url;
   
-  const whatsappText = `Halo, saya tertarik dengan produk ${product.name} yang ada di Marketplace FPP JAWABARAT.`;
+  const whatsappText = `Halo, saya tertarik dengan produk ${product.name} yang ada di Marketplace WIBAWA NUSANTARA.`;
   const whatsappUrl = product.pesantren?.phone 
     ? `https://wa.me/${product.pesantren.phone.replace(/^0/, '62').replace(/\D/g, '')}?text=${encodeURIComponent(whatsappText)}`
     : null;

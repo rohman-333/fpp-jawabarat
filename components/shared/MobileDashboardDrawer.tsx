@@ -126,7 +126,7 @@ export function MobileDashboardDrawer({
           {avatarUrl ? (
             <img src={avatarUrl} alt={userName} className="w-12 h-12 rounded-full object-cover border border-slate-200" />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-lg border border-emerald-200">
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg border border-blue-200">
               {userName.charAt(0).toUpperCase()}
             </div>
           )}
@@ -150,11 +150,11 @@ export function MobileDashboardDrawer({
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium ${
                   isActive 
-                    ? 'bg-emerald-50 text-emerald-700' 
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-600'
+                    ? 'bg-blue-50 text-blue-700' 
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                 {link.name}
               </Link>
             );
@@ -179,7 +179,7 @@ export function MobileDashboardDrawer({
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="p-2 -ml-2 text-slate-600 hover:text-emerald-600 transition-colors focus:outline-none"
+        className="p-2 -ml-2 text-slate-600 hover:text-blue-600 transition-colors focus:outline-none"
         aria-label="Open menu"
       >
         <Menu className="w-6 h-6" />

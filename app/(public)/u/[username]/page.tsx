@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   
   if (!profile) return { title: 'User Not Found' };
   return {
-    title: `${profile.name} (@${username}) - FPP JAWABARAT`,
-    description: profile.bio || `Profil ${profile.name} di FPP JAWABARAT`,
+    title: `${profile.name} (@${username}) - WIBAWA NUSANTARA`,
+    description: profile.bio || `Profil ${profile.name} di WIBAWA NUSANTARA`,
   };
 }
 

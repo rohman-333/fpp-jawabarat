@@ -65,16 +65,16 @@ export function DashboardSidebar({ isAdmin = false, userName, avatarUrl }: Sideb
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="w-64 bg-emerald-950 text-emerald-50 flex-col hidden md:flex min-h-screen sticky top-0 border-r border-emerald-900 z-40">
+      <aside className="w-64 bg-blue-950 text-blue-50 flex-col hidden md:flex min-h-screen sticky top-0 border-r border-blue-900 z-40">
         <div className="p-6 pb-2">
           <BrandLogo variant="compact" isDark={true} />
           <div className="mt-2 pl-14">
-            <span className="text-[10px] text-emerald-300 font-medium uppercase tracking-wider">{isAdmin ? 'Super Admin' : 'Pesantren Panel'}</span>
+          <span className="text-[10px] text-blue-300 font-medium uppercase tracking-wider">{isAdmin ? 'Super Admin' : 'Member Panel'}</span>
           </div>
         </div>
         
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
-          <div className="text-[10px] font-bold text-emerald-500/70 uppercase tracking-wider mb-3 px-3">Menu Utama</div>
+          <div className="text-[10px] font-bold text-blue-500/70 uppercase tracking-wider mb-3 px-3">Menu Utama</div>
           {links.map((link) => {
             const isActive = pathname === link.href || (link.href !== '/dashboard' && link.href !== '/admin' && pathname.startsWith(link.href));
             const Icon = link.icon;
@@ -84,29 +84,29 @@ export function DashboardSidebar({ isAdmin = false, userName, avatarUrl }: Sideb
                 href={link.href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
                   isActive 
-                    ? 'bg-emerald-900/80 text-yellow-400 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] border border-emerald-800/50' 
-                    : 'text-emerald-200/70 hover:bg-emerald-900/40 hover:text-white'
+                    ? 'bg-blue-900/80 text-blue-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] border border-blue-800/50' 
+                    : 'text-blue-300/70 hover:bg-blue-900/40 hover:text-white'
                 }`}
               >
-                <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-yellow-400' : 'text-emerald-500'}`} />
+                <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-blue-300' : 'text-blue-500'}`} />
                 {link.name}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 mt-auto border-t border-emerald-900/50 bg-emerald-950/50">
-          <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-emerald-900/40 border border-emerald-800/50 mb-3">
+        <div className="p-4 mt-auto border-t border-blue-900/50 bg-blue-950/50">
+          <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-blue-900/40 border border-blue-800/50 mb-3">
             {avatarUrl ? (
               <img src={avatarUrl} alt={userName || 'User'} className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center text-emerald-200 font-bold text-xs uppercase">
+              <div className="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center text-blue-200 font-bold text-xs uppercase">
                 {(userName || 'U').charAt(0)}
               </div>
             )}
             <div className="flex-1 overflow-hidden">
               <p className="text-xs font-bold text-white truncate">{userName || 'User Name'}</p>
-              <p className="text-[10px] text-emerald-400 truncate">{isAdmin ? 'Administrator' : 'Member Pesantren'}</p>
+              <p className="text-[10px] text-blue-400 truncate">{isAdmin ? 'Administrator' : 'Member'}</p>
             </div>
           </div>
           <Link href="/auth/signout" prefetch={false} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors w-full text-sm font-medium">

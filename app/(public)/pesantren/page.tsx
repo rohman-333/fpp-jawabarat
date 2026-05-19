@@ -19,7 +19,7 @@ export default async function PesantrenDirectoryPage() {
       <div className="flex-1 container mx-auto px-4 py-12">
         <div className="mb-8 text-center max-w-2xl mx-auto">
           <h1 className="text-3xl font-bold text-slate-900 mb-4">Direktori Pesantren</h1>
-          <p className="text-slate-600">Daftar pondok pesantren resmi yang tergabung dalam ekosistem FPP JAWABARAT.</p>
+          <p className="text-slate-600">Daftar pondok pesantren resmi yang tergabung dalam ekosistem WIBAWA NUSANTARA.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

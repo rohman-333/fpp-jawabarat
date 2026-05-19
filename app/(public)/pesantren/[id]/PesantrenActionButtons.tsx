@@ -9,8 +9,8 @@ export function PesantrenActionButtons({ phone, pesantrenId, lat, lng }: { phone
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'Profil Pesantren FPP JAWABARAT',
-          text: 'Lihat profil pesantren ini di FPP JAWABARAT.',
+          title: 'Profil Pesantren WIBAWA NUSANTARA',
+          text: 'Lihat profil pesantren ini di WIBAWA NUSANTARA.',
           url: window.location.href,
         });
       } else {
@@ -26,7 +26,7 @@ export function PesantrenActionButtons({ phone, pesantrenId, lat, lng }: { phone
     if (!phone) return;
     const cleanPhone = phone.replace(/\D/g, '');
     const waNumber = cleanPhone.startsWith('0') ? `62${cleanPhone.slice(1)}` : cleanPhone;
-    window.open(`https://wa.me/${waNumber}?text=Assalamu'alaikum, saya melihat profil pesantren di aplikasi FPP Jawabarat.`, '_blank');
+    window.open(`https://wa.me/${waNumber}?text=Assalamu'alaikum, saya melihat profil pesantren di aplikasi Wibawa Nusantara.`, '_blank');
   };
 
   return (

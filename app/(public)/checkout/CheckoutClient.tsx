@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, MapPin, Phone, CreditCard, ShieldCheck, Loader2, Store } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { sendOrderNotifications } from '@/lib/notifications/orderActions';
 
 export function CheckoutClient({ items, currentUserId, profile }: { items: any[], currentUserId: string, profile: any }) {
   const [address, setAddress] = useState(profile?.location || '');
@@ -78,6 +79,14 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
           const newStock = Math.max(0, (item.product.stock || 0) - item.quantity);
           await supabase.from('products').update({ stock: newStock }).eq('id', item.product.id);
         }
+
+        // Send order notifications (buyer + seller)
+        await sendOrderNotifications({
+          orderId: order.id,
+          buyerId: currentUserId,
+          sellerId: sellerId,
+          invoiceNumber,
+        });
       }
 
       // Clear cart
@@ -126,7 +135,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
 
         {Object.keys(itemsBySeller).map((sellerId, idx) => {
           const sellerItems = itemsBySeller[sellerId];
-          const sellerName = sellerItems[0].product.seller?.name || sellerItems[0].product.pesantren?.name || 'Seller FPP JAWABARAT';
+          const sellerName = sellerItems[0].product.seller?.name || sellerItems[0].product.pesantren?.name || 'Seller WIBAWA NUSANTARA';
           
           return (
             <div key={sellerId} className="bg-white p-6 rounded-2xl border border-slate-200">
@@ -206,7 +215,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
             )}
           </Button>
           <p className="text-center text-[10px] text-slate-400 mt-4 leading-relaxed">
-            Dengan membuat pesanan, Anda menyetujui Syarat & Ketentuan FPP JAWABARAT.
+            Dengan membuat pesanan, Anda menyetujui Syarat & Ketentuan WIBAWA NUSANTARA.
           </p>
         </div>
       </div>

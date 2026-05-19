@@ -48,7 +48,7 @@ export function MobileBottomNav() {
               onClick={() => router.push(link.href)}
               className="flex flex-col items-center justify-center -mt-6 z-10"
             >
-              <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-600/30 border-4 border-white transform transition-transform active:scale-95">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-600/30 border-4 border-white transform transition-transform active:scale-95">
                 <Icon className="w-5 h-5" />
               </div>
               <span className="text-[10px] font-bold text-slate-500 mt-1">{link.name}</span>
@@ -61,13 +61,13 @@ export function MobileBottomNav() {
             key={link.name} 
             href={link.href}
             className={`flex flex-col items-center justify-center w-16 py-1.5 transition-all ${
-              isActive ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'
+              isActive ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <div className={`p-1 rounded-xl mb-0.5 transition-all duration-300 ${isActive ? 'bg-emerald-50 scale-110' : ''}`}>
-              <Icon className={`w-5 h-5 ${isActive ? 'fill-emerald-600/20 stroke-[2.5px]' : 'stroke-2'}`} />
+            <div className={`p-1 rounded-xl mb-0.5 transition-all duration-300 ${isActive ? 'bg-blue-50 scale-110' : ''}`}>
+              <Icon className={`w-5 h-5 ${isActive ? 'fill-blue-600/20 stroke-[2.5px]' : 'stroke-2'}`} />
             </div>
-            <span className={`text-[10px] transition-all duration-300 ${isActive ? 'font-bold text-emerald-700' : 'font-medium'}`}>
+            <span className={`text-[10px] transition-all duration-300 ${isActive ? 'font-bold text-blue-700' : 'font-medium'}`}>
               {link.name}
             </span>
           </Link>

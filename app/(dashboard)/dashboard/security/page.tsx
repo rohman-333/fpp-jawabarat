@@ -6,8 +6,8 @@ import { DashboardSidebar } from '@/components/shared/DashboardSidebar'
 import { DashboardTopbar } from '@/components/shared/DashboardTopbar'
 
 export const metadata = {
-  title: 'Keamanan Akun | FPP JAWABARAT',
-  description: 'Pengaturan keamanan akun FPP JAWABARAT',
+  title: 'Keamanan Akun | WIBAWA NUSANTARA',
+  description: 'Pengaturan keamanan akun WIBAWA NUSANTARA',
 }
 
 export default async function SecurityPage() {

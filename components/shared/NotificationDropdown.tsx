@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, Check, Trash2, Heart, MessageSquare, UserPlus, Info } from 'lucide-react';
+import { Bell, Check, Heart, MessageSquare, UserPlus, Info, ShoppingBag, Store, Truck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
@@ -12,20 +12,24 @@ export function NotificationDropdown({ userId }: { userId: string }) {
   const supabase = createClient();
 
   useEffect(() => {
-    if (userId) {
-      fetchNotifications();
-      
-      const sub = supabase.channel('public:notifications')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, (payload) => {
-          setNotifications(prev => [payload.new, ...prev].slice(0, 5));
-          setUnreadCount(prev => prev + 1);
-        })
-        .subscribe();
-        
-      return () => {
-        supabase.removeChannel(sub);
-      };
-    }
+    if (!userId) return;
+    fetchNotifications();
+
+    const sub = supabase.channel(`notif-dropdown:${userId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`
+      }, (payload) => {
+        setNotifications(prev => [payload.new, ...prev].slice(0, 5));
+        setUnreadCount(prev => prev + 1);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(sub);
+    };
   }, [userId]);
 
   const fetchNotifications = async () => {
@@ -35,7 +39,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(5);
-      
+
     if (data) {
       setNotifications(data);
       setUnreadCount(data.filter(n => !n.is_read).length);
@@ -49,7 +53,11 @@ export function NotificationDropdown({ userId }: { userId: string }) {
   };
 
   const markAllAsRead = async () => {
-    await supabase.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false);
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', userId)
+      .eq('is_read', false);
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     setUnreadCount(0);
   };
@@ -57,21 +65,32 @@ export function NotificationDropdown({ userId }: { userId: string }) {
   const getIcon = (type: string) => {
     switch(type) {
       case 'like': return <Heart className="w-4 h-4 text-rose-500" />;
+      case 'reaction': return <span className="text-sm">❤️</span>;
       case 'comment': return <MessageSquare className="w-4 h-4 text-blue-500" />;
+      case 'mention': return <span className="font-bold text-emerald-500 text-sm">@</span>;
       case 'follow': return <UserPlus className="w-4 h-4 text-emerald-500" />;
+      case 'order_update': return <ShoppingBag className="w-4 h-4 text-orange-500" />;
+      case 'seller_approved':
+      case 'seller_rejected': return <Store className="w-4 h-4 text-emerald-500" />;
+      case 'courier_approved':
+      case 'courier_rejected': return <Truck className="w-4 h-4 text-emerald-500" />;
       default: return <Info className="w-4 h-4 text-slate-500" />;
     }
   };
 
+  const getHref = (notif: any) => notif.href || notif.target_url || '#';
+  const getBody = (notif: any) => notif.body || notif.message || '';
+
   return (
     <div className="relative">
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-slate-400 hover:text-emerald-600 transition-colors rounded-full hover:bg-slate-50 focus:outline-none"
+        aria-label={`Notifikasi${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full border border-white">
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white bg-red-500 rounded-full border border-white px-0.5">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -79,7 +98,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
 
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden flex flex-col">
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-bold text-slate-800">Notifikasi</h3>
@@ -89,7 +108,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
                 </button>
               )}
             </div>
-            
+
             <div className="max-h-96 overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="p-8 text-center text-slate-500">
@@ -99,9 +118,9 @@ export function NotificationDropdown({ userId }: { userId: string }) {
               ) : (
                 <div className="divide-y divide-slate-100">
                   {notifications.map(notif => (
-                    <Link 
+                    <Link
                       key={notif.id}
-                      href={notif.target_url || '#'}
+                      href={getHref(notif)}
                       onClick={() => !notif.is_read && markAsRead(notif.id)}
                       className={`block p-4 hover:bg-slate-50 transition-colors ${notif.is_read ? 'opacity-70' : 'bg-emerald-50/30'}`}
                     >
@@ -113,15 +132,17 @@ export function NotificationDropdown({ userId }: { userId: string }) {
                           <p className={`text-sm text-slate-800 ${!notif.is_read ? 'font-bold' : ''}`}>
                             {notif.title}
                           </p>
-                          <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
-                            {notif.message}
-                          </p>
+                          {getBody(notif) && (
+                            <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
+                              {getBody(notif)}
+                            </p>
+                          )}
                           <p className="text-[10px] text-slate-400 mt-1">
                             {new Date(notif.created_at).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
                         {!notif.is_read && (
-                          <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1"></div>
+                          <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1" />
                         )}
                       </div>
                     </Link>
@@ -129,7 +150,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
                 </div>
               )}
             </div>
-            
+
             <div className="p-3 border-t border-slate-100 bg-slate-50 text-center">
               <Link href="/notifications" className="text-sm font-bold text-emerald-600 hover:text-emerald-700">
                 Lihat Semua Notifikasi

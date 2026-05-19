@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { createNotification } from '@/lib/notifications/createNotification';
 
 export async function createPost(formData: FormData) {
   const content = formData.get('content') as string;
@@ -66,19 +67,16 @@ export async function createPost(formData: FormData) {
         const actorName = actor?.name || 'Seseorang';
 
         // Notify mentioned users
-        const notifPayloads = mentionedUsers
-          .filter(u => u.id !== user.id) // don't notify self
-          .map(u => ({
-            user_id: u.id,
-            actor_id: user.id,
+        for (const u of mentionedUsers) {
+          if (u.id === user.id) continue;
+          await createNotification({
+            userId: u.id,
+            actorId: user.id,
             type: 'mention',
             title: `${actorName} menyebut Anda dalam sebuah kiriman`,
-            message: content.length > 50 ? content.substring(0, 50) + '...' : content,
-            target_url: `/post/${post.id}`
-          }));
-        
-        if (notifPayloads.length > 0) {
-          await supabase.from('notifications').insert(notifPayloads);
+            body: content.length > 50 ? content.substring(0, 50) + '...' : content,
+            href: `/post/${post.id}`
+          });
         }
       }
     }
@@ -119,14 +117,14 @@ export async function toggleLike(postId: string) {
       const actorName = actor?.name || 'Seseorang';
       
       // Upsert notification or just insert (better insert unique or just insert)
-      await supabase.from('notifications').insert([{
-        user_id: post.author_id,
-        actor_id: user.id,
+      await createNotification({
+        userId: post.author_id,
+        actorId: user.id,
         type: 'like',
         title: `${actorName} menyukai kiriman Anda`,
-        message: post.content ? (post.content.length > 30 ? post.content.substring(0, 30) + '...' : post.content) : 'Kiriman Anda mendapat suka baru.',
-        target_url: `/post/${postId}`
-      }]);
+        body: post.content ? (post.content.length > 30 ? post.content.substring(0, 30) + '...' : post.content) : 'Kiriman Anda mendapat suka baru.',
+        href: `/post/${postId}`
+      });
     }
     
     return { liked: true };
@@ -154,14 +152,14 @@ export async function createComment(postId: string, content: string) {
     const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
     const actorName = actor?.name || 'Seseorang';
     
-    await supabase.from('notifications').insert([{
-      user_id: post.author_id,
-      actor_id: user.id,
+    await createNotification({
+      userId: post.author_id,
+      actorId: user.id,
       type: 'comment',
       title: `${actorName} mengomentari kiriman Anda`,
-      message: content.length > 50 ? content.substring(0, 50) + '...' : content,
-      target_url: `/post/${postId}`
-    }]);
+      body: content.length > 50 ? content.substring(0, 50) + '...' : content,
+      href: `/post/${postId}`
+    });
   }
 
   return { success: true, comment: data };
@@ -199,17 +197,17 @@ export async function toggleFollow(targetUserId: string) {
     if (error) return { error: error.message };
     
     // Notify followed user
-    const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
+    const { data: actor } = await supabase.from('profiles').select('name, username').eq('id', user.id).single();
     const actorName = actor?.name || 'Seseorang';
     
-    await supabase.from('notifications').insert([{
-      user_id: targetUserId,
-      actor_id: user.id,
+    await createNotification({
+      userId: targetUserId,
+      actorId: user.id,
       type: 'follow',
       title: `${actorName} mulai mengikuti Anda`,
-      message: 'Lihat profil pengikut baru Anda.',
-      target_url: `/profile/${user.id}`
-    }]);
+      body: 'Lihat profil pengikut baru Anda.',
+      href: `/u/${actor?.username || user.id}`
+    });
     
     return { following: true };
   }
@@ -293,14 +291,14 @@ export async function setReaction(postId: string, reactionType: string) {
     const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
     const actorName = actor?.name || 'Seseorang';
     
-    await supabase.from('notifications').insert([{
-      user_id: post.author_id,
-      actor_id: user.id,
+    await createNotification({
+      userId: post.author_id,
+      actorId: user.id,
       type: 'reaction',
       title: `${actorName} bereaksi ${reactionType} pada kiriman Anda`,
-      message: post.content ? (post.content.length > 30 ? post.content.substring(0, 30) + '...' : post.content) : 'Kiriman Anda mendapat reaksi baru.',
-      target_url: `/post/${postId}`
-    }]);
+      body: post.content ? (post.content.length > 30 ? post.content.substring(0, 30) + '...' : post.content) : 'Kiriman Anda mendapat reaksi baru.',
+      href: `/post/${postId}`
+    });
   }
   
   // revalidatePath('/feed'); // Soft UI handles this usually, but let's revalidate

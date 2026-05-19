@@ -9,7 +9,7 @@ import { createOrder } from '../marketplace/actions';
 import { CheckoutForm } from './CheckoutForm';
 
 export const metadata = {
-  title: 'Checkout - FPP JAWABARAT',
+  title: 'Checkout - WIBAWA NUSANTARA',
 };
 
 export default async function CheckoutPage() {

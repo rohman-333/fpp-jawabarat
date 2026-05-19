@@ -71,7 +71,7 @@ export default async function DashboardPage() {
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Halo, {profile.name}!</h2>
                   <p className="text-emerald-100/80 max-w-xl text-sm md:text-base">
-                    Selamat datang di pusat kontrol akun Anda. Anda dapat berinteraksi di Feed, berbelanja, atau melengkapi peran Anda di FPP JAWABARAT.
+                    Selamat datang di pusat kontrol akun Anda. Anda dapat berinteraksi di Feed, berbelanja, atau melengkapi peran Anda di WIBAWA NUSANTARA.
                   </p>
                 </div>
               </div>
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
                 </div>
                 <div>
                   <h2 className="text-base md:text-lg font-bold text-amber-900 mb-1">Menunggu Verifikasi Admin</h2>
-                  <p className="text-amber-700/80 text-sm">Data pesantren Anda sedang ditinjau oleh tim FPP JAWABARAT. Fitur marketplace mungkin dibatasi hingga akun Anda berstatus terverifikasi.</p>
+                  <p className="text-amber-700/80 text-sm">Data pesantren Anda sedang ditinjau oleh tim WIBAWA NUSANTARA. Fitur marketplace mungkin dibatasi hingga akun Anda berstatus terverifikasi.</p>
                 </div>
               </div>
             )}

@@ -116,7 +116,7 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
 
   const handleShareOption = async (option: string) => {
     const url = `${window.location.origin}/post/${post.id}`;
-    const title = post.content ? post.content.substring(0, 50) + '...' : 'Kabar FPP Jawabarat';
+    const title = post.content ? post.content.substring(0, 50) + '...' : 'Kabar Wibawa Nusantara';
     
     setShowShareMenu(false);
 
@@ -133,7 +133,7 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
     } else if (option === 'native') {
       try {
         await navigator.share({
-          title: 'FPP Jawabarat',
+          title: 'Wibawa Nusantara',
           text: title,
           url: url
         });

@@ -6,7 +6,7 @@ import { Package, Clock, CheckCircle2, XCircle, Store } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Pesanan Saya - FPP JAWABARAT',
+  title: 'Pesanan Saya - WIBAWA NUSANTARA',
 };
 
 export default async function OrdersPage() {

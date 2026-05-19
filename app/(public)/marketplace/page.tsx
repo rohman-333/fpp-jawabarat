@@ -4,7 +4,7 @@ import { PublicFooter } from '@/components/shared/PublicFooter';
 import { MarketplaceClient } from './MarketplaceClient';
 
 export const metadata = {
-  title: 'Marketplace - FPP JAWABARAT',
+  title: 'Marketplace - WIBAWA NUSANTARA',
   description: 'Dukung kemandirian pesantren dengan membeli produk berkualitas karya santri.',
 };
 

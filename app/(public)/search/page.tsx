@@ -3,7 +3,7 @@ import { PublicFooter } from '@/components/shared/PublicFooter';
 import { Search as SearchIcon, Users, Building2, Store, BookOpen, AlertCircle } from 'lucide-react';
 
 export const metadata = {
-  title: 'Pencarian Global - FPP JAWABARAT',
+  title: 'Pencarian Global - WIBAWA NUSANTARA',
 };
 
 export default function SearchPage({ searchParams }: { searchParams: any }) {

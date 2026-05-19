@@ -52,7 +52,7 @@ export default async function InvitePage(props: { params: Promise<{ token: strin
           <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10"></div>
           <Shield className="w-16 h-16 mx-auto mb-4 relative z-10" />
           <h1 className="text-2xl font-bold relative z-10">Undangan Bergabung</h1>
-          <p className="text-emerald-100 mt-2 relative z-10">FPP JAWABARAT Internal Team</p>
+          <p className="text-emerald-100 mt-2 relative z-10">WIBAWA NUSANTARA Internal Team</p>
         </div>
 
         <div className="p-8">

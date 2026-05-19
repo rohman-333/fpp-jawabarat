@@ -46,7 +46,7 @@ export default async function TeamPage() {
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <Shield className="w-6 h-6 text-emerald-600" /> Manajemen Team Internal
           </h1>
-          <p className="text-slate-500 text-sm mt-1">Kelola akses tim dan administrator FPP JAWABARAT</p>
+          <p className="text-slate-500 text-sm mt-1">Kelola akses tim dan administrator WIBAWA NUSANTARA</p>
         </div>
         <Link 
           href="/admin/team/invite"

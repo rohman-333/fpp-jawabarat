@@ -87,7 +87,7 @@ export function ReportPostDialog({ isOpen, onClose, postId, currentUserId }: Rep
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                 </div>
                 <h4 className="font-bold text-slate-800 text-lg mb-2">Laporan Terkirim</h4>
-                <p className="text-slate-500 text-sm">Terima kasih telah membantu menjaga komunitas FPP JAWABARAT tetap aman dan nyaman.</p>
+                <p className="text-slate-500 text-sm">Terima kasih telah membantu menjaga komunitas WIBAWA NUSANTARA tetap aman dan nyaman.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">

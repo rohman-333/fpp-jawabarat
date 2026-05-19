@@ -4,7 +4,7 @@ import { Package, Receipt } from 'lucide-react';
 import { OrderStatusSelect } from '@/app/(dashboard)/dashboard/orders/OrderStatusSelect';
 
 export const metadata = {
-  title: 'Semua Pesanan (Admin) - FPP JAWABARAT',
+  title: 'Semua Pesanan (Admin) - WIBAWA NUSANTARA',
 };
 
 export default async function AdminOrdersPage() {

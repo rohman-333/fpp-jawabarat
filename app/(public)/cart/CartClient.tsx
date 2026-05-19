@@ -64,7 +64,7 @@ export function CartClient({ initialItems, currentUserId }: { initialItems: any[
         {items.map(item => {
           const product = item.product;
           if (!product) return null;
-          const sellerName = product.seller?.name || product.pesantren?.name || 'Seller FPP JAWABARAT';
+          const sellerName = product.seller?.name || product.pesantren?.name || 'Seller WIBAWA NUSANTARA';
           
           return (
             <div key={item.id} className={`bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 flex gap-4 ${loadingIds.includes(item.id) ? 'opacity-50' : ''}`}>

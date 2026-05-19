@@ -4,7 +4,7 @@ import { FeedContainer } from '@/components/social/FeedContainer';
 import { LegacyPasswordBanner } from '@/components/shared/LegacyPasswordBanner';
 
 export const metadata = {
-  title: 'Postingan Tersimpan | FPP JAWABARAT',
+  title: 'Postingan Tersimpan | WIBAWA NUSANTARA',
 }
 
 export default async function SavedPostsPage() {

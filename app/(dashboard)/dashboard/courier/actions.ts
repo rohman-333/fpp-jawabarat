@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { createNotification } from '@/lib/notifications/createNotification'
 
 export async function submitCourierApplication(formData: FormData) {
   const supabase = await createClient();
@@ -83,6 +84,13 @@ export async function updateCourierApplicationStatus(formData: FormData) {
     payload.rejection_reason = null;
   }
 
+  // Fetch applicant user_id for notification
+  const { data: application } = await supabase
+    .from('courier_applications')
+    .select('user_id')
+    .eq('id', applicationId)
+    .single();
+
   const { error } = await supabase
     .from('courier_applications')
     .update(payload)
@@ -90,6 +98,33 @@ export async function updateCourierApplicationStatus(formData: FormData) {
 
   if (error) {
     return { error: 'Gagal memperbarui status: ' + error.message };
+  }
+
+  // Send notification to applicant
+  if (application?.user_id) {
+    try {
+      if (newStatus === 'approved') {
+        await createNotification({
+          userId: application.user_id,
+          actorId: user.id,
+          type: 'courier_approved',
+          title: 'Lamaran Kurir Disetujui 🎉',
+          body: 'Selamat! Lamaran kurir Anda telah disetujui. Siap menerima pesanan sekarang.',
+          href: '/dashboard/courier',
+        });
+      } else {
+        await createNotification({
+          userId: application.user_id,
+          actorId: user.id,
+          type: 'courier_rejected',
+          title: 'Lamaran Kurir Ditolak',
+          body: rejectionReason || 'Lamaran kurir Anda belum dapat disetujui saat ini.',
+          href: '/dashboard/courier',
+        });
+      }
+    } catch (notifErr) {
+      console.error('[COURIER_APPROVAL_NOTIF_ERROR]', notifErr);
+    }
   }
 
   revalidatePath('/admin/courier-applications');

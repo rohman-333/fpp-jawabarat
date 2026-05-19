@@ -34,7 +34,7 @@ export default async function SellerApplyPage() {
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <Store className="w-6 h-6 text-emerald-600" /> Buka Toko Anda
           </h1>
-          <p className="text-slate-500 text-sm">Jangkau ribuan anggota komunitas FPP JAWABARAT.</p>
+          <p className="text-slate-500 text-sm">Jangkau ribuan anggota komunitas WIBAWA NUSANTARA.</p>
         </div>
       </div>
 

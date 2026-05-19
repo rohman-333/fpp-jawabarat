@@ -37,7 +37,7 @@ export default async function ProfilePage() {
             <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-slate-800">Pengaturan Akun</h2>
-                <p className="text-slate-500 text-sm mt-1">Kelola identitas dan kredensial Anda di platform FPP JAWABARAT.</p>
+                <p className="text-slate-500 text-sm mt-1">Kelola identitas dan kredensial Anda di platform WIBAWA NUSANTARA.</p>
               </div>
               <div className="hidden sm:flex w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 items-center justify-center">
                 <User className="w-6 h-6" />

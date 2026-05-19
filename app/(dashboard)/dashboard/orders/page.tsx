@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { OrderStatusSelect } from './OrderStatusSelect';
 
 export const metadata = {
-  title: 'Daftar Pesanan (Seller) - Dashboard FPP JAWABARAT',
+  title: 'Daftar Pesanan (Seller) - Dashboard WIBAWA NUSANTARA',
 };
 
 export default async function DashboardOrdersPage() {
