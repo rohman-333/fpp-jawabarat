@@ -21,10 +21,10 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
-  const sellerName = product.seller?.name || product.pesantren?.name || 'Seller WIBAWA NUSANTARA';
-  const location = product.seller?.location || product.pesantren?.city || 'Jawa Barat';
-  const isVerified = product.seller?.is_verified || false;
-  const stock = product.stock ?? 0;
+  const sellerName = product?.seller?.name || product?.pesantren?.name || 'Seller WIBAWA NUSANTARA';
+  const location = product?.seller?.location || product?.pesantren?.city || 'Jawa Barat';
+  const isVerified = product?.seller?.is_verified || false;
+  const stock = product?.stock ?? 0;
 
   return (
     <Link href={`/marketplace/${product.slug}`} className="group bg-white rounded-xl shadow-sm hover:shadow-lg border border-slate-100 overflow-hidden transition-all duration-300 flex flex-col h-full block">
@@ -46,7 +46,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <h3 className="font-medium text-slate-800 text-xs sm:text-sm leading-[1.4] mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors h-[2.8em]">{product.name}</h3>
         
         <div className="font-bold text-slate-900 text-sm sm:text-base mb-1.5">
-          Rp {product.price.toLocaleString('id-ID')}
+          Rp {(product.price || 0).toLocaleString('id-ID')}
         </div>
         
         <div className="mt-auto space-y-1 mb-3">

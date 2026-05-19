@@ -24,9 +24,14 @@ export default function RootError({
         </div>
         
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Halaman gagal dimuat</h1>
-        <p className="text-slate-500 mb-6 text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">
+        <p className="text-slate-500 mb-2 text-sm bg-slate-50 p-3 rounded-lg border border-slate-100 break-all">
           {error.message || 'Terjadi kesalahan pada server. Kami sedang berusaha memperbaikinya.'}
         </p>
+        {error.digest && (
+          <p className="text-xs text-slate-400 mb-6 font-mono bg-slate-100 p-2 rounded">
+            Digest: {error.digest}
+          </p>
+        )}
 
         <div className="flex flex-col gap-3">
           <Button 
