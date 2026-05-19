@@ -16,11 +16,16 @@ export default async function NewProductPage() {
     redirect('/login');
   }
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, name, role, is_seller, seller_status, has_pesantren, pesantren_id, avatar_url')
     .eq('id', user.id)
     .single();
+
+  if (profileError) {
+    console.error('[SELLER_PRODUCTS_NEW_ERROR] Profile fetch failed:', profileError);
+    throw new Error(`Gagal memuat profil pengguna: ${profileError.message}`);
+  }
 
   const { data: fetchedCategories, error: fetchError } = await supabase
     .from('product_categories')
