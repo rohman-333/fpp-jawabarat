@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ShoppingBag, Loader2 } from 'lucide-react';
+import { ShoppingCart, ShoppingBag, Loader2, MessageCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
@@ -55,6 +55,45 @@ export function ProductActionButtons({ product, currentUserId }: { product: any,
     router.push('/checkout');
   };
 
+  const handleChatSeller = async () => {
+    if (!currentUserId) {
+      router.push(`/login?redirect=/marketplace/${product.slug}`);
+      return;
+    }
+
+    setLoading(true);
+    // Check if conversation already exists
+    const { data: existingConvo } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('buyer_id', currentUserId)
+      .eq('seller_id', product.seller_id)
+      .eq('product_id', product.id)
+      .single();
+
+    if (existingConvo) {
+      router.push(`/messages/${existingConvo.id}`);
+    } else {
+      // Create new conversation
+      const { data: newConvo, error } = await supabase
+        .from('conversations')
+        .insert({
+          buyer_id: currentUserId,
+          seller_id: product.seller_id,
+          product_id: product.id
+        })
+        .select('id')
+        .single();
+        
+      if (!error && newConvo) {
+        router.push(`/messages/${newConvo.id}`);
+      } else {
+        alert('Gagal memulai percakapan.');
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <div className="flex gap-3 w-full sm:w-auto">
       <Button 
@@ -75,6 +114,16 @@ export function ProductActionButtons({ product, currentUserId }: { product: any,
         className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl h-12 px-8 shadow-md shadow-blue-600/20"
       >
         <ShoppingBag className="w-5 h-5 mr-2" /> Beli Langsung
+      </Button>
+
+      <Button 
+        onClick={handleChatSeller}
+        disabled={loading}
+        size="lg" 
+        variant="outline"
+        className="flex-1 sm:flex-none border-green-600 text-green-600 hover:bg-green-50 font-bold rounded-xl h-12 px-6"
+      >
+        <MessageCircle className="w-5 h-5 mr-2" /> Chat Penjual
       </Button>
     </div>
   );

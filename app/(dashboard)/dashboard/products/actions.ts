@@ -34,6 +34,10 @@ export async function saveProduct(formData: FormData) {
     }
   }
   
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin';
+  const defaultStatus = isAdmin ? 'active' : 'pending';
+
   const payload = {
     name: formData.get('name') as string,
     slug: formData.get('slug') as string || (formData.get('name') as string).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 1000),
@@ -45,7 +49,7 @@ export async function saveProduct(formData: FormData) {
     image_url: formData.get('image_url') as string || null,
     pesantren_id: pesantren?.id || null,
     seller_id: user.id,
-    status: formData.get('status') as string || 'pending'
+    status: formData.get('status') as string || defaultStatus
   };
 
   try {

@@ -41,7 +41,7 @@ export async function changePassword(prevState: any, formData: FormData) {
     if (isLegacy) {
       const supabaseAdmin = await import('@/lib/supabase/admin').then(m => m.getSupabaseAdmin())
       if (!supabaseAdmin) {
-        return { error: 'Reset password migrasi belum dikonfigurasi server.' }
+        return { error: 'SUPABASE_SERVICE_ROLE_KEY belum tersedia di server. Tambahkan env di Vercel lalu redeploy.' }
       }
 
       // 3. Update password directly via Admin API

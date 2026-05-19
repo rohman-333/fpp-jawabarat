@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { PublicNavbar } from '@/components/shared/PublicNavbar';
 import { PublicFooter } from '@/components/shared/PublicFooter';
-import { Package, Clock, CheckCircle2, XCircle, Store } from 'lucide-react';
+import { Package, Clock, CheckCircle2, XCircle, Store, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {
@@ -102,14 +102,16 @@ export default async function OrdersPage() {
                       <p className="text-sm text-slate-600 flex-1">
                         Silakan hubungi seller untuk konfirmasi pembayaran dan pengiriman.
                       </p>
-                      <a 
-                        href={`https://wa.me/?text=Halo, saya ingin konfirmasi pesanan ${order.invoice_number}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm"
-                      >
-                        WhatsApp Seller
-                      </a>
+                      <form action="/messages/new" method="POST" className="inline-block">
+                        <input type="hidden" name="seller_id" value={order.seller_id} />
+                        <input type="hidden" name="order_id" value={order.id} />
+                        <button 
+                          type="submit"
+                          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm flex items-center gap-2"
+                        >
+                          <MessageCircle className="w-4 h-4" /> Chat Seller
+                        </button>
+                      </form>
                     </div>
                   )}
                 </div>

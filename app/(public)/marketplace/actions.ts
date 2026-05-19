@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { createNotification } from '@/lib/notifications/createNotification';
 
 export async function addToCart(productId: string, quantity: number = 1) {
   const supabase = await createClient();
@@ -195,6 +196,24 @@ export async function createOrder(formData: FormData) {
       status: 'pending',
       notes: 'Order placed',
       created_by: user.id
+    });
+
+    // Notify Buyer
+    await createNotification({
+      userId: user.id,
+      type: 'order_status',
+      title: 'Pesanan Dibuat',
+      body: `Pesanan Anda ${invoiceNumber} berhasil dibuat dan menunggu konfirmasi.`,
+      href: `/orders`
+    });
+
+    // Notify Seller
+    await createNotification({
+      userId: sellerId,
+      type: 'new_order',
+      title: 'Pesanan Baru Masuk!',
+      body: `Anda mendapat pesanan baru ${invoiceNumber}. Segera proses pesanan ini.`,
+      href: `/dashboard/orders`
     });
   }
 

@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { ShoppingBag, Package } from 'lucide-react';
+import { ShoppingBag, Package, MessageCircle } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { OrderStatusSelect } from './OrderStatusSelect';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Daftar Pesanan (Seller) - Dashboard WIBAWA NUSANTARA',
@@ -61,7 +62,16 @@ export default async function DashboardOrdersPage() {
               
               <div className="p-4 sm:p-6 flex flex-col md:flex-row gap-6">
                 <div className="flex-1">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Detail Pembeli</h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Detail Pembeli</h3>
+                    <form action="/dashboard/messages/new" method="POST" className="inline-block">
+                      <input type="hidden" name="buyer_id" value={order.buyer_id} />
+                      <input type="hidden" name="order_id" value={order.id} />
+                      <button type="submit" className="text-xs flex items-center gap-1 font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                        <MessageCircle className="w-4 h-4" /> Chat Pembeli
+                      </button>
+                    </form>
+                  </div>
                   <div className="text-sm">
                     <p className="font-bold text-slate-800">{order.buyer?.name || 'User'}</p>
                     <p className="text-slate-600 mt-1">{order.customer_phone}</p>
