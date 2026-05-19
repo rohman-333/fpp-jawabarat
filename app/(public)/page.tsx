@@ -86,30 +86,30 @@ export default async function LandingPage() {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6 leading-[1.1]">
-              Terhubung dengan{' '}
+              Terhubung, Berbagi, dan{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200">
-                Komunitas
+                Bertumbuh Bersama
               </span>
-              {' '}Nusantara
             </h1>
 
-            <p className="text-xl md:text-2xl text-blue-100/80 mb-4 font-medium">
-              {BRAND.name}
-            </p>
-
-            <p className="text-lg text-blue-200/60 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Bagikan kabar, ikuti komunitas favorit, temukan program, dan belanja produk dalam satu platform modern yang cepat dan mudah.
+            <p className="text-lg text-blue-200/80 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
+              WIBAWA NUSANTARA adalah platform sosial, komunitas, dan marketplace untuk mempertemukan pengguna, pelaku usaha, lembaga, dan komunitas dalam satu ekosistem digital.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/register">
                 <Button size="lg" className="h-14 px-10 text-lg bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-[0_0_40px_-5px_rgba(59,130,246,0.5)] transition-all hover:-translate-y-1 border-none">
-                  Buat Akun Gratis <ArrowRight className="ml-2 w-5 h-5" />
+                  Buat Akun Gratis
                 </Button>
               </Link>
-              <Link href="/feed">
+              <Link href="/login">
                 <Button size="lg" variant="outline" className="h-14 px-10 text-lg border-blue-700/50 bg-blue-900/30 text-blue-50 hover:bg-blue-800/60 hover:text-white rounded-xl backdrop-blur-sm transition-all hover:-translate-y-1">
-                  Jelajahi Konten
+                  Masuk
+                </Button>
+              </Link>
+              <Link href="/marketplace">
+                <Button size="lg" variant="ghost" className="h-14 px-6 text-blue-300 hover:text-white hover:bg-blue-800/40 rounded-xl transition-all">
+                  Jelajahi Marketplace <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </div>
@@ -166,14 +166,10 @@ export default async function LandingPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Database, title: 'Direktori Komunitas', desc: 'Sistem pendataan terpusat untuk seluruh komunitas dan organisasi.' },
-              { icon: Handshake, title: 'Program Sosial', desc: 'Kolaborasi program bantuan, beasiswa, dan pengembangan bersama.' },
-              { icon: ShoppingBag, title: 'Marketplace', desc: 'Pasar digital untuk mempromosikan produk UMKM dan komunitas.' },
-              { icon: Users, title: 'Forum Diskusi', desc: 'Ruang diskusi interaktif untuk anggota dan pengurus komunitas.' },
-              { icon: FileText, title: 'Perpustakaan Digital', desc: 'Pusat arsip, regulasi, panduan, dan dokumen terpusat.' },
-              { icon: BookOpen, title: 'Artikel & Konten', desc: 'Media publikasi dan penyebaran informasi komunitas.' },
-              { icon: Bot, title: 'Asisten AI', desc: 'Asisten cerdas berbasis AI untuk produktivitas komunitas.', badge: 'BETA' },
-              { icon: BarChart3, title: 'Dashboard Transparan', desc: 'Monitoring program dan distribusi bantuan terintegrasi.' },
+              { icon: Users, title: 'Sosial & Feed Komunitas', desc: 'Saling sapa, bertukar informasi, dan membangun koneksi berharga di timeline interaktif.' },
+              { icon: ShoppingBag, title: 'Marketplace', desc: 'Pusat jual beli produk unggulan untuk mendukung ekosistem usaha lokal.' },
+              { icon: Handshake, title: 'Program & Kegiatan', desc: 'Informasi kolaborasi, event, dan bantuan sosial terorganisir.' },
+              { icon: Database, title: 'Direktori Komunitas', desc: 'Pendataan terpusat seluruh lembaga, organisasi, dan kelompok masyarakat.' },
             ].map((feat, idx) => (
               <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all group flex flex-col">
                 <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
@@ -181,9 +177,36 @@ export default async function LandingPage() {
                 </div>
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="font-bold text-slate-800">{feat.title}</h3>
-                  {feat.badge && <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">{feat.badge}</span>}
                 </div>
                 <p className="text-slate-500 text-sm leading-relaxed flex-1">{feat.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Cara Mulai ── */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Cara Bergabung</h2>
+            <p className="text-slate-500 max-w-2xl mx-auto text-lg">Hanya butuh 3 langkah mudah untuk menjadi bagian dari ekosistem WIBAWA NUSANTARA.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-blue-100 z-0" />
+            
+            {[
+              { step: '1', title: 'Daftar Akun', desc: 'Buat akun gratis menggunakan email Anda secara cepat.' },
+              { step: '2', title: 'Lengkapi Profil', desc: 'Isi identitas diri, atur foto, dan verifikasi akun Anda.' },
+              { step: '3', title: 'Mulai Terhubung', desc: 'Mulai posting, berjualan, atau bergabung dengan komunitas.' },
+            ].map((item, idx) => (
+              <div key={idx} className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-24 h-24 bg-white border-4 border-blue-50 text-blue-600 rounded-full flex items-center justify-center text-3xl font-black shadow-lg mb-6">
+                  {item.step}
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-3">{item.title}</h3>
+                <p className="text-slate-500">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -269,21 +292,21 @@ export default async function LandingPage() {
 
         <div className="container mx-auto px-4 relative z-10 text-center max-w-3xl">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-            Bergabung dengan <span className="text-blue-400">{BRAND.name}</span>
+            Mulai bergabung dengan <span className="text-blue-400">WIBAWA NUSANTARA</span>
           </h2>
           <p className="text-blue-200/70 text-lg mb-10 max-w-xl mx-auto">
-            Daftar gratis sekarang dan mulai terhubung dengan ribuan anggota komunitas Nusantara di seluruh Indonesia.
+            Daftar gratis sekarang dan mulai terhubung dengan ribuan anggota, lembaga, dan pelaku usaha di seluruh Indonesia.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/register">
               <Button size="lg" className="h-14 px-10 text-lg bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full shadow-[0_0_40px_-5px_rgba(59,130,246,0.4)] transition-all hover:-translate-y-1 border-none">
-                Gabung Sekarang — Gratis
+                Buat Akun Gratis
               </Button>
             </Link>
-            <Link href="/feed">
-              <Button size="lg" variant="ghost" className="text-blue-300 hover:text-white hover:bg-blue-900/50">
-                Lihat Beranda Dulu
+            <Link href="/marketplace">
+              <Button size="lg" variant="ghost" className="text-blue-300 hover:text-white hover:bg-blue-900/50 rounded-full">
+                Jelajahi Ekosistem
               </Button>
             </Link>
           </div>

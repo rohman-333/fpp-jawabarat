@@ -17,7 +17,7 @@ export function PublicNavbar({ transparent = false }: PublicNavbarProps) {
           <Link href="/" className="hover:text-blue-400 transition-colors">Beranda</Link>
           <Link href="/pesantren" className="hover:text-blue-400 transition-colors">Komunitas</Link>
           <Link href="/marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link>
-          <Link href="/forum" className="hover:text-blue-400 transition-colors">Forum</Link>
+          <Link href="/program" className="hover:text-blue-400 transition-colors">Program</Link>
         </nav>
 
         <div className="hidden lg:flex items-center gap-4">
@@ -31,7 +31,7 @@ export function PublicNavbar({ transparent = false }: PublicNavbarProps) {
           </Link>
           <Link href="/register">
             <Button className="bg-blue-600 hover:bg-blue-500 text-white font-bold border-none rounded-full px-6 shadow-md shadow-blue-600/20">
-              Gabung Sekarang
+              Daftar
             </Button>
           </Link>
         </div>
