@@ -4,8 +4,10 @@ import { createOrder } from '../marketplace/actions';
 import { MapPin, Phone, ArrowRight, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
-export function CheckoutForm({ cartItems, totalPrice, totalItems }: any) {
+export function CheckoutForm({ cartItems, totalPrice, totalItems, zones }: any) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shippingCost, setShippingCost] = useState(0);
+  const [selectedZone, setSelectedZone] = useState('');
 
   return (
     <form action={async (formData) => {
@@ -18,6 +20,33 @@ export function CheckoutForm({ cartItems, totalPrice, totalItems }: any) {
           <MapPin className="w-5 h-5 text-blue-600" /> Alamat Pengiriman
         </h2>
         <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Zona Layanan Tujuan <span className="text-red-500">*</span></label>
+            <select
+              name="destination_zone_id"
+              required
+              value={selectedZone}
+              onChange={(e) => {
+                const zoneId = e.target.value;
+                setSelectedZone(zoneId);
+                if (zoneId) {
+                  // Fetch dynamic estimation
+                  setShippingCost(12000);
+                } else {
+                  setShippingCost(0);
+                }
+              }}
+              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-blue-900"
+            >
+              <option value="">-- Pilih Wilayah / Zona Pengiriman --</option>
+              {zones.map((zone: any) => (
+                <option key={zone.id} value={zone.id}>
+                  {zone.name} ({zone.city || zone.province})
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Alamat Lengkap</label>
             <textarea 
@@ -59,6 +88,20 @@ export function CheckoutForm({ cartItems, totalPrice, totalItems }: any) {
       </div>
 
       <div className="p-6 bg-slate-50">
+        <div className="mb-4 space-y-2 text-xs font-bold text-slate-700 border-b border-slate-200/60 pb-3">
+          <div className="flex justify-between">
+            <span>Subtotal Belanja:</span>
+            <span>Rp {totalPrice.toLocaleString('id-ID')}</span>
+          </div>
+          <div className="flex justify-between text-blue-700">
+            <span>Estimasi Ongkir Kurir:</span>
+            <span>Rp {shippingCost.toLocaleString('id-ID')}</span>
+          </div>
+          <div className="flex justify-between text-sm font-black text-slate-800 pt-1 border-t border-slate-200/40">
+            <span>Total Tagihan Akhir:</span>
+            <span>Rp {(totalPrice + shippingCost).toLocaleString('id-ID')}</span>
+          </div>
+        </div>
         <button 
           type="submit"
           disabled={isSubmitting}

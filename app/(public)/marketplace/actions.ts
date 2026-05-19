@@ -164,6 +164,7 @@ export async function createOrder(formData: FormData) {
   const shippingAddress = formData.get('shipping_address') as string;
   const customerPhone = formData.get('customer_phone') as string;
   const notes = formData.get('notes') as string;
+  const destinationZoneId = formData.get('destination_zone_id') as string;
 
   // 1. Get cart items
   const { data: cartItems } = await supabase
@@ -205,6 +206,28 @@ export async function createOrder(formData: FormData) {
     
   const commissionPercentage = commissionSettings?.[0]?.commission_percentage ?? 10; // Default 10% platform fee
 
+  // Get service type for marketplace delivery
+  const { data: svcType } = await supabase
+    .from('service_types')
+    .select('id')
+    .eq('code', 'marketplace_delivery')
+    .maybeSingle();
+
+  // Determine shipping cost
+  let shippingCost = 12000; // Default fallback
+  if (destinationZoneId && svcType) {
+    const { data: fareRecord } = await supabase
+      .from('delivery_fares')
+      .select('base_fare, per_km_rate')
+      .eq('destination_zone_id', destinationZoneId)
+      .eq('service_type_id', svcType.id)
+      .maybeSingle();
+    
+    if (fareRecord) {
+      shippingCost = Number(fareRecord.base_fare || 10000) + Number(fareRecord.per_km_rate || 2000);
+    }
+  }
+
   for (const sellerId of Object.keys(itemsBySeller)) {
     const sellerItems = itemsBySeller[sellerId];
     
@@ -219,17 +242,17 @@ export async function createOrder(formData: FormData) {
     const commissionAmount = (totalAmount * commissionPercentage) / 100;
     const sellerNetAmount = totalAmount - commissionAmount;
 
-    // Create Order
+    // Create Order with dynamic shipping cost
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
       .insert({
         buyer_id: user.id,
         seller_id: sellerId,
         invoice_number: invoiceNumber,
-        total_amount: totalAmount,
+        total_amount: totalAmount + shippingCost,
         subtotal: totalAmount,
         platform_fee: commissionAmount,
-        shipping_cost: 0, // Placeholder for future logic
+        shipping_cost: shippingCost,
         shipping_address: shippingAddress,
         customer_phone: customerPhone,
         notes: notes,
@@ -240,6 +263,48 @@ export async function createOrder(formData: FormData) {
       .single();
 
     if (orderError) throw orderError;
+
+    // Create automatically dispatched Courier Delivery Ticket
+    try {
+      const { data: sellerProf } = await supabase
+        .from('profiles')
+        .select('name, phone, location')
+        .eq('id', sellerId)
+        .maybeSingle();
+
+      const { data: buyerProf } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const itemNames = sellerItems.map((item: any) => `${item.product.name} x${item.quantity}`).join(', ');
+
+      await supabase
+        .from('deliveries')
+        .insert({
+          order_id: orderData.id,
+          service_type_id: svcType?.id || null,
+          buyer_id: user.id,
+          seller_id: sellerId,
+          origin_name: sellerProf?.name || 'Seller Store',
+          origin_phone: sellerProf?.phone || customerPhone,
+          origin_address: sellerProf?.location || 'Alamat Toko Seller',
+          destination_name: buyerProf?.name || 'Buyer',
+          destination_phone: customerPhone,
+          destination_address: shippingAddress,
+          destination_zone_id: destinationZoneId || null,
+          item_description: itemNames,
+          item_weight: sellerItems.reduce((sum: number, item: any) => sum + (item.quantity * 1), 0),
+          fare_amount: shippingCost,
+          platform_fee: 2000,
+          courier_earning: Math.round(shippingCost * 0.8),
+          status: 'waiting_assignment',
+          payment_status: 'unpaid'
+        });
+    } catch (deliveryErr) {
+      console.error('Failed to create matching auto-dispatched delivery ticket:', deliveryErr);
+    }
 
     // Create Order Items
     const orderItemsToInsert = sellerItems.map((item: any) => {

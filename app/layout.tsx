@@ -21,7 +21,10 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://wibawa-nusantara.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: {
     default: BRAND.name,
     template: `%s | ${BRAND.name}`,
@@ -44,6 +47,13 @@ export const metadata: Metadata = {
     siteName: BRAND.name,
     title: BRAND.name,
     description: BRAND.description,
+    url: appUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: BRAND.name,
+    description: BRAND.description,
+    creator: BRAND.twitterHandle,
   },
 };
 

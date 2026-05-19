@@ -1,9 +1,12 @@
+// app/(admin)/admin/orders/page.tsx
+
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Package, Receipt, CreditCard } from 'lucide-react';
+import { Package, Receipt, CreditCard, ShieldCheck } from 'lucide-react';
 import { OrderStatusSelect } from '@/app/(dashboard)/dashboard/orders/OrderStatusSelect';
 import Link from 'next/link';
 import { PaymentConfirmationsList } from './PaymentConfirmationsList';
+import { OnlinePaymentsList } from './OnlinePaymentsList';
 
 export const metadata = {
   title: 'Manajemen Transaksi (Admin) - WIBAWA NUSANTARA',
@@ -42,6 +45,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
 
   let orders = [];
   let paymentConfirmations = [];
+  let onlineTransactions = [];
 
   if (tab === 'orders') {
     const { data } = await supabase
@@ -69,6 +73,19 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
       .order('created_at', { ascending: false });
 
     paymentConfirmations = data || [];
+  } else if (tab === 'midtrans') {
+    const { data } = await supabase
+      .from('payment_transactions')
+      .select(`
+        *,
+        order:order_id (
+          id, invoice_number, total_amount, status, payment_status, seller:seller_id (name)
+        ),
+        buyer:buyer_id (name)
+      `)
+      .order('created_at', { ascending: false });
+
+    onlineTransactions = data || [];
   }
 
   const formatRupiah = (num: number) => {
@@ -82,15 +99,15 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <Receipt className="w-6 h-6 text-blue-600" /> Manajemen Transaksi
           </h1>
-          <p className="text-slate-500 text-sm mt-1">Pantau pesanan, kurir, dan kelola pembayaran manual di platform</p>
+          <p className="text-slate-500 text-sm mt-1">Pantau pesanan, verifikasi transfer manual, dan kelola pembayaran otomatis Midtrans</p>
         </div>
       </div>
 
       {/* Tabs Control */}
-      <div className="flex border-b border-slate-200 gap-6">
+      <div className="flex border-b border-slate-200 gap-6 overflow-x-auto pb-1 sm:pb-0">
         <Link 
           href="/admin/orders?tab=orders" 
-          className={`pb-3 font-bold text-sm border-b-2 transition-all ${
+          className={`pb-3 font-bold text-sm border-b-2 transition-all whitespace-nowrap ${
             tab === 'orders' 
               ? 'border-blue-600 text-blue-600' 
               : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -104,19 +121,31 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
         
         <Link 
           href="/admin/orders?tab=payments" 
-          className={`pb-3 font-bold text-sm border-b-2 transition-all flex items-center gap-1.5 ${
+          className={`pb-3 font-bold text-sm border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
             tab === 'payments' 
               ? 'border-blue-600 text-blue-600' 
               : 'border-transparent text-slate-500 hover:text-slate-700'
           }`}
         >
           <CreditCard className="w-4 h-4" /> 
-          Verifikasi Pembayaran 
+          Verifikasi Transfer Manual 
           {pendingConfirmationsCount !== null && pendingConfirmationsCount > 0 && (
             <span className="ml-1 px-2 py-0.5 text-[10px] font-black bg-rose-500 text-white rounded-full">
               {pendingConfirmationsCount}
             </span>
           )}
+        </Link>
+
+        <Link 
+          href="/admin/orders?tab=midtrans" 
+          className={`pb-3 font-bold text-sm border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            tab === 'midtrans' 
+              ? 'border-blue-600 text-blue-600' 
+              : 'border-transparent text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4 text-emerald-600" /> 
+          Pembayaran Online (Midtrans)
         </Link>
       </div>
 
@@ -192,8 +221,10 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
             </table>
           </div>
         </div>
-      ) : (
+      ) : tab === 'payments' ? (
         <PaymentConfirmationsList initialPayments={paymentConfirmations} />
+      ) : (
+        <OnlinePaymentsList initialTransactions={onlineTransactions} />
       )}
     </div>
   );

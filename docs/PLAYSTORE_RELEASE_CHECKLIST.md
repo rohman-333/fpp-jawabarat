@@ -40,13 +40,13 @@ Ensure all visual assets conform exactly to Google Play Console size regulations
 
 ## 3. URLs, Policies & Contact Details
 
-*   **Privacy Policy URL**: `https://wibawanusantara.com/privacy`
+*   **Privacy Policy URL**: `https://wibawa-nusantara.com/privacy`
     *(Must explain cookie usage, profiles metadata isolation, and storage of media files)*
-*   **Terms of Service URL**: `https://wibawanusantara.com/terms`
+*   **Terms of Service URL**: `https://wibawa-nusantara.com/terms`
 *   **Data Safety Declarations**:
     - **Data Collected**: Personal info (name, email, phone), User Content (posts, comments, images, videos), app activity.
     - **Security Practices**: Data is encrypted in transit (HTTPS/SSL). Users can request account and data deletion at any time.
-*   **Support/Contact Email**: `support@wibawanusantara.com`
+*   **Support/Contact Email**: `support@wibawa-nusantara.com`
 
 ---
 
@@ -59,7 +59,7 @@ If your app requires logging in (which WIBAWA NUSANTARA does), you **MUST** prov
     Platform ini memerlukan otentikasi login. Harap gunakan akun demonstrasi / penguji (test account) yang kami sediakan untuk memeriksa seluruh fitur sosial media, obrolan realtime, pembuatan postingan, dan transaksi marketplace secara lengkap.
     ```
 *   **Google Reviewer Demo Account**:
-    - **Test Email**: `reviewer@wibawanusantara.com`
+    - **Test Email**: `reviewer@wibawa-nusantara.com`
     - **Test Password**: `ReviewerWibawa2026!`
     *(Ensure this account is registered in Supabase Auth and has profiles roles set correctly beforehand)*
 

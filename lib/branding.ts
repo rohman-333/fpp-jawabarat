@@ -31,6 +31,7 @@ export const BRAND = {
 
   // Social / SEO
   url: 'https://wibawanusantara.id',
+  siteUrl: process.env.NEXT_PUBLIC_APP_URL || "https://wibawa-nusantara.com",
   twitterHandle: '@wibawanusantara',
 } as const;
 

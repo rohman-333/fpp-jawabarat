@@ -46,7 +46,7 @@ npm install -g @bubblewrap/cli
 ### Step C: Initialize the Android Project
 Run the initialization wizard against our live production domain:
 ```bash
-bubblewrap init --manifest=https://wibawanusantara.com/manifest.webmanifest
+bubblewrap init --manifest=https://wibawa-nusantara.com/manifest.webmanifest
 ```
 *Bubblewrap will read our PWA manifest (`manifest.webmanifest`), configure package name (`com.wibawanusantara.app`), define start URL (`/`), and import high-res app icons.*
 
@@ -88,7 +88,7 @@ To hide the Chrome address bar and confirm ownership of the domain:
    ]
    ```
 3. Upload this file to your Next.js project public folder so it resolves exactly at:
-   `https://wibawanusantara.com/.well-known/assetlinks.json`
+   `https://wibawa-nusantara.com/.well-known/assetlinks.json`
 
 ---
 

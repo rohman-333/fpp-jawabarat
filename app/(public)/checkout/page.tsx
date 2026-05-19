@@ -40,6 +40,13 @@ export default async function CheckoutPage() {
   const totalItems = cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
   const totalPrice = cartItems.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0);
 
+  // Fetch active zones
+  const { data: zones } = await supabase
+    .from('delivery_zones')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <PublicNavbar />
@@ -51,7 +58,12 @@ export default async function CheckoutPage() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1 space-y-6">
-            <CheckoutForm cartItems={cartItems} totalPrice={totalPrice} totalItems={totalItems} />
+            <CheckoutForm 
+              cartItems={cartItems} 
+              totalPrice={totalPrice} 
+              totalItems={totalItems} 
+              zones={zones || []} 
+            />
           </div>
 
           <div className="lg:w-96">

@@ -71,12 +71,12 @@ git push -u origin main
 5. Klik **Deploy** dan tunggu proses build selesai. Vercel secara otomatis akan menjalankan perintah `npm run build`.
 
 ### 3. Konfigurasi Auth Redirect Supabase (Wajib)
-Setelah Vercel memberikan URL/domain (contoh: `https://fpp-jawabarat.vercel.app`), Anda **wajib** mendaftarkan domain tersebut di Supabase agar fitur Login/Register berfungsi.
+Setelah Vercel memberikan URL/domain (contoh: `https://wibawa-nusantara.com`), Anda **wajib** mendaftarkan domain tersebut di Supabase agar fitur Login/Register berfungsi.
 
 1. Buka Supabase Dashboard > Authentication > URL Configuration.
-2. Pada bagian **Site URL**, masukkan URL utama Vercel Anda (contoh: `https://fpp-jawabarat.vercel.app`).
+2. Pada bagian **Site URL**, masukkan URL utama Vercel Anda (contoh: `https://wibawa-nusantara.com`).
 3. Pada bagian **Redirect URLs**, tambahkan URL callback:
-   - `https://fpp-jawabarat.vercel.app/auth/callback`
-   - `https://fpp-jawabarat.vercel.app/**` (opsional untuk wildcard)
+   - `https://wibawa-nusantara.com/auth/callback`
+   - `https://wibawa-nusantara.com/**` (opsional untuk wildcard)
 4. Update juga environment variable `NEXT_PUBLIC_SITE_URL` di Vercel dengan domain tersebut.
 5. Selesai! Platform FPP JAWABARAT sudah *live* dan siap digunakan.
