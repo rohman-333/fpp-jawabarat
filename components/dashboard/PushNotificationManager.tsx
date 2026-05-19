@@ -152,15 +152,21 @@ export function PushNotificationManager() {
           </div>
         </div>
         
-        <Button 
-          onClick={subscription ? unsubscribeFromPush : subscribeToPush}
-          disabled={saving}
-          variant={subscription ? 'outline' : 'default'}
-          className={subscription ? 'border-slate-200 hover:bg-slate-50' : 'bg-emerald-600 hover:bg-emerald-700 font-bold'}
-        >
-          {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-          {subscription ? 'Nonaktifkan' : 'Aktifkan Notifikasi'}
-        </Button>
+        {!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ? (
+          <div className="text-sm font-bold text-amber-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200">
+            Push notification belum dikonfigurasi server.
+          </div>
+        ) : (
+          <Button 
+            onClick={subscription ? unsubscribeFromPush : subscribeToPush}
+            disabled={saving}
+            variant={subscription ? 'outline' : 'default'}
+            className={subscription ? 'border-slate-200 hover:bg-slate-50' : 'bg-emerald-600 hover:bg-emerald-700 font-bold'}
+          >
+            {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            {subscription ? 'Nonaktifkan' : 'Aktifkan Notifikasi'}
+          </Button>
+        )}
       </div>
 
       {!subscription && /iPhone|iPad|iPod/.test(navigator.userAgent) && (

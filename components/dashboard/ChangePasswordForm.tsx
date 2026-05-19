@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Shield, Lock, Eye, EyeOff, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { changePassword } from '@/app/(dashboard)/dashboard/security/actions';
 
 export function ChangePasswordForm() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -45,7 +46,7 @@ export function ChangePasswordForm() {
     return null;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
@@ -59,37 +60,17 @@ export function ChangePasswordForm() {
     setLoading(true);
 
     try {
-      if (userEmail) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: userEmail,
-          password: currentPassword
-        });
-        if (signInError) {
-          throw new Error('Password saat ini salah');
-        }
-      }
+      const formData = new FormData(e.currentTarget);
+      const res = await changePassword({}, formData);
 
-      const { error: updateAuthError } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-
-      if (updateAuthError) {
-        throw updateAuthError;
-      }
-
-      if (userId) {
-        await supabase
-          .from('profiles')
-          .update({ password_changed_at: new Date().toISOString() })
-          .eq('id', userId);
+      if (res.error) {
+        throw new Error(res.error);
       }
 
       setSuccess(true);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      
-      router.refresh();
 
     } catch (err: any) {
       setError(err.message || 'Gagal mengubah password. Silakan coba lagi.');
@@ -139,6 +120,7 @@ export function ChangePasswordForm() {
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
+                name="currentPassword"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Masukkan password saat ini"
@@ -163,6 +145,7 @@ export function ChangePasswordForm() {
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
+                name="newPassword"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Minimal 8 karakter"
@@ -201,6 +184,7 @@ export function ChangePasswordForm() {
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
+                name="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Ulangi password baru"

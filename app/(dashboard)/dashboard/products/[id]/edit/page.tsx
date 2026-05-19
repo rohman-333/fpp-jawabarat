@@ -33,10 +33,15 @@ export default async function EditProductPage({ params }: { params: { id: string
     redirect('/dashboard/products');
   }
 
-  const { data: categories } = await supabase
+  const { data: fetchedCategories, error: fetchError } = await supabase
     .from('product_categories')
     .select('*')
-    .order('name');
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  const categories = (!fetchError && fetchedCategories && fetchedCategories.length > 0)
+    ? fetchedCategories
+    : [{ id: '', name: 'Lainnya', slug: 'lainnya' }];
 
   return (
     <div className="min-h-screen bg-slate-50 flex">

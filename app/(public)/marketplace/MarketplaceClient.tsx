@@ -10,11 +10,14 @@ import { useDebounce } from '@/hooks/useDebounce';
 
 const CATEGORIES = [
   { id: 'all', name: 'Semua Kategori', icon: Sparkles },
-  { id: 'fashion', name: 'Fashion Muslim', icon: Tags },
-  { id: 'makanan', name: 'Makanan & Minuman', icon: ShoppingBag },
-  { id: 'kerajinan', name: 'Kerajinan Tangan', icon: Sparkles },
-  { id: 'jasa', name: 'Jasa', icon: TrendingUp },
-  { id: 'lainnya', name: 'Lainnya', icon: Tags },
+  { id: 'Fashion & Pakaian', name: 'Fashion & Pakaian', icon: Tags },
+  { id: 'Makanan & Minuman', name: 'Makanan & Minuman', icon: ShoppingBag },
+  { id: 'Kitab & Buku', name: 'Kitab & Buku', icon: Sparkles },
+  { id: 'Kerajinan', name: 'Kerajinan', icon: Tags },
+  { id: 'Kesehatan', name: 'Kesehatan', icon: TrendingUp },
+  { id: 'Elektronik', name: 'Elektronik', icon: Sparkles },
+  { id: 'Jasa', name: 'Jasa', icon: TrendingUp },
+  { id: 'Lainnya', name: 'Lainnya', icon: Tags },
 ];
 
 export function MarketplaceClient({ initialProducts }: { initialProducts: any[] }) {

@@ -21,14 +21,24 @@ export async function saveProduct(formData: FormData) {
   const id = formData.get('id') as string;
   
   let category_id = formData.get('category_id') as string;
+  let category_name = 'Lainnya';
+  
   if (!category_id || category_id === '') {
     category_id = null as any;
+  } else {
+    // If category_id is provided, try to fetch its name or just rely on a hidden input if we had one.
+    // For now we'll do a quick query, or just let category be Lainnya if not found.
+    const { data: catData } = await supabase.from('product_categories').select('name').eq('id', category_id).maybeSingle();
+    if (catData?.name) {
+      category_name = catData.name;
+    }
   }
   
   const payload = {
     name: formData.get('name') as string,
     slug: formData.get('slug') as string || (formData.get('name') as string).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 1000),
     category_id: category_id,
+    category: category_name,
     description: formData.get('description') as string,
     price: parseFloat(formData.get('price') as string) || 0,
     stock: parseInt(formData.get('stock') as string) || 0,

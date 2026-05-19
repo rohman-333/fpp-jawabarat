@@ -9,6 +9,7 @@ import { resolveMediaUrl } from '@/lib/media/resolveMediaUrl';
 export function StoriesTray({ user }: { user: any }) {
   const [stories, setStories] = useState<any[]>([]);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [activeStory, setActiveStory] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -43,17 +44,17 @@ export function StoriesTray({ user }: { user: any }) {
         </div>
 
         {stories.map(story => (
-          <div key={story.id} className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer" onClick={() => alert('Fitur lihat story akan datang')}>
+          <div key={story.id} className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer" onClick={() => setActiveStory(story)}>
             <div className="w-16 h-16 rounded-full border-2 border-emerald-500 p-0.5 mb-1.5 relative overflow-hidden">
               <div className="w-full h-full rounded-full overflow-hidden bg-slate-100">
                 {story.author?.avatar_url ? (
                   <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500 font-bold uppercase">{story.author?.name?.charAt(0)}</div>
+                  <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500 font-bold uppercase">{story.author?.name?.charAt(0) || '?'}</div>
                 )}
               </div>
             </div>
-            <span className="text-[10px] sm:text-xs font-medium text-slate-700 truncate w-full text-center">{story.author?.name?.split(' ')[0]}</span>
+            <span className="text-[10px] sm:text-xs font-medium text-slate-700 truncate w-full text-center">{story.author?.name?.split(' ')[0] || 'User'}</span>
           </div>
         ))}
       </div>
@@ -68,6 +69,88 @@ export function StoriesTray({ user }: { user: any }) {
           }} 
         />
       )}
+
+      {activeStory && (
+        <StoryViewerModal 
+          story={activeStory}
+          user={user}
+          onClose={() => setActiveStory(null)}
+          onDelete={async () => {
+            await supabase.from('social_stories').delete().eq('id', activeStory.id);
+            setActiveStory(null);
+            fetchStories();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function StoryViewerModal({ story, user, onClose, onDelete }: { story: any, user: any, onClose: () => void, onDelete: () => void }) {
+  const [deleting, setDeleting] = useState(false);
+  const isOwner = user?.id === story.author_id;
+  const supabase = createClient();
+  
+  const getMediaSrc = (path: string) => {
+    if (!path) return undefined;
+    if (path.startsWith('http')) return path;
+    return supabase.storage.from('posts').getPublicUrl(path).data.publicUrl;
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex flex-col">
+      <div className="p-4 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
+            {story.author?.avatar_url ? (
+              <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-emerald-100 text-emerald-600 font-bold uppercase">{story.author?.name?.charAt(0) || '?'}</div>
+            )}
+          </div>
+          <div>
+            <div className="text-white font-bold text-sm">{story.author?.name || 'Pengguna'}</div>
+            <div className="text-white/60 text-xs">{new Date(story.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {isOwner && (
+            <button 
+              onClick={async () => {
+                setDeleting(true);
+                await onDelete();
+              }} 
+              disabled={deleting}
+              className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-full disabled:opacity-50"
+            >
+              {deleting ? 'Menghapus...' : 'Hapus'}
+            </button>
+          )}
+          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10">
+            <X className="w-6 h-6 text-white"/>
+          </button>
+        </div>
+      </div>
+      
+      <div className="flex-1 flex items-center justify-center p-4 min-h-0">
+        <div className="w-full max-w-lg max-h-full flex flex-col items-center justify-center gap-6">
+          {story.media_url && (
+            <div className="w-full max-h-[70vh] rounded-2xl overflow-hidden flex items-center justify-center bg-black/50">
+              {story.media_type === 'video' ? (
+                <video src={getMediaSrc(story.media_url)} controls autoPlay className="max-w-full max-h-full object-contain" />
+              ) : (
+                <img src={getMediaSrc(story.media_url)} alt="" className="max-w-full max-h-full object-contain" />
+              )}
+            </div>
+          )}
+          
+          {story.content && (
+            <div className={`w-full p-6 text-center text-white ${!story.media_url ? 'text-2xl sm:text-4xl font-bold px-8' : 'text-lg'}`}>
+              {story.content}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
