@@ -157,6 +157,7 @@ function StoryViewerModal({ story, user, onClose, onDelete }: { story: any, user
 }
 
 import { compressImage } from '@/lib/media/compressImage';
+import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
 
 function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: () => void, onSuccess: () => void }) {
   const [content, setContent] = useState('');
@@ -164,6 +165,7 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
   const [duration, setDuration] = useState(24);
   const [submitting, setSubmitting] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isDurationSheetOpen, setIsDurationSheetOpen] = useState(false);
   const supabase = createClient();
 
   const handleFileChange = async (selectedFile: File) => {
@@ -243,6 +245,12 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
     onSuccess();
   };
 
+  const durations = [
+    { value: 6, label: '6 Jam' },
+    { value: 12, label: '12 Jam' },
+    { value: 24, label: '24 Jam' },
+  ];
+
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
@@ -297,11 +305,14 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
           </div>
 
           <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-            <select value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="text-sm font-bold text-slate-600 bg-transparent outline-none">
-              <option value={6}>6 Jam</option>
-              <option value={12}>12 Jam</option>
-              <option value={24}>24 Jam</option>
-            </select>
+            <button
+              type="button"
+              onClick={() => setIsDurationSheetOpen(true)}
+              className="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-full border border-slate-200 transition-all flex items-center gap-1 active:scale-95"
+            >
+              <span>Aktif: {durations.find(d => d.value === duration)?.label}</span>
+              <span className="text-[7px] opacity-60">▼</span>
+            </button>
             
             <Button onClick={handleSubmit} disabled={submitting || isCompressing || (!content && !file)} className="bg-blue-600 hover:bg-blue-700 font-bold rounded-full px-6">
               {(submitting || isCompressing) ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
@@ -310,6 +321,36 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
           </div>
         </div>
       </div>
+
+      <MobileBottomSheet
+        isOpen={isDurationSheetOpen}
+        onClose={() => setIsDurationSheetOpen(false)}
+        title="Pilih Masa Aktif Status"
+      >
+        <div className="space-y-2">
+          {durations.map(d => {
+            const isSelected = duration === d.value;
+            return (
+              <button
+                key={d.value}
+                type="button"
+                onClick={() => {
+                  setDuration(d.value);
+                  setIsDurationSheetOpen(false);
+                }}
+                className={`w-full py-3.5 px-4 rounded-2xl flex items-center justify-between transition-all active:scale-98 text-left ${
+                  isSelected 
+                    ? 'bg-blue-50 text-blue-700 font-extrabold border border-blue-200/55' 
+                    : 'bg-slate-50 hover:bg-slate-100/80 text-slate-700 border border-transparent'
+                }`}
+              >
+                <span className="text-sm font-bold">{d.label}</span>
+                {isSelected && <span className="text-blue-600 font-extrabold">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      </MobileBottomSheet>
     </div>
   );
 }

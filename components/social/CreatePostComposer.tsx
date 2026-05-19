@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Image as ImageIcon, Send, X, Loader2 } from 'lucide-react';
 import { createPost } from '@/app/(social)/feed/actions';
 import { uploadPostImage } from '@/lib/supabase/storage';
@@ -13,9 +13,10 @@ const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
 });
 
 import { uploadSocialVideo } from '@/lib/supabase/storage';
-import { Video, Smile, Camera, ImagePlus, FileVideo, UploadCloud } from 'lucide-react';
+import { Video, Smile, Camera, ImagePlus, FileVideo, Globe, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { compressImage } from '@/lib/media/compressImage';
+import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
 
 export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?: () => void }) {
   const router = useRouter();
@@ -26,17 +27,21 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
   const [showEmoji, setShowEmoji] = useState(false);
+  
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
+  const [showMediaOptionsSheet, setShowMediaOptionsSheet] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const cameraVideoInputRef = useRef<HTMLInputElement>(null);
 
   const [isCompressing, setIsCompressing] = useState(false);
-  const [showMediaOptions, setShowMediaOptions] = useState(false);
 
   const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'image') => {
     const file = e.target.files?.[0];
-    setShowMediaOptions(false);
+    setShowMediaOptionsSheet(false);
     if (file) {
       if (type === 'video') {
         if (file.size > 30 * 1024 * 1024) {
@@ -44,7 +49,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
           return;
         }
         
-        setIsCompressing(true); // show loader/spinner during metadata verification
+        setIsCompressing(true);
         const video = document.createElement('video');
         video.preload = 'metadata';
         video.src = URL.createObjectURL(file);
@@ -76,7 +81,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
           setMediaPreview(URL.createObjectURL(compressed));
         } catch (err) {
           console.error('Compression error:', err);
-          setMediaFile(file); // fallback to original
+          setMediaFile(file);
           setMediaType('image');
           setMediaPreview(URL.createObjectURL(file));
         } finally {
@@ -100,8 +105,8 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
     setContent(prev => prev + emojiObject.emoji);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!content.trim() && !mediaFile) return;
     
     setIsSubmitting(true);
@@ -148,6 +153,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
         setContent('');
         removeMedia();
         setShowEmoji(false);
+        setIsExpanded(false);
         if (onSuccess) onSuccess();
         router.refresh();
       }
@@ -170,48 +176,144 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
     { id: 'donasi', label: 'Galang Donasi' },
   ];
 
+  // Prevent background scrolling when composer is full screen on mobile
+  useEffect(() => {
+    if (isExpanded) {
+      const checkMobile = () => {
+        if (window.innerWidth < 768) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
+      };
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('resize', checkMobile);
+      };
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [isExpanded]);
+
+  // Render Collapsed State
+  if (!isExpanded) {
+    return (
+      <div 
+        onClick={() => setIsExpanded(true)}
+        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6 cursor-pointer hover:bg-slate-50/50 transition-all flex items-center gap-3 active:scale-[0.99] group"
+      >
+        <div className="w-10 h-10 rounded-full bg-slate-100 shrink-0 overflow-hidden border border-slate-200">
+          {user?.user_metadata?.avatar_url ? (
+            <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold uppercase text-sm">
+              {(user?.user_metadata?.name || user?.email || 'U').charAt(0)}
+            </div>
+          )}
+        </div>
+        <div className="flex-1 bg-slate-50 group-hover:bg-slate-100/80 text-slate-400 rounded-full px-5 py-2.5 text-xs sm:text-sm font-medium transition-colors border border-slate-100">
+          Apa kabar pesantren hari ini? Bagikan cerita Anda...
+        </div>
+        <button type="button" className="p-2.5 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors flex-shrink-0">
+          <ImagePlus className="w-4.5 h-4.5" />
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6 relative">
-      <form onSubmit={handleSubmit}>
-        <div className="flex gap-4">
-          <div className="w-10 h-10 rounded-full bg-slate-100 shrink-0 overflow-hidden border border-slate-200">
-            {user?.user_metadata?.avatar_url ? (
-              <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold uppercase text-sm">
-                {(user?.user_metadata?.name || user?.email || 'U').charAt(0)}
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <TextareaAutosize
-              minRows={2}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Apa kabar hari ini?"
-              className="w-full min-h-[60px] bg-transparent border-0 focus:ring-0 resize-none outline-none text-slate-800 placeholder-slate-400 text-lg sm:text-base pt-2"
-            />
-            
-            {mediaPreview && mediaFile && (
-              <div className="relative mb-3 inline-flex flex-col rounded-xl overflow-hidden border border-slate-200 bg-slate-50 w-full sm:w-auto">
-                {mediaType === 'image' ? (
-                  <img src={mediaPreview} alt="Preview" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain" />
-                ) : (
-                  <video src={mediaPreview} controls playsInline preload="metadata" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain"></video>
-                )}
-                <div className="p-2.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-600 gap-3 pr-12">
-                  <span className="font-bold truncate max-w-[180px]" title={mediaFile.name}>{mediaFile.name}</span>
-                  <span className="shrink-0 font-medium">{(mediaFile.size / (1024 * 1024)).toFixed(2)} MB</span>
+    <div className={`
+      bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6 relative
+      ${isExpanded ? 'fixed inset-0 z-[99] flex flex-col md:relative md:inset-auto md:z-0 md:rounded-2xl md:shadow-sm md:border md:h-auto' : ''}
+    `}>
+      {/* Mobile Fullscreen Header */}
+      {isExpanded && (
+        <div className="md:hidden flex items-center justify-between border-b border-slate-100 pb-3 mb-4 shrink-0">
+          <button 
+            type="button" 
+            onClick={() => setIsExpanded(false)}
+            className="p-1 text-slate-500 hover:text-slate-800 flex items-center gap-1 focus:outline-none"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <span className="font-extrabold text-slate-800 text-sm">Buat Postingan</span>
+          <button
+            type="button"
+            onClick={() => handleSubmit()}
+            disabled={isSubmitting || isCompressing || (!content.trim() && !mediaFile)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-1.5 rounded-full text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Posting'}
+          </button>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 md:block">
+        <div className="flex gap-4 flex-1 min-h-0 md:block md:space-y-4">
+          <div className="flex gap-3 items-center mb-1 shrink-0">
+            <div className="w-10 h-10 rounded-full bg-slate-100 shrink-0 overflow-hidden border border-slate-200">
+              {user?.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold uppercase text-sm">
+                  {(user?.user_metadata?.name || user?.email || 'U').charAt(0)}
                 </div>
-                <button 
-                  type="button" 
-                  onClick={removeMedia}
-                  className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-1.5 rounded-full transition-colors backdrop-blur-sm z-10"
+              )}
+            </div>
+            
+            <div className="flex flex-col">
+              <span className="font-bold text-slate-800 text-sm leading-tight">{user?.user_metadata?.name || 'Pengguna'}</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <button
+                  type="button"
+                  onClick={() => setIsCategorySheetOpen(true)}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full transition-all flex items-center gap-1 active:scale-95"
                 >
-                  <X className="w-4 h-4" />
+                  <span>{types.find(t => t.id === type)?.label || 'Kategori'}</span>
+                  <span className="text-[7px] opacity-60">▼</span>
                 </button>
+                <div className="bg-slate-100 text-slate-500 text-[10px] font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                  <Globe className="w-2.5 h-2.5" />
+                  <span>Publik</span>
+                </div>
               </div>
-            )}
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col min-h-0 md:block">
+            {/* Scrollable compose body in mobile */}
+            <div className="flex-1 overflow-y-auto min-h-0 md:overflow-visible">
+              <TextareaAutosize
+                minRows={3}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Apa kabar pesantren hari ini? Bagikan cerita Anda..."
+                className="w-full bg-transparent border-0 focus:ring-0 resize-none outline-none text-slate-800 placeholder-slate-400 text-base py-3 px-1 md:px-0"
+              />
+              
+              {mediaPreview && mediaFile && (
+                <div className="relative mb-3 inline-flex flex-col rounded-xl overflow-hidden border border-slate-200 bg-slate-50 w-full sm:w-auto">
+                  {mediaType === 'image' ? (
+                    <img src={mediaPreview} alt="Preview" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain" />
+                  ) : (
+                    <video src={mediaPreview} controls playsInline preload="metadata" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain"></video>
+                  )}
+                  <div className="p-2.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-600 gap-3 pr-12">
+                    <span className="font-bold truncate max-w-[180px]" title={mediaFile.name}>{mediaFile.name}</span>
+                    <span className="shrink-0 font-medium">{(mediaFile.size / (1024 * 1024)).toFixed(2)} MB</span>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={removeMedia}
+                    className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-1.5 rounded-full transition-colors backdrop-blur-sm z-10"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
             
             <div className="relative">
               {showEmoji && (
@@ -228,27 +330,28 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
               )}
             </div>
             
-            <div className="flex flex-wrap items-center justify-between border-t border-slate-100 pt-3 mt-2 gap-3 relative">
-              <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto">
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-full outline-none cursor-pointer border border-slate-200 transition-colors sm:flex-none appearance-none pr-8 relative"
+            {/* Action Bar (Footer) */}
+            <div className="border-t border-slate-100 pt-3 mt-auto md:mt-2 flex items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <button 
+                  type="button" 
+                  onClick={() => setShowMediaOptionsSheet(true)}
+                  className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0" 
+                  title="Lampirkan Media"
                 >
-                  {types.map(t => (
-                    <option key={t.id} value={t.id}>{t.label}</option>
-                  ))}
-                </select>
+                  <ImagePlus className="w-5 h-5" />
+                </button>
 
                 <button 
                   type="button" 
                   onClick={() => setShowEmoji(!showEmoji)}
-                  className="p-2 text-yellow-500 hover:bg-yellow-50 rounded-full transition-colors flex-shrink-0 ml-1" 
+                  className="p-2.5 text-yellow-500 hover:bg-yellow-50 rounded-full transition-colors flex-shrink-0" 
                   title="Emoji"
                 >
                   <Smile className="w-5 h-5" />
                 </button>
 
+                {/* Hidden File Inputs */}
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -279,51 +382,135 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                   onChange={(e) => handleMediaChange(e, 'video')} 
                   className="hidden" 
                 />
-
-                <div className="relative">
-                  <button 
-                    type="button" 
-                    onClick={() => setShowMediaOptions(!showMediaOptions)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0" 
-                    title="Lampirkan Media"
-                  >
-                    <ImagePlus className="w-5 h-5" />
-                  </button>
-
-                  {showMediaOptions && (
-                    <>
-                      <div className="fixed inset-0 z-[9998]" onClick={() => setShowMediaOptions(false)}></div>
-                      <div className="absolute bottom-full left-0 mb-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-[9999] py-2">
-                        <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                          <ImageIcon className="w-4 h-4 text-slate-400" /> Galeri Foto
-                        </button>
-                        <button type="button" onClick={() => cameraInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                          <Camera className="w-4 h-4 text-slate-400" /> Ambil Foto Kamera
-                        </button>
-                        <button type="button" onClick={() => videoInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                          <FileVideo className="w-4 h-4 text-slate-400" /> Galeri Video
-                        </button>
-                        <button type="button" onClick={() => cameraVideoInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                          <Video className="w-4 h-4 text-slate-400" /> Rekam Video
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting || isCompressing || (!content.trim() && !mediaFile)}
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-full flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {(isSubmitting || isCompressing) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {isSubmitting ? (mediaType === 'video' ? 'Mengunggah video...' : 'Memposting...') : isCompressing ? 'Memproses...' : 'Posting'}
-              </button>
+              {/* Desktop Submit Button or Close for mobile overlay */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(false)}
+                  className="hidden md:block text-slate-500 hover:text-slate-700 font-bold px-4 py-2 rounded-full text-sm transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || isCompressing || (!content.trim() && !mediaFile)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-full flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                >
+                  {(isSubmitting || isCompressing) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {isSubmitting ? (mediaType === 'video' ? 'Mengunggah...' : 'Memposting...') : isCompressing ? 'Memproses...' : 'Posting'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </form>
+
+      {/* Reusable Category Choice bottom sheet */}
+      <MobileBottomSheet
+        isOpen={isCategorySheetOpen}
+        onClose={() => setIsCategorySheetOpen(false)}
+        title="Pilih Kategori Postingan"
+      >
+        <div className="space-y-2">
+          {types.map(t => {
+            const isSelected = type === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => {
+                  setType(t.id);
+                  setIsCategorySheetOpen(false);
+                }}
+                className={`w-full py-3.5 px-4 rounded-2xl flex items-center justify-between transition-all active:scale-98 text-left ${
+                  isSelected 
+                    ? 'bg-blue-50 text-blue-700 font-extrabold border border-blue-200/55' 
+                    : 'bg-slate-50 hover:bg-slate-100/80 text-slate-700 border border-transparent'
+                }`}
+              >
+                <span className="text-sm font-bold">{t.label}</span>
+                {isSelected && <span className="text-blue-600 font-extrabold">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      </MobileBottomSheet>
+
+      {/* Reusable Media Choice bottom sheet */}
+      <MobileBottomSheet
+        isOpen={showMediaOptionsSheet}
+        onClose={() => setShowMediaOptionsSheet(false)}
+        title="Pilih Lampiran Media"
+      >
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={() => {
+              setShowMediaOptionsSheet(false);
+              fileInputRef.current?.click();
+            }}
+            className="w-full py-4 px-5 text-left bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center gap-4 transition-all text-slate-700 font-bold active:scale-98"
+          >
+            <div className="p-3 bg-blue-100 rounded-full text-blue-600">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-800">Foto dari Galeri</span>
+              <span className="text-[11px] text-slate-400 font-normal mt-0.5">Pilih foto berkualitas tinggi dari ponsel Anda</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowMediaOptionsSheet(false);
+              cameraInputRef.current?.click();
+            }}
+            className="w-full py-4 px-5 text-left bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center gap-4 transition-all text-slate-700 font-bold active:scale-98"
+          >
+            <div className="p-3 bg-emerald-100 rounded-full text-emerald-600">
+              <Camera className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-800">Ambil Foto Kamera</span>
+              <span className="text-[11px] text-slate-400 font-normal mt-0.5">Gunakan kamera ponsel untuk mengambil foto langsung</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowMediaOptionsSheet(false);
+              videoInputRef.current?.click();
+            }}
+            className="w-full py-4 px-5 text-left bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center gap-4 transition-all text-slate-700 font-bold active:scale-98"
+          >
+            <div className="p-3 bg-rose-100 rounded-full text-rose-600">
+              <FileVideo className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-800">Video dari Galeri</span>
+              <span className="text-[11px] text-slate-400 font-normal mt-0.5">Unggah berkas video (maks. 60 detik / 30MB)</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowMediaOptionsSheet(false);
+              cameraVideoInputRef.current?.click();
+            }}
+            className="w-full py-4 px-5 text-left bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center gap-4 transition-all text-slate-700 font-bold active:scale-98"
+          >
+            <div className="p-3 bg-purple-100 rounded-full text-purple-600">
+              <Video className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-800">Rekam Video</span>
+              <span className="text-[11px] text-slate-400 font-normal mt-0.5">Gunakan kamera ponsel untuk merekam video langsung</span>
+            </div>
+          </button>
+        </div>
+      </MobileBottomSheet>
     </div>
   );
 }

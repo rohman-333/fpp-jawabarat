@@ -48,6 +48,7 @@ export const metadata: Metadata = {
 };
 
 import { MobileBottomNav } from "@/components/shared/MobileBottomNav";
+import { PWAInstallPrompt } from "@/components/shared/PWAInstallPrompt";
 
 export default function RootLayout({
   children,
@@ -62,6 +63,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 pb-20 md:pb-0">
         {children}
         <MobileBottomNav />
+        <PWAInstallPrompt />
         <AuthDebug />
       </body>
     </html>
