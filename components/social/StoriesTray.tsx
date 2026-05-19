@@ -24,7 +24,8 @@ export function StoriesTray({ user }: { user: any }) {
       .select('*, author:author_id(name, avatar_url, username)')
       .gt('expires_at', new Date().toISOString())
       .eq('visibility', 'public')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(15);
     
     if (data) setStories(data);
     setLoading(false);
@@ -137,7 +138,7 @@ function StoryViewerModal({ story, user, onClose, onDelete }: { story: any, user
           {story.media_url && (
             <div className="w-full max-h-[70vh] rounded-2xl overflow-hidden flex items-center justify-center bg-black/50">
               {story.media_type === 'video' ? (
-                <video src={getMediaSrc(story.media_url)} controls autoPlay className="max-w-full max-h-full object-contain" />
+                <video src={getMediaSrc(story.media_url)} controls preload="metadata" playsInline className="max-w-full max-h-full object-contain" />
               ) : (
                 <img src={getMediaSrc(story.media_url)} alt="" className="max-w-full max-h-full object-contain" />
               )}
@@ -155,12 +156,54 @@ function StoryViewerModal({ story, user, onClose, onDelete }: { story: any, user
   );
 }
 
+import { compressImage } from '@/lib/media/compressImage';
+
 function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: () => void, onSuccess: () => void }) {
   const [content, setContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [duration, setDuration] = useState(24);
   const [submitting, setSubmitting] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const supabase = createClient();
+
+  const handleFileChange = async (selectedFile: File) => {
+    if (!selectedFile) return;
+    
+    if (selectedFile.type.startsWith('video/')) {
+      if (selectedFile.size > 30 * 1024 * 1024) {
+        alert('Ukuran video maksimal 30MB');
+        return;
+      }
+      
+      setIsCompressing(true);
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.src = URL.createObjectURL(selectedFile);
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        setIsCompressing(false);
+        if (video.duration > 30) {
+          alert('Durasi video story maksimal 30 detik');
+          return;
+        }
+        setFile(selectedFile);
+      };
+      video.onerror = () => {
+        setIsCompressing(false);
+        setFile(selectedFile);
+      };
+    } else if (selectedFile.type.startsWith('image/')) {
+      setIsCompressing(true);
+      try {
+        const compressed = await compressImage(selectedFile, { maxWidth: 1600, maxHeight: 1600, quality: 0.75 });
+        setFile(compressed);
+      } catch (err) {
+        setFile(selectedFile);
+      } finally {
+        setIsCompressing(false);
+      }
+    }
+  };
 
   const handleSubmit = async () => {
     if (!content && !file) return;
@@ -218,28 +261,38 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
           />
           
           {file && (
-            <div className="relative h-40 bg-slate-100 rounded-xl overflow-hidden mt-4 mb-4">
-              {file.type.startsWith('video/') ? (
-                <video src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
-              ) : (
-                <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
-              )}
-              <button onClick={() => setFile(null)} className="absolute top-2 right-2 w-8 h-8 bg-slate-900/50 text-white rounded-full flex items-center justify-center hover:bg-slate-900"><X className="w-4 h-4"/></button>
+            <div className="relative flex flex-col bg-slate-100 rounded-xl overflow-hidden mt-4 mb-4 border border-slate-200">
+              <div className="relative h-40 w-full overflow-hidden">
+                {file.type.startsWith('video/') ? (
+                  <video src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
+                ) : (
+                  <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
+                )}
+              </div>
+              <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-600 gap-3 pr-12">
+                <span className="font-bold truncate max-w-[180px]" title={file.name}>{file.name}</span>
+                <span className="shrink-0 font-medium">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+              </div>
+              <button onClick={() => setFile(null)} className="absolute top-2 right-2 w-8 h-8 bg-slate-900/55 text-white rounded-full flex items-center justify-center hover:bg-slate-900 transition-colors backdrop-blur-sm"><X className="w-4 h-4"/></button>
             </div>
           )}
 
           <div className="flex flex-wrap gap-3 mt-4">
             <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
-              <ImageIcon className="w-4 h-4 text-blue-500" /> Galeri
-              <input type="file" accept="image/*,video/*" className="hidden" onChange={(e) => e.target.files && setFile(e.target.files[0])} />
+              <ImageIcon className="w-4 h-4 text-blue-500" /> Foto Galeri
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && handleFileChange(e.target.files[0])} />
             </label>
             <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
-              <Camera className="w-4 h-4 text-blue-500" /> Kamera
-              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files && setFile(e.target.files[0])} />
+              <Camera className="w-4 h-4 text-blue-500" /> Ambil Foto
+              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files && handleFileChange(e.target.files[0])} />
             </label>
             <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
-              <Video className="w-4 h-4 text-rose-500" /> Video
-              <input type="file" accept="video/*" capture="environment" className="hidden" onChange={(e) => e.target.files && setFile(e.target.files[0])} />
+              <Video className="w-4 h-4 text-rose-500" /> Video Galeri
+              <input type="file" accept="video/*" className="hidden" onChange={(e) => e.target.files && handleFileChange(e.target.files[0])} />
+            </label>
+            <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
+              <Video className="w-4 h-4 text-rose-500" /> Rekam Video
+              <input type="file" accept="video/*" capture="environment" className="hidden" onChange={(e) => e.target.files && handleFileChange(e.target.files[0])} />
             </label>
           </div>
 
@@ -250,9 +303,9 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
               <option value={24}>24 Jam</option>
             </select>
             
-            <Button onClick={handleSubmit} disabled={submitting || (!content && !file)} className="bg-blue-600 hover:bg-blue-700 font-bold rounded-full px-6">
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Bagikan
+            <Button onClick={handleSubmit} disabled={submitting || isCompressing || (!content && !file)} className="bg-blue-600 hover:bg-blue-700 font-bold rounded-full px-6">
+              {(submitting || isCompressing) ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {submitting ? 'Membagikan...' : isCompressing ? 'Memproses...' : 'Bagikan'}
             </Button>
           </div>
         </div>

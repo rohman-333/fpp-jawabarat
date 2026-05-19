@@ -20,15 +20,16 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
   const { ref, inView } = useInView();
   const PAGE_SIZE = 10;
 
-  useEffect(() => {
-    const fetchAds = async () => {
-      const { data: b } = await supabase.from('site_banners').select('*').eq('status', 'active').eq('placement', 'feed_inline');
-      if (b) setBanners(b);
-      const { data: p } = await supabase.from('programs').select('*').eq('status', 'published').limit(5);
-      if (p) setPrograms(p);
-    };
-    fetchAds();
-  }, [supabase]);
+  // Temporarily disabled inline ads/programs — don't fetch them to save bandwidth
+  // useEffect(() => {
+  //   const fetchAds = async () => {
+  //     const { data: b } = await supabase.from('site_banners').select('id, title, image_url, cta_url, cta_label, is_sponsored, sponsor_name').eq('status', 'active').eq('placement', 'feed_inline');
+  //     if (b) setBanners(b);
+  //     const { data: p } = await supabase.from('programs').select('id, title, slug, category, image_url').eq('status', 'published').limit(5);
+  //     if (p) setPrograms(p);
+  //   };
+  //   fetchAds();
+  // }, [supabase]);
 
   const fetchPosts = useCallback(async (pageNum: number, isReset: boolean = false) => {
     try {
@@ -36,9 +37,10 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
       let query = supabase
         .from('social_posts')
         .select(`
-          *,
+          id, content, type, image_url, video_url, media_type, author_id, product_id,
+          visibility, status, created_at, updated_at,
           likes_count:social_likes(count),
-          reactions:social_reactions(reaction_type, user_id),
+          reactions:social_reactions(reaction_type),
           comments_count:social_comments(count)
         `)
         .is('deleted_at', null)
@@ -99,8 +101,6 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
       setFetchError(null);
 
       if (data && data.length > 0) {
-        console.log('[FEED_POSTS_COUNT]', data.length);
-        console.log('[FEED_FIRST_POST]', data[0]);
 
         // Fetch authors separately to avoid complex nested join issues
         const authorIds = Array.from(new Set(data.map(p => p.author_id).filter(Boolean)));
@@ -120,34 +120,37 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
         }
 
         // Fetch user interactions if logged in
-        let userInteractions = { likes: new Set(), saves: new Set(), follows: new Set() };
+        let userInteractions = { likes: new Set(), saves: new Set(), follows: new Set(), reactions: new Map() };
         
         if (currentUser?.id) {
           const postIds = data.map(p => p.id);
           
-          const [likesRes, savesRes, followsRes] = await Promise.all([
+          const [likesRes, savesRes, followsRes, reactionsRes] = await Promise.all([
             supabase.from('social_likes').select('post_id').in('post_id', postIds).eq('user_id', currentUser.id),
             supabase.from('social_saves').select('post_id').in('post_id', postIds).eq('user_id', currentUser.id),
-            authorIds.length > 0 ? supabase.from('social_follows').select('following_id').in('following_id', authorIds).eq('follower_id', currentUser.id) : Promise.resolve({ data: null })
+            authorIds.length > 0 ? supabase.from('social_follows').select('following_id').in('following_id', authorIds).eq('follower_id', currentUser.id) : Promise.resolve({ data: null }),
+            supabase.from('social_reactions').select('post_id, reaction_type').in('post_id', postIds).eq('user_id', currentUser.id)
           ]);
 
           if (likesRes.data) likesRes.data.forEach(l => userInteractions.likes.add(l.post_id));
           if (savesRes.data) savesRes.data.forEach(s => userInteractions.saves.add(s.post_id));
           if (followsRes.data) followsRes.data.forEach(f => userInteractions.follows.add(f.following_id));
+          if (reactionsRes.data) reactionsRes.data.forEach(r => userInteractions.reactions.set(r.post_id, r.reaction_type));
         }
 
         const enrichedData = data.map(post => ({
           ...post,
           author: profilesById[post.author_id] || {
             id: post.author_id,
-            name: 'Pengguna FPP',
+            name: 'Pengguna',
             username: 'pengguna',
             avatar_url: null,
             role: 'member'
           },
           has_liked: userInteractions.likes.has(post.id),
           has_saved: userInteractions.saves.has(post.id),
-          author_followed: userInteractions.follows.has(post.author_id)
+          author_followed: userInteractions.follows.has(post.author_id),
+          my_reaction: userInteractions.reactions.get(post.id) || null
         }));
 
         if (isReset) {
@@ -168,8 +171,6 @@ export function InfiniteFeed({ activeTab, currentUser, refreshKey = 0, targetUse
         if (isReset) {
           setPosts([]);
           setHasMore(false);
-          // Temporary debug when fetching initial page and it's empty
-          console.log('[DEBUG_FEED_EMPTY] Filter used - activeTab:', activeTab, 'targetUserId:', targetUserId);
         }
       }
     } catch (error) {

@@ -20,9 +20,10 @@ export default async function FeedPage() {
   const { data: rawPosts } = await supabase
     .from('social_posts')
     .select(`
-      *,
+      id, content, type, image_url, video_url, media_type, author_id, product_id,
+      visibility, status, created_at, updated_at,
       likes_count:social_likes(count),
-      reactions:social_reactions(reaction_type, user_id),
+      reactions:social_reactions(reaction_type),
       comments_count:social_comments(count)
     `)
     .is('deleted_at', null)
@@ -31,7 +32,7 @@ export default async function FeedPage() {
     .order('created_at', { ascending: false })
     .limit(10);
 
-  let initialPosts = [];
+  let initialPosts: any[] = [];
   
   if (rawPosts && rawPosts.length > 0) {
     const authorIds = Array.from(new Set(rawPosts.map(p => p.author_id).filter(Boolean)));
@@ -48,31 +49,34 @@ export default async function FeedPage() {
       }
     }
 
-    let userInteractions = { likes: new Set(), saves: new Set(), follows: new Set() };
+    let userInteractions = { likes: new Set(), saves: new Set(), follows: new Set(), reactions: new Map() };
     const postIds = rawPosts.map(p => p.id);
 
-    const [likesRes, savesRes, followsRes] = await Promise.all([
+    const [likesRes, savesRes, followsRes, reactionsRes] = await Promise.all([
       supabase.from('social_likes').select('post_id').in('post_id', postIds).eq('user_id', user.id),
       supabase.from('social_saves').select('post_id').in('post_id', postIds).eq('user_id', user.id),
-      authorIds.length > 0 ? supabase.from('social_follows').select('following_id').in('following_id', authorIds).eq('follower_id', user.id) : Promise.resolve({ data: null })
+      authorIds.length > 0 ? supabase.from('social_follows').select('following_id').in('following_id', authorIds).eq('follower_id', user.id) : Promise.resolve({ data: null }),
+      supabase.from('social_reactions').select('post_id, reaction_type').in('post_id', postIds).eq('user_id', user.id)
     ]);
 
     if (likesRes.data) likesRes.data.forEach(l => userInteractions.likes.add(l.post_id));
     if (savesRes.data) savesRes.data.forEach(s => userInteractions.saves.add(s.post_id));
     if (followsRes.data) followsRes.data.forEach(f => userInteractions.follows.add(f.following_id));
+    if (reactionsRes.data) reactionsRes.data.forEach(r => userInteractions.reactions.set(r.post_id, r.reaction_type));
 
     initialPosts = rawPosts.map(post => ({
       ...post,
       author: profilesById[post.author_id] || {
         id: post.author_id,
-        name: 'Pengguna FPP',
+        name: 'Pengguna',
         username: 'pengguna',
         avatar_url: null,
         role: 'member'
       },
       has_liked: userInteractions.likes.has(post.id),
       has_saved: userInteractions.saves.has(post.id),
-      author_followed: userInteractions.follows.has(post.author_id)
+      author_followed: userInteractions.follows.has(post.author_id),
+      my_reaction: userInteractions.reactions.get(post.id) || null
     }));
   }
 

@@ -30,7 +30,7 @@ export function SuggestedUsers({ currentUserId }: { currentUserId?: string }) {
         .from('profiles')
         .select('id, username, name, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified, followers:social_follows!social_follows_following_id_fkey(count)')
         .not('id', 'in', `(${excludeIds.join(',')})`)
-        .limit(5);
+        .limit(3);
 
       const { data } = await query;
       if (data) setUsers(data);

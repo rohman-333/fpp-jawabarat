@@ -7,11 +7,15 @@ import { uploadPostImage } from '@/lib/supabase/storage';
 
 import TextareaAutosize from 'react-textarea-autosize';
 import dynamic from 'next/dynamic';
-const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
+const EmojiPicker = dynamic(() => import('emoji-picker-react'), { 
+  ssr: false,
+  loading: () => <div className="p-4 text-center text-sm text-slate-500">Memuat emoji...</div>
+});
 
 import { uploadSocialVideo } from '@/lib/supabase/storage';
-import { Video, Smile, Camera } from 'lucide-react';
+import { Video, Smile, Camera, ImagePlus, FileVideo, UploadCloud } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { compressImage } from '@/lib/media/compressImage';
 
 export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?: () => void }) {
   const router = useRouter();
@@ -27,20 +31,58 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const cameraVideoInputRef = useRef<HTMLInputElement>(null);
 
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [showMediaOptions, setShowMediaOptions] = useState(false);
+
+  const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'image') => {
     const file = e.target.files?.[0];
+    setShowMediaOptions(false);
     if (file) {
-      if (type === 'image' && file.size > 5 * 1024 * 1024) {
-        alert('Ukuran gambar maksimal 5MB');
-        return;
+      if (type === 'video') {
+        if (file.size > 30 * 1024 * 1024) {
+          alert('Ukuran video maksimal 30MB');
+          return;
+        }
+        
+        setIsCompressing(true); // show loader/spinner during metadata verification
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.src = URL.createObjectURL(file);
+        video.onloadedmetadata = () => {
+          URL.revokeObjectURL(video.src);
+          setIsCompressing(false);
+          if (video.duration > 60) {
+            alert('Durasi video postingan maksimal 60 detik');
+            if (videoInputRef.current) videoInputRef.current.value = '';
+            if (cameraVideoInputRef.current) cameraVideoInputRef.current.value = '';
+            return;
+          }
+          setMediaFile(file);
+          setMediaType('video');
+          setMediaPreview(URL.createObjectURL(file));
+        };
+        video.onerror = () => {
+          setIsCompressing(false);
+          setMediaFile(file);
+          setMediaType('video');
+          setMediaPreview(URL.createObjectURL(file));
+        };
+      } else if (type === 'image') {
+        setIsCompressing(true);
+        try {
+          const compressed = await compressImage(file, { maxWidth: 1600, maxHeight: 1600, quality: 0.75 });
+          setMediaFile(compressed);
+          setMediaType('image');
+          setMediaPreview(URL.createObjectURL(compressed));
+        } catch (err) {
+          console.error('Compression error:', err);
+          setMediaFile(file); // fallback to original
+          setMediaType('image');
+          setMediaPreview(URL.createObjectURL(file));
+        } finally {
+          setIsCompressing(false);
+        }
       }
-      if (type === 'video' && file.size > 30 * 1024 * 1024) {
-        alert('Ukuran video maksimal 30MB');
-        return;
-      }
-      setMediaFile(file);
-      setMediaType(type);
-      setMediaPreview(URL.createObjectURL(file));
     }
   };
 
@@ -150,13 +192,17 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
               className="w-full min-h-[60px] bg-transparent border-0 focus:ring-0 resize-none outline-none text-slate-800 placeholder-slate-400 text-lg sm:text-base pt-2"
             />
             
-            {mediaPreview && (
-              <div className="relative mb-3 inline-block rounded-xl overflow-hidden border border-slate-200 bg-slate-50 w-full sm:w-auto">
+            {mediaPreview && mediaFile && (
+              <div className="relative mb-3 inline-flex flex-col rounded-xl overflow-hidden border border-slate-200 bg-slate-50 w-full sm:w-auto">
                 {mediaType === 'image' ? (
                   <img src={mediaPreview} alt="Preview" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain" />
                 ) : (
                   <video src={mediaPreview} controls playsInline preload="metadata" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain"></video>
                 )}
+                <div className="p-2.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-600 gap-3 pr-12">
+                  <span className="font-bold truncate max-w-[180px]" title={mediaFile.name}>{mediaFile.name}</span>
+                  <span className="shrink-0 font-medium">{(mediaFile.size / (1024 * 1024)).toFixed(2)} MB</span>
+                </div>
                 <button 
                   type="button" 
                   onClick={removeMedia}
@@ -210,15 +256,6 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                   onChange={(e) => handleMediaChange(e, 'image')} 
                   className="hidden" 
                 />
-                <button 
-                  type="button" 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0 hidden sm:block" 
-                  title="Lampirkan Gambar"
-                >
-                  <ImageIcon className="w-5 h-5" />
-                </button>
-
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -227,21 +264,6 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                   onChange={(e) => handleMediaChange(e, 'image')} 
                   className="hidden" 
                 />
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    if (window.innerWidth <= 768) {
-                      cameraInputRef.current?.click();
-                    } else {
-                      fileInputRef.current?.click();
-                    }
-                  }}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0 sm:hidden" 
-                  title="Kamera Foto"
-                >
-                  <Camera className="w-5 h-5" />
-                </button>
-                
                 <input 
                   type="file" 
                   accept="video/*" 
@@ -257,29 +279,46 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                   onChange={(e) => handleMediaChange(e, 'video')} 
                   className="hidden" 
                 />
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    if (window.innerWidth <= 768) {
-                      cameraVideoInputRef.current?.click();
-                    } else {
-                      videoInputRef.current?.click();
-                    }
-                  }}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0" 
-                  title="Lampirkan Video"
-                >
-                  <Video className="w-5 h-5" />
-                </button>
+
+                <div className="relative">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowMediaOptions(!showMediaOptions)}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex-shrink-0" 
+                    title="Lampirkan Media"
+                  >
+                    <ImagePlus className="w-5 h-5" />
+                  </button>
+
+                  {showMediaOptions && (
+                    <>
+                      <div className="fixed inset-0 z-[9998]" onClick={() => setShowMediaOptions(false)}></div>
+                      <div className="absolute bottom-full left-0 mb-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-[9999] py-2">
+                        <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                          <ImageIcon className="w-4 h-4 text-slate-400" /> Galeri Foto
+                        </button>
+                        <button type="button" onClick={() => cameraInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                          <Camera className="w-4 h-4 text-slate-400" /> Ambil Foto Kamera
+                        </button>
+                        <button type="button" onClick={() => videoInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                          <FileVideo className="w-4 h-4 text-slate-400" /> Galeri Video
+                        </button>
+                        <button type="button" onClick={() => cameraVideoInputRef.current?.click()} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                          <Video className="w-4 h-4 text-slate-400" /> Rekam Video
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               <button
                 type="submit"
-                disabled={isSubmitting || (!content.trim() && !mediaFile)}
+                disabled={isSubmitting || isCompressing || (!content.trim() && !mediaFile)}
                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-full flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                Posting
+                {(isSubmitting || isCompressing) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {isSubmitting ? (mediaType === 'video' ? 'Mengunggah video...' : 'Memposting...') : isCompressing ? 'Memproses...' : 'Posting'}
               </button>
             </div>
           </div>

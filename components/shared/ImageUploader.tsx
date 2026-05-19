@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { UploadCloud, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { uploadPesantrenLogo, uploadPesantrenPhoto, uploadAvatar, uploadProductImage } from '@/lib/supabase/storage';
 import { createClient } from '@/lib/supabase/client';
+import { compressImage } from '@/lib/media/compressImage';
 
 interface ImageUploaderProps {
   name: string;
@@ -22,12 +23,21 @@ export function ImageUploader({ name, label, defaultValue, type, userId, bucket 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
 
     // Reset state
     setError(null);
     setIsUploading(true);
+
+    // Compress image client-side before upload
+    let file = rawFile;
+    try {
+      const maxDim = type === 'avatar' ? 800 : type === 'logo' ? 600 : 1600;
+      file = await compressImage(rawFile, { maxWidth: maxDim, maxHeight: maxDim, quality: 0.75 });
+    } catch (err) {
+      console.warn('[IMG_COMPRESS_FALLBACK] Using original file:', err);
+    }
 
     // Create local preview immediately
     const objectUrl = URL.createObjectURL(file);

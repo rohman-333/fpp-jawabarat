@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { TrendingUp, Users, BadgeCheck } from 'lucide-react';
 import Link from 'next/link';
 
@@ -8,6 +9,18 @@ import { SuggestedProducts } from './SuggestedProducts';
 import { SuggestedPrograms } from './SuggestedPrograms';
 
 export function RightRail({ currentUserId }: { currentUserId?: string }) {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1280px)');
+    setIsDesktop(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  if (!isDesktop) return null;
+
   return (
     <aside className="w-full bg-transparent hidden xl:block sticky top-8 pt-8 overflow-y-auto max-h-[calc(100vh-2rem)] custom-scrollbar">
       
@@ -45,7 +58,7 @@ export function RightRail({ currentUserId }: { currentUserId?: string }) {
       <SuggestedPrograms />
 
       <div className="mt-8 text-[11px] text-slate-400 flex flex-wrap gap-x-3 gap-y-2">
-        <Link href="#" className="hover:underline hover:text-slate-600">Tentang FPP</Link>
+        <Link href="#" className="hover:underline hover:text-slate-600">Tentang</Link>
         <Link href="#" className="hover:underline hover:text-slate-600">Bantuan</Link>
         <Link href="#" className="hover:underline hover:text-slate-600">Privasi & Syarat</Link>
         <Link href="#" className="hover:underline hover:text-slate-600">Kebijakan Konten</Link>

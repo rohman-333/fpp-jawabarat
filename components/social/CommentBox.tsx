@@ -9,7 +9,10 @@ import { id } from 'date-fns/locale';
 import { getProfileUrl } from '@/lib/routes/profile';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
+const EmojiPicker = dynamic(() => import('emoji-picker-react'), { 
+  ssr: false,
+  loading: () => <div className="p-4 text-center text-sm text-slate-500">Memuat emoji...</div>
+});
 
 export function CommentBox({ postId, currentUserId }: { postId: string, currentUserId?: string }) {
   const [comment, setComment] = useState('');

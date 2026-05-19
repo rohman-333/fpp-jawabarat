@@ -18,21 +18,34 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
     if (!currentUserId) return;
 
     async function fetchNotifications() {
-      const { data } = await supabase
-        .from('notifications')
-        .select(`
-          *,
-          actor:actor_id(name, avatar_url)
-        `)
-        .eq('user_id', currentUserId)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      try {
+        const { count } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', currentUserId)
+          .eq('is_read', false);
 
-      if (data) {
-        setNotifications(data);
-        setUnreadCount(data.filter(n => !n.is_read).length);
+        const { data } = await supabase
+          .from('notifications')
+          .select(`
+            *,
+            actor:actor_id(name, avatar_url)
+          `)
+          .eq('user_id', currentUserId)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (data) {
+          setNotifications(data);
+        }
+        if (count !== null) {
+          setUnreadCount(count);
+        }
+      } catch (err) {
+        console.error('[NOTIF_FETCH_ERROR]', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     fetchNotifications();
@@ -49,7 +62,7 @@ export function NotificationBell({ currentUserId }: { currentUserId: string }) {
         supabase.from('notifications').select('*, actor:actor_id(name, avatar_url)').eq('id', payload.new.id).single()
           .then(({ data }) => {
             if (data) {
-              setNotifications(prev => [data, ...prev].slice(0, 10));
+              setNotifications(prev => [data, ...prev].slice(0, 5));
               setUnreadCount(prev => prev + 1);
             }
           });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CreatePostComposer } from './CreatePostComposer';
 import { FeedTabs } from './FeedTabs';
 import { InfiniteFeed } from './InfiniteFeed';
@@ -12,6 +12,15 @@ import { StoriesTray } from './StoriesTray';
 export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { user: any, initialTab?: string, initialPosts?: any[] }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    setIsTabletOrDesktop(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setIsTabletOrDesktop(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   const triggerRefresh = () => setRefreshKey(prev => prev + 1);
 
@@ -31,11 +40,13 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
         <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
-      <div className="xl:hidden mb-6 space-y-4">
-        <SuggestedUsers currentUserId={user.id} />
-        <SuggestedProducts />
-        <SuggestedPrograms />
-      </div>
+      {isTabletOrDesktop && (
+        <div className="hidden md:block xl:hidden mb-6 space-y-4">
+          <SuggestedUsers currentUserId={user.id} />
+          <SuggestedProducts />
+          <SuggestedPrograms />
+        </div>
+      )}
 
       <InfiniteFeed activeTab={activeTab} currentUser={user} refreshKey={refreshKey} initialPosts={initialPosts} />
 

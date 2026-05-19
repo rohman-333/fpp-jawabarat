@@ -18,8 +18,9 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
   const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: id });
   
   const currentUserId = currentUser?.id;
-  const myReactionObj = post.reactions?.find((r: any) => r.user_id === currentUserId);
-  const initialReaction = myReactionObj ? myReactionObj.reaction_type : (post.has_liked ? 'like' : null);
+  const initialReaction = post.my_reaction !== undefined && post.my_reaction !== null 
+    ? post.my_reaction 
+    : (post.has_liked ? 'like' : null);
   
   const [currentReaction, setCurrentReaction] = useState<string | null>(initialReaction);
   const [reactionsCount, setReactionsCount] = useState(Math.max(post.reactions?.length || 0, post.likes_count?.[0]?.count || 0));

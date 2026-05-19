@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Bell, Check, Heart, MessageSquare, UserPlus, Info, ShoppingBag, Store, Truck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
@@ -9,10 +9,11 @@ export function NotificationDropdown({ userId }: { userId: string }) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const supabase = createClient();
+  const supabaseRef = useRef(createClient());
 
   useEffect(() => {
     if (!userId) return;
+    const supabase = supabaseRef.current;
     fetchNotifications();
 
     const sub = supabase.channel(`notif-dropdown:${userId}`)
@@ -33,27 +34,39 @@ export function NotificationDropdown({ userId }: { userId: string }) {
   }, [userId]);
 
   const fetchNotifications = async () => {
-    const { data } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(5);
+    try {
+      const { count } = await supabaseRef.current
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_read', false);
 
-    if (data) {
-      setNotifications(data);
-      setUnreadCount(data.filter(n => !n.is_read).length);
+      const { data } = await supabaseRef.current
+        .from('notifications')
+        .select('id, type, title, body, message, href, target_url, is_read, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (data) {
+        setNotifications(data);
+      }
+      if (count !== null) {
+        setUnreadCount(count);
+      }
+    } catch (err) {
+      console.error('[NOTIF_DROPDOWN_FETCH_ERROR]', err);
     }
   };
 
   const markAsRead = async (id: string) => {
-    await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+    await supabaseRef.current.from('notifications').update({ is_read: true }).eq('id', id);
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
     setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
   const markAllAsRead = async () => {
-    await supabase
+    await supabaseRef.current
       .from('notifications')
       .update({ is_read: true })
       .eq('user_id', userId)
