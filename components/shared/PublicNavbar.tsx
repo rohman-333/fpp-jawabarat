@@ -15,7 +15,7 @@ export function PublicNavbar({ transparent = false }: PublicNavbarProps) {
 
         <nav className={`hidden lg:flex gap-8 text-sm font-medium ${transparent ? 'text-blue-100' : 'text-slate-600'}`}>
           <Link href="/" className="hover:text-blue-400 transition-colors">Beranda</Link>
-          <Link href="/pesantren" className="hover:text-blue-400 transition-colors">Komunitas</Link>
+          <Link href="/feed" className="hover:text-blue-400 transition-colors">Komunitas</Link>
           <Link href="/marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link>
           <Link href="/program" className="hover:text-blue-400 transition-colors">Program</Link>
         </nav>
