@@ -29,7 +29,7 @@ export async function DashboardTopbar({ title, userName, avatarUrl }: TopbarProp
   const isCourier = profile?.is_courier && profile?.courier_status === 'approved';
 
   return (
-    <header className="h-16 md:h-20 bg-white/95 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 shadow-sm">
+    <header className="h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] md:h-20 md:pt-0 bg-white/95 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="md:hidden">
           <MobileDashboardDrawer 

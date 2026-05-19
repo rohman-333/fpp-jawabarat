@@ -29,7 +29,15 @@ ALTER TABLE public.conversation_messages ENABLE ROW LEVEL SECURITY;
 -- Conversations RLS
 CREATE POLICY "Users can see their conversations" 
 ON public.conversations FOR SELECT 
-USING (auth.uid() = buyer_id OR auth.uid() = seller_id);
+USING (
+  auth.uid() = buyer_id OR 
+  auth.uid() = seller_id OR
+  EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE profiles.id = auth.uid() 
+    AND profiles.role IN ('admin', 'superadmin', 'team')
+  )
+);
 
 CREATE POLICY "Users can insert their conversations" 
 ON public.conversations FOR INSERT 
@@ -46,7 +54,15 @@ USING (
   EXISTS (
     SELECT 1 FROM public.conversations 
     WHERE conversations.id = conversation_messages.conversation_id 
-    AND (conversations.buyer_id = auth.uid() OR conversations.seller_id = auth.uid())
+    AND (
+      conversations.buyer_id = auth.uid() OR 
+      conversations.seller_id = auth.uid() OR
+      EXISTS (
+        SELECT 1 FROM public.profiles 
+        WHERE profiles.id = auth.uid() 
+        AND profiles.role IN ('admin', 'superadmin', 'team')
+      )
+    )
   )
 );
 

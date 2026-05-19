@@ -89,7 +89,12 @@ export default async function MessageDetailPage({ params }: { params: Promise<{ 
           })()}
           {/* Chat Client */}
           <div className="flex-1 overflow-hidden relative">
-            <ChatClient conversationId={conversation.id} currentUserId={user.id} otherUserId={isSeller ? conversation.buyer_id : conversation.seller_id} />
+            <ChatClient 
+              conversationId={conversation.id} 
+              currentUserId={user.id} 
+              otherUserId={isSeller ? conversation.buyer_id : conversation.seller_id} 
+              receiverType={isSeller ? 'buyer' : 'seller'}
+            />
           </div>
         </div>
       </main>

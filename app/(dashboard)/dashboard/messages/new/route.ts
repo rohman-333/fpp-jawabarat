@@ -19,15 +19,22 @@ export async function POST(req: Request) {
   }
 
   // Find existing conversation between this seller and buyer for this order (or general)
-  const { data: existingConvo } = await supabase
+  let query = supabase
     .from('conversations')
     .select('id')
     .eq('seller_id', user.id)
-    .eq('buyer_id', buyerId)
-    .single();
+    .eq('buyer_id', buyerId);
+
+  if (orderId) {
+    query = query.eq('order_id', orderId);
+  } else {
+    query = query.is('order_id', null);
+  }
+
+  const { data: existingConvo } = await query.maybeSingle();
 
   if (existingConvo) {
-    return NextResponse.redirect(new URL(`/messages/${existingConvo.id}`, req.url));
+    return NextResponse.redirect(new URL(`/dashboard/messages/${existingConvo.id}`, req.url));
   }
 
   // Create new conversation
@@ -46,5 +53,5 @@ export async function POST(req: Request) {
     return NextResponse.redirect(new URL('/dashboard/orders?error=FailedToCreateChat', req.url));
   }
 
-  return NextResponse.redirect(new URL(`/messages/${newConvo.id}`, req.url));
+  return NextResponse.redirect(new URL(`/dashboard/messages/${newConvo.id}`, req.url));
 }

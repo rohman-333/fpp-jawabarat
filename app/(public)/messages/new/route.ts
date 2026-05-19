@@ -19,12 +19,19 @@ export async function POST(req: Request) {
   }
 
   // Find existing conversation between this buyer and seller for this order (or general)
-  const { data: existingConvo } = await supabase
+  let query = supabase
     .from('conversations')
     .select('id')
     .eq('buyer_id', user.id)
-    .eq('seller_id', sellerId)
-    .single();
+    .eq('seller_id', sellerId);
+
+  if (orderId) {
+    query = query.eq('order_id', orderId);
+  } else {
+    query = query.is('order_id', null);
+  }
+
+  const { data: existingConvo } = await query.maybeSingle();
 
   if (existingConvo) {
     return NextResponse.redirect(new URL(`/messages/${existingConvo.id}`, req.url));

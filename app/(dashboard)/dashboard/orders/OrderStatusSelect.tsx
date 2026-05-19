@@ -5,7 +5,19 @@ import { createClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string, currentStatus: string }) {
+export function OrderStatusSelect({ 
+  orderId, 
+  currentStatus,
+  buyerId,
+  sellerId,
+  invoiceNumber
+}: { 
+  orderId: string;
+  currentStatus: string;
+  buyerId?: string;
+  sellerId?: string;
+  invoiceNumber?: string;
+}) {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
   const router = useRouter();
@@ -20,6 +32,8 @@ export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string,
     }
 
     setLoading(true);
+    
+    // 1. Update order status
     const { error } = await supabase
       .from('orders')
       .update({ status: newStatus })
@@ -29,6 +43,49 @@ export function OrderStatusSelect({ orderId, currentStatus }: { orderId: string,
       alert('Gagal update status: ' + error.message);
       e.target.value = currentStatus;
     } else {
+      // Get current user id
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // 2. Insert order status log
+      if (user) {
+        await supabase.from('order_status_logs').insert({
+          order_id: orderId,
+          status: newStatus,
+          notes: `Status diubah menjadi ${newStatus}`,
+          created_by: user.id
+        });
+      }
+
+      // 3. Send notifications to buyer
+      if (buyerId && invoiceNumber) {
+        fetch('/api/push/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: buyerId,
+            title: 'Update Status Pesanan',
+            body: `Pesanan Anda ${invoiceNumber} telah berubah status menjadi: ${newStatus.toUpperCase()}`,
+            href: `/orders`,
+            type: 'order_status'
+          })
+        }).catch(err => console.error(err));
+      }
+
+      // 4. Send notifications to seller (if admin modified it)
+      if (sellerId && user?.id !== sellerId && invoiceNumber) {
+        fetch('/api/push/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: sellerId,
+            title: 'Update Status Pesanan (Admin)',
+            body: `Status pesanan ${invoiceNumber} diubah oleh admin menjadi: ${newStatus.toUpperCase()}`,
+            href: `/dashboard/orders`,
+            type: 'order_status'
+          })
+        }).catch(err => console.error(err));
+      }
+
       router.refresh();
     }
     setLoading(false);

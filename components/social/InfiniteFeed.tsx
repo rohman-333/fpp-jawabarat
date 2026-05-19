@@ -300,7 +300,7 @@ export function InfiniteFeed({
       {error && (
         <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center text-rose-700 flex flex-col items-center gap-3">
           <AlertCircle className="w-8 h-8 text-rose-500" />
-          <p className="text-sm font-bold">{error}</p>
+          <p className="text-sm font-bold">Feed gagal dimuat</p>
           <button
             onClick={() => handleManualRefresh()}
             className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold px-4 py-2 rounded-full shadow-xs active:scale-95 transition-all"

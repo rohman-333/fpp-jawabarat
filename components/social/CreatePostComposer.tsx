@@ -14,15 +14,17 @@ const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
 
 import { uploadSocialVideo } from '@/lib/supabase/storage';
 import { Video, Smile, Camera, ImagePlus, FileVideo, Globe, ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { compressImage } from '@/lib/media/compressImage';
 import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
 
 export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?: () => void }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [content, setContent] = useState('');
   const [type, setType] = useState('kabar');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
@@ -37,7 +39,14 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const cameraVideoInputRef = useRef<HTMLInputElement>(null);
 
-  const [isCompressing, setIsCompressing] = useState(false);
+  useEffect(() => {
+    if (searchParams && searchParams.get('compose') === 'true') {
+      setIsExpanded(true);
+      // Clean query parameter from address bar
+      const newUrl = window.location.pathname;
+      window.history.replaceState({ ...window.history.state }, '', newUrl);
+    }
+  }, [searchParams]);
 
   const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'image') => {
     const file = e.target.files?.[0];
@@ -213,8 +222,8 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
             </div>
           )}
         </div>
-        <div className="flex-1 bg-slate-50 group-hover:bg-slate-100/80 text-slate-400 rounded-full px-5 py-2.5 text-xs sm:text-sm font-medium transition-colors border border-slate-100">
-          Apa kabar pesantren hari ini? Bagikan cerita Anda...
+        <div className="flex-1 bg-slate-50 group-hover:bg-slate-100/80 text-slate-400 rounded-full px-5 py-2.5 text-xs sm:text-sm font-medium transition-colors border border-slate-100 truncate">
+          Apa kabar hari ini?
         </div>
         <button type="button" className="p-2.5 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors flex-shrink-0">
           <ImagePlus className="w-4.5 h-4.5" />
@@ -225,8 +234,12 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
 
   return (
     <div className={`
-      bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6 relative
-      ${isExpanded ? 'fixed inset-0 z-[99] flex flex-col md:relative md:inset-auto md:z-0 md:rounded-2xl md:shadow-sm md:border md:h-auto' : ''}
+      bg-white relative
+      ${isExpanded 
+        ? 'fixed inset-0 z-[99] flex flex-col w-full max-w-full h-full max-h-full bg-white overflow-y-auto rounded-none border-0 p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))] px-4' 
+        : 'rounded-2xl shadow-sm border border-slate-200 p-4 mb-6'
+      }
+      md:relative md:inset-auto md:z-0 md:rounded-2xl md:shadow-sm md:border md:h-auto md:p-4 md:mb-6
     `}>
       {/* Mobile Fullscreen Header */}
       {isExpanded && (

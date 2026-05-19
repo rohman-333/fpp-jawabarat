@@ -56,7 +56,13 @@ export default async function DashboardOrdersPage() {
                   <div className="text-xs text-slate-500">{new Date(order.created_at).toLocaleString('id-ID')}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
+                  <OrderStatusSelect 
+                    orderId={order.id} 
+                    currentStatus={order.status} 
+                    buyerId={order.buyer_id}
+                    sellerId={order.seller_id}
+                    invoiceNumber={order.invoice_number}
+                  />
                 </div>
               </div>
               

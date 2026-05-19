@@ -15,7 +15,7 @@ export function FeedTabs({ activeTab, onTabChange }: { activeTab: string, onTabC
   ];
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-3 mb-6 scroll-smooth">
+    <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2 mb-4 scroll-smooth w-full max-w-full min-w-0">
       {tabs.map(tab => {
         const isActive = activeTab === tab.id;
         return (

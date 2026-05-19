@@ -109,8 +109,15 @@ export async function createOrder(formData: FormData) {
     return { error: 'Cart is empty' };
   }
 
+  // Filter out any invalid items without valid products or valid seller_id
+  const validCartItems = cartItems.filter((item: any) => item?.product && item?.product?.seller_id);
+
+  if (validCartItems.length === 0) {
+    return { error: 'Keranjang belanja tidak memiliki produk yang valid' };
+  }
+
   // Group by seller to create multiple orders if items are from different sellers
-  const itemsBySeller = cartItems.reduce((acc: any, item: any) => {
+  const itemsBySeller = validCartItems.reduce((acc: any, item: any) => {
     const sellerId = item.product.seller_id;
     if (!acc[sellerId]) acc[sellerId] = [];
     acc[sellerId].push(item);
@@ -130,8 +137,11 @@ export async function createOrder(formData: FormData) {
   for (const sellerId of Object.keys(itemsBySeller)) {
     const sellerItems = itemsBySeller[sellerId];
     
-    // Calculate total
-    const totalAmount = sellerItems.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0);
+    // Calculate total safely
+    const totalAmount = sellerItems.reduce((sum: number, item: any) => {
+      const price = item.product.price || 0;
+      return sum + (price * item.quantity);
+    }, 0);
     const invoiceNumber = `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     // Calculate commission
@@ -164,14 +174,17 @@ export async function createOrder(formData: FormData) {
     if (orderError) throw orderError;
 
     // Create Order Items
-    const orderItemsToInsert = sellerItems.map((item: any) => ({
-      order_id: orderData.id,
-      product_id: item.product.id,
-      product_name: item.product.name,
-      product_price: item.product.price,
-      quantity: item.quantity,
-      subtotal: item.product.price * item.quantity
-    }));
+    const orderItemsToInsert = sellerItems.map((item: any) => {
+      const price = item.product.price || 0;
+      return {
+        order_id: orderData.id,
+        product_id: item.product.id,
+        product_name: item.product.name,
+        product_price: price,
+        quantity: item.quantity,
+        subtotal: price * item.quantity
+      };
+    });
 
     const { error: itemsError } = await supabase
       .from('order_items')

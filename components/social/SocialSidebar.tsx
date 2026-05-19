@@ -32,7 +32,7 @@ export function SocialSidebar({ profile }: { profile: any }) {
   return (
     <>
       {/* Mobile Topbar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 flex items-center justify-between px-4">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-[calc(3.5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <MobileDashboardDrawer 
             isAdmin={isAdmin}

@@ -97,23 +97,21 @@ export default async function OrdersPage() {
                     ))}
                   </div>
                   
-                  {order.status === 'pending' && (
-                    <div className="mt-6 pt-6 border-t border-slate-100 flex flex-wrap gap-4 items-center">
-                      <p className="text-sm text-slate-600 flex-1">
-                        Silakan hubungi seller untuk konfirmasi pembayaran dan pengiriman.
-                      </p>
-                      <form action="/messages/new" method="POST" className="inline-block">
-                        <input type="hidden" name="seller_id" value={order.seller_id} />
-                        <input type="hidden" name="order_id" value={order.id} />
-                        <button 
-                          type="submit"
-                          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm flex items-center gap-2"
-                        >
-                          <MessageCircle className="w-4 h-4" /> Chat Seller
-                        </button>
-                      </form>
-                    </div>
-                  )}
+                  <div className="mt-6 pt-6 border-t border-slate-100 flex flex-wrap gap-4 items-center justify-between">
+                    <p className="text-sm text-slate-500">
+                      Butuh bantuan atau ingin menanyakan status pesanan?
+                    </p>
+                    <form action="/messages/new" method="POST" className="inline-block">
+                      <input type="hidden" name="seller_id" value={order.seller_id} />
+                      <input type="hidden" name="order_id" value={order.id} />
+                      <button 
+                        type="submit"
+                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                      >
+                        <MessageCircle className="w-4 h-4" /> Chat Seller
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             ))}

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Package, Receipt } from 'lucide-react';
 import { OrderStatusSelect } from '@/app/(dashboard)/dashboard/orders/OrderStatusSelect';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Semua Pesanan (Admin) - WIBAWA NUSANTARA',
@@ -31,7 +32,8 @@ export default async function AdminOrdersPage() {
       *,
       buyer:buyer_id(name, phone),
       seller:seller_id(name),
-      order_items(*)
+      order_items(*),
+      conversations(id)
     `)
     .order('created_at', { ascending: false });
 
@@ -58,13 +60,14 @@ export default async function AdminOrdersPage() {
                 <th className="px-6 py-4">Invoice & Tanggal</th>
                 <th className="px-6 py-4">Pembeli & Penjual</th>
                 <th className="px-6 py-4">Total Belanja</th>
+                <th className="px-6 py-4">Chat Diskusi</th>
                 <th className="px-6 py-4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {!orders || orders.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                     <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p className="font-medium text-slate-600">Belum ada transaksi</p>
                   </td>
@@ -91,7 +94,27 @@ export default async function AdminOrdersPage() {
                       <div className="text-xs text-slate-500 mt-1">{order.order_items.length} item(s)</div>
                     </td>
                     <td className="px-6 py-4">
-                      <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
+                      {order.conversations && order.conversations.length > 0 ? (
+                        <Link 
+                          href={`/messages/${order.conversations[0].id}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-200 text-xs font-bold rounded-lg transition-all"
+                        >
+                          Lihat Chat
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-slate-400 font-bold bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100 select-none">
+                          Belum ada chat
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <OrderStatusSelect 
+                        orderId={order.id} 
+                        currentStatus={order.status} 
+                        buyerId={order.buyer_id}
+                        sellerId={order.seller_id}
+                        invoiceNumber={order.invoice_number}
+                      />
                     </td>
                   </tr>
                 ))
