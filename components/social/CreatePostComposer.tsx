@@ -13,7 +13,7 @@ const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
 });
 
 import { uploadSocialVideo } from '@/lib/supabase/storage';
-import { Video, Smile, Camera, ImagePlus, FileVideo, Globe, ArrowLeft } from 'lucide-react';
+import { Video, Smile, Camera, ImagePlus, FileVideo, Globe, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { compressImage } from '@/lib/media/compressImage';
 import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
@@ -33,6 +33,8 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [showMediaOptionsSheet, setShowMediaOptionsSheet] = useState(false);
+  const [originalName, setOriginalName] = useState<string | null>(null);
+  const [originalSize, setOriginalSize] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -52,9 +54,14 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
     const file = e.target.files?.[0];
     setShowMediaOptionsSheet(false);
     if (file) {
+      setOriginalName(file.name);
+      setOriginalSize(file.size);
+
       if (type === 'video') {
         if (file.size > 30 * 1024 * 1024) {
           alert('Ukuran video maksimal 30MB');
+          setOriginalName(null);
+          setOriginalSize(null);
           return;
         }
         
@@ -69,6 +76,8 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
             alert('Durasi video postingan maksimal 60 detik');
             if (videoInputRef.current) videoInputRef.current.value = '';
             if (cameraVideoInputRef.current) cameraVideoInputRef.current.value = '';
+            setOriginalName(null);
+            setOriginalSize(null);
             return;
           }
           setMediaFile(file);
@@ -104,6 +113,8 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
     setMediaFile(null);
     setMediaPreview(null);
     setMediaType(null);
+    setOriginalName(null);
+    setOriginalSize(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (videoInputRef.current) videoInputRef.current.value = '';
     if (cameraInputRef.current) cameraInputRef.current.value = '';
@@ -129,7 +140,9 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
           const { url, error } = await uploadPostImage(mediaFile, user.id);
           if (error) {
             console.error('[UPLOAD_IMAGE_ERROR]', error);
-            alert('Gagal mengupload gambar. Postingan tetap dibuat tanpa gambar.');
+            alert('Gagal mengunggah gambar: ' + error + '. Silakan klik Posting untuk mencoba kembali.');
+            setIsSubmitting(false);
+            return;
           } else {
             imageUrl = url;
           }
@@ -137,7 +150,9 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
           const { url, error } = await uploadSocialVideo(mediaFile, user.id);
           if (error) {
             console.error('[UPLOAD_VIDEO_ERROR]', error);
-            alert('Gagal mengupload video. Postingan tetap dibuat tanpa video.');
+            alert('Gagal mengunggah video: ' + error + '. Silakan klik Posting untuk mencoba kembali.');
+            setIsSubmitting(false);
+            return;
           } else {
             videoUrl = url;
           }
@@ -305,6 +320,30 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                 placeholder="Apa kabar pesantren hari ini? Bagikan cerita Anda..."
                 className="w-full bg-transparent border-0 focus:ring-0 resize-none outline-none text-slate-800 placeholder-slate-400 text-base py-3 px-1 md:px-0"
               />
+
+              {/* Compression Indicator */}
+              {isCompressing && (
+                <div className="mb-3 p-3 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold rounded-xl flex items-center gap-2 animate-pulse">
+                  <Loader2 className="w-4 h-4 shrink-0 animate-spin text-blue-500" />
+                  <span>Sedang mengompres gambar... Harap tunggu.</span>
+                </div>
+              )}
+
+              {/* Uploading/Posting Indicator */}
+              {isSubmitting && (
+                <div className="mb-3 p-3 bg-blue-600 text-white text-xs font-extrabold rounded-xl flex items-center gap-2 shadow-md">
+                  <Loader2 className="w-4 h-4 shrink-0 animate-spin text-white" />
+                  <span>{mediaFile ? 'Mengunggah media...' : 'Mengirim postingan...'} Harap jangan tutup aplikasi.</span>
+                </div>
+              )}
+
+              {/* Large Video Warning */}
+              {mediaType === 'video' && mediaFile && mediaFile.size > 10 * 1024 * 1024 && (
+                <div className="mb-3 p-3 bg-amber-50 border border-amber-100 text-amber-700 text-xs font-semibold rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-500" />
+                  <span>Video cukup besar ({(mediaFile.size / (1024 * 1024)).toFixed(1)}MB), proses unggah dapat memakan waktu lebih lama.</span>
+                </div>
+              )}
               
               {mediaPreview && mediaFile && (
                 <div className="relative mb-3 inline-flex flex-col rounded-xl overflow-hidden border border-slate-200 bg-slate-50 w-full sm:w-auto">
@@ -313,9 +352,18 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                   ) : (
                     <video src={mediaPreview} controls playsInline preload="metadata" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain"></video>
                   )}
-                  <div className="p-2.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-600 gap-3 pr-12">
-                    <span className="font-bold truncate max-w-[180px]" title={mediaFile.name}>{mediaFile.name}</span>
-                    <span className="shrink-0 font-medium">{(mediaFile.size / (1024 * 1024)).toFixed(2)} MB</span>
+                  <div className="p-2.5 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-600 gap-1.5 pr-12">
+                    <span className="font-bold truncate max-w-[180px]" title={originalName || mediaFile.name}>{originalName || mediaFile.name}</span>
+                    <div className="flex flex-wrap items-center gap-1.5 font-bold">
+                      {originalSize && originalSize > mediaFile.size ? (
+                        <>
+                          <span className="line-through text-slate-400">{(originalSize / (1024 * 1024)).toFixed(2)} MB</span>
+                          <span className="text-emerald-600 font-extrabold">→ {(mediaFile.size / (1024 * 1024)).toFixed(2)} MB (Terkompresi)</span>
+                        </>
+                      ) : (
+                        <span className="shrink-0 font-medium">{(mediaFile.size / (1024 * 1024)).toFixed(2)} MB</span>
+                      )}
+                    </div>
                   </div>
                   <button 
                     type="button" 

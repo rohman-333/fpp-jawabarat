@@ -60,7 +60,7 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 pb-[calc(88px+env(safe-area-inset-bottom))] md:pb-0">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-0">
         {children}
         <MobileBottomNav />
         <PWAInstallPrompt />

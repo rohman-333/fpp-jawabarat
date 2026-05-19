@@ -28,10 +28,14 @@ export function BannerForm({ initialData = null }: { initialData?: any }) {
     const sponsor_name = formData.get('sponsor_name') as string;
     const sponsor_url = formData.get('sponsor_url') as string;
     const status = formData.get('status') as string;
+    const description = formData.get('description') as string;
+    const target_url = formData.get('target_url') as string;
+    const priority = parseInt(formData.get('priority') as string || '0', 10);
 
     const bannerData = {
       title, subtitle, image_url, cta_label, cta_url, placement,
-      is_sponsored, sponsor_name, sponsor_url, status
+      is_sponsored, sponsor_name, sponsor_url, status,
+      description, target_url, priority
     };
 
     let error;
@@ -96,6 +100,22 @@ export function BannerForm({ initialData = null }: { initialData?: any }) {
                 <label className="block text-sm font-bold text-slate-700 mb-1">URL Tombol</label>
                 <input type="text" name="cta_url" defaultValue={initialData?.cta_url} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="/marketplace" />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Target URL Iklan</label>
+                <input type="text" name="target_url" defaultValue={initialData?.target_url} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="https://..." />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Prioritas Tampilan</label>
+                <input type="number" name="priority" defaultValue={initialData?.priority || 0} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="0" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Deskripsi Iklan / Sponsored</label>
+              <textarea name="description" defaultValue={initialData?.description} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none h-20 resize-none" placeholder="Tuliskan deskripsi promosi / sponsored content yang akan tampil langsung di sela-sela feed..." />
             </div>
           </div>
 

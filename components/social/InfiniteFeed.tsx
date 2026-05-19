@@ -6,6 +6,7 @@ import { FeedCard } from './FeedCard';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Users, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
+import { SponsoredFeedCard } from './SponsoredFeedCard';
 
 export function InfiniteFeed({ 
   activeTab, 
@@ -26,6 +27,26 @@ export function InfiniteFeed({
   // Enriched posts list
   const [posts, setPosts] = useState<any[]>(initialPosts || []);
   const [page, setPage] = useState(0);
+  const [ads, setAds] = useState<any[]>([]);
+
+  // Load sponsored ads in background
+  useEffect(() => {
+    async function fetchAds() {
+      try {
+        const { data } = await supabase
+          .from('site_banners')
+          .select('id, title, subtitle, description, image_url, cta_label, cta_url, target_url, sponsor_name, sponsor_url')
+          .eq('placement', 'feed_inline')
+          .eq('status', 'active')
+          .order('priority', { ascending: false })
+          .limit(5);
+        if (data) setAds(data);
+      } catch (err) {
+        console.error('[LOAD_ADS_ERR]', err);
+      }
+    }
+    fetchAds();
+  }, [supabase]);
 
   // Split-up loading states
   const [initialLoading, setInitialLoading] = useState(initialPosts && initialPosts.length > 0 ? false : true);
@@ -37,7 +58,7 @@ export function InfiniteFeed({
   const [hasMore, setHasMore] = useState(initialPosts && initialPosts.length >= PAGE_SIZE ? true : false);
 
   const { ref, inView } = useInView({
-    rootMargin: '200px', // trigger fetch early for ultra-smooth native scroll
+    rootMargin: '300px', // trigger fetch early for ultra-smooth native scroll
   });
 
   // Active Refs to prevent stale React closure bugs in asynchronous loops
@@ -69,6 +90,11 @@ export function InfiniteFeed({
       }
       isLoadingRef.current = true;
 
+      // Dynamic pagination limits: 8 posts on initial page, 6 on subsequent load-mores
+      const limit = isReset ? 8 : 6;
+      const from = isReset ? 0 : 8 + (pageNum - 1) * 6;
+      const to = from + limit - 1;
+
       let query = supabase
         .from('social_posts')
         .select(`
@@ -82,7 +108,7 @@ export function InfiniteFeed({
         .or('status.eq.active,status.eq.published,status.is.null')
         .or('visibility.eq.public,visibility.is.null')
         .order('created_at', { ascending: false })
-        .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
+        .range(from, to);
 
       if (targetUserId) {
         query = query.eq('author_id', targetUserId);
@@ -192,7 +218,7 @@ export function InfiniteFeed({
         }
         
         // Terminate boundary: if fetched array is smaller than target limit, no more pages exist
-        if (data.length < PAGE_SIZE) {
+        if (data.length < limit) {
           setHasMore(false);
         } else {
           setHasMore(true);
@@ -311,11 +337,42 @@ export function InfiniteFeed({
       )}
 
       <div className="space-y-4">
-        {posts.map((post) => (
-          <div key={post.id}>
-            <FeedCard post={post} currentUser={currentUser} />
-          </div>
-        ))}
+        {posts.map((post, index) => {
+          const postElement = (
+            <div key={post.id}>
+              <FeedCard post={post} currentUser={currentUser} />
+            </div>
+          );
+
+          // Render inline ads naturally:
+          // - setelah post ke-3 (index === 2)
+          // - setelah post ke-8 (index === 7)
+          // - lalu setiap 8 post thereafter (index 15, 23, 31, etc.)
+          let adToRender = null;
+          if (ads.length > 0) {
+            if (index === 2) {
+              adToRender = ads[0];
+            } else if (index === 7 && ads.length > 1) {
+              adToRender = ads[1];
+            } else if (index > 7 && (index - 7) % 8 === 0) {
+              const adIndex = 2 + Math.floor((index - 7) / 8);
+              if (adIndex < ads.length) {
+                adToRender = ads[adIndex];
+              }
+            }
+          }
+
+          if (adToRender) {
+            return (
+              <div key={post.id} className="space-y-4">
+                {postElement}
+                <SponsoredFeedCard ad={adToRender} />
+              </div>
+            );
+          }
+
+          return postElement;
+        })}
       </div>
       
       {/* Scroll observer target */}

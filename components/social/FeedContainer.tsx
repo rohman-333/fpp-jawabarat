@@ -35,6 +35,12 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
 
       <StoriesTray user={user} />
       <CreatePostComposer user={user} onSuccess={triggerRefresh} />
+
+      {/* Mobile-only lightweight carousels */}
+      <div className="block md:hidden mb-6 space-y-4">
+        <SuggestedUsers currentUserId={user?.id} />
+        <SuggestedProducts />
+      </div>
       
       <div className="sticky top-[60px] md:top-0 bg-slate-100/50 pt-2 pb-2 z-10 backdrop-blur-md">
         <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
