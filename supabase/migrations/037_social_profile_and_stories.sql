@@ -52,6 +52,46 @@ CREATE TABLE IF NOT EXISTS public.social_stories (
 
 ALTER TABLE public.social_stories ENABLE ROW LEVEL SECURITY;
 
+do $$
+declare
+  pol record;
+begin
+  if to_regclass('public.social_stories') is not null then
+    for pol in
+      select policyname
+      from pg_policies
+      where schemaname = 'public'
+        and tablename = 'social_stories'
+    loop
+      execute format('drop policy if exists %I on public.social_stories', pol.policyname);
+    end loop;
+  end if;
+
+  if to_regclass('public.push_subscriptions') is not null then
+    for pol in
+      select policyname
+      from pg_policies
+      where schemaname = 'public'
+        and tablename = 'push_subscriptions'
+    loop
+      execute format('drop policy if exists %I on public.push_subscriptions', pol.policyname);
+    end loop;
+  end if;
+
+  for pol in
+    select policyname
+    from pg_policies
+    where schemaname = 'storage'
+      and tablename = 'objects'
+      and (
+        policyname ilike '%cover%'
+        or policyname ilike '%covers%'
+      )
+  loop
+    execute format('drop policy if exists %I on storage.objects', pol.policyname);
+  end loop;
+end $$;
+
 CREATE POLICY "Stories viewable by everyone if active"
   ON public.social_stories FOR SELECT
   USING (visibility = 'public');
