@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: BRAND.shortName,
   },
-  keywords: ["komunitas", "pesantren", "marketplace", "nusantara", "sosial media", "forum"],
+  keywords: ["komunitas", "wibawa", "marketplace", "nusantara", "sosial media", "forum"],
   openGraph: {
     type: "website",
     siteName: BRAND.name,

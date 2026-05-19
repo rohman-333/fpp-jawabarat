@@ -19,7 +19,7 @@ export default async function ProgramPage() {
         <div className="bg-blue-800 text-white py-16">
           <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
             <h1 className="text-3xl md:text-5xl font-bold mb-4">Program Sinergi</h1>
-            <p className="text-blue-100 max-w-2xl mx-auto text-lg">Ikuti dan dukung berbagai program unggulan untuk kemajuan pesantren di Jawa Barat.</p>
+            <p className="text-blue-100 max-w-2xl mx-auto text-lg">Ikuti dan dukung berbagai program unggulan untuk kemajuan komunitas Nusantara.</p>
           </div>
         </div>
 
