@@ -17,33 +17,52 @@ export const metadata = {
 export default async function LandingPage() {
   const supabase = await createClient();
 
-  const { data: products } = await supabase
-    .from('products')
-    .select('*, pesantren(name, city)')
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
-    .limit(4);
+  let products: any[] = [];
+  let programs: any[] = [];
+  let landingHeroBanners: any[] = [];
+  let pesantrenCount = 0;
+  let productCount = 0;
+  let memberCount = 0;
 
-  const { data: programs } = await supabase
-    .from('programs')
-    .select('*')
-    .eq('status', 'published')
-    .order('created_at', { ascending: false })
-    .limit(3);
+  try {
+    const { data: pData } = await supabase
+      .from('products')
+      .select('*, pesantren(name, city)')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(4);
+    products = pData || [];
 
-  const { data: landingHeroBanners } = await supabase
-    .from('site_banners')
-    .select('*')
-    .eq('status', 'active')
-    .eq('placement', 'landing_hero')
-    .order('sort_order', { ascending: true })
-    .limit(1);
+    const { data: prData } = await supabase
+      .from('programs')
+      .select('*')
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .limit(3);
+    programs = prData || [];
+
+    const { data: bData } = await supabase
+      .from('site_banners')
+      .select('*')
+      .eq('status', 'active')
+      .eq('placement', 'landing_hero')
+      .order('sort_order', { ascending: true })
+      .limit(1);
+    landingHeroBanners = bData || [];
+
+    const pCountRes = await supabase.from('pesantren').select('*', { count: 'exact', head: true });
+    pesantrenCount = pCountRes.count || 0;
+
+    const prCountRes = await supabase.from('products').select('*', { count: 'exact', head: true });
+    productCount = prCountRes.count || 0;
+
+    const mCountRes = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+    memberCount = mCountRes.count || 0;
+  } catch (err) {
+    console.error('[LANDING_PAGE_ERROR] Failed to fetch data:', err);
+  }
 
   const heroBanner = landingHeroBanners?.[0];
-
-  const { count: pesantrenCount } = await supabase.from('pesantren').select('*', { count: 'exact', head: true });
-  const { count: productCount } = await supabase.from('products').select('*', { count: 'exact', head: true });
-  const { count: memberCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
 
   return (
     <div className="min-h-screen font-sans">
