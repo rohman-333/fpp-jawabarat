@@ -3,28 +3,40 @@ export interface CompressOptions {
   maxHeight?: number;
   quality?: number;
   mimeType?: string;
+  onProgress?: (progress: number, stage: string) => void;
 }
 
 export async function compressImage(file: File, options: CompressOptions = {}): Promise<File> {
   const {
     maxWidth = 1280,
     maxHeight = 1280,
-    quality = 0.75, // Sleek balance between 0.72 and 0.8
-    mimeType = 'image/jpeg'
+    quality = 0.75,
+    mimeType = 'image/jpeg',
+    onProgress
   } = options;
 
-  // Rule 4: Skip compression if file <= 1.5MB
+  // Rule 1: Skip compression if file <= 1.5MB
   if (file.size <= 1.5 * 1024 * 1024) {
     console.log('[IMAGE_COMPRESS_SKIPPED] File size is <= 1.5MB:', (file.size / (1024 * 1024)).toFixed(2), 'MB');
+    if (onProgress) {
+      onProgress(18, 'image_compress_skipped');
+    }
     return file;
   }
 
+  // Rule 2: Start compression
   console.log('[IMAGE_COMPRESS_START] Original size:', (file.size / (1024 * 1024)).toFixed(2), 'MB');
+  if (onProgress) {
+    onProgress(20, 'compressing_image');
+  }
 
   return new Promise((resolve) => {
-    // Rule 7: Fallback to original file if compression takes > 4 seconds
+    // Rule 4: Fallback to original file if compression takes > 4 seconds
     const timeoutId = setTimeout(() => {
       console.warn('[IMAGE_COMPRESS_TIMEOUT] Compression took > 4 seconds, falling back to original');
+      if (onProgress) {
+        onProgress(25, 'image_compress_timeout_fallback');
+      }
       resolve(file);
     }, 4000);
 
@@ -38,7 +50,6 @@ export async function compressImage(file: File, options: CompressOptions = {}): 
         let width = img.width;
         let height = img.height;
 
-        // Calculate new dimensions with maxWidth/maxHeight limit (1280)
         if (width > height) {
           if (width > maxWidth) {
             height = Math.round((height * maxWidth) / width);
@@ -59,6 +70,9 @@ export async function compressImage(file: File, options: CompressOptions = {}): 
         if (!ctx) {
           clearTimeout(timeoutId);
           if (objectUrl) URL.revokeObjectURL(objectUrl);
+          if (onProgress) {
+            onProgress(25, 'image_compress_failed');
+          }
           resolve(file);
           return;
         }
@@ -78,12 +92,21 @@ export async function compressImage(file: File, options: CompressOptions = {}): 
               });
 
               console.log('[IMAGE_COMPRESS_DONE] New size:', (compressedFile.size / (1024 * 1024)).toFixed(2), 'MB');
+              
+              // Rule 3: Compression complete
+              if (onProgress) {
+                onProgress(25, 'image_compress_done');
+              }
+
               if (compressedFile.size > file.size) {
                 resolve(file);
               } else {
                 resolve(compressedFile);
               }
             } else {
+              if (onProgress) {
+                onProgress(25, 'image_compress_failed');
+              }
               resolve(file);
             }
           },
@@ -95,6 +118,9 @@ export async function compressImage(file: File, options: CompressOptions = {}): 
       img.onerror = () => {
         clearTimeout(timeoutId);
         if (objectUrl) URL.revokeObjectURL(objectUrl);
+        if (onProgress) {
+          onProgress(25, 'image_compress_failed');
+        }
         resolve(file);
       };
     } catch (err) {
@@ -103,8 +129,10 @@ export async function compressImage(file: File, options: CompressOptions = {}): 
       if (objectUrl) {
         try { URL.revokeObjectURL(objectUrl); } catch (e) {}
       }
+      if (onProgress) {
+        onProgress(25, 'image_compress_failed');
+      }
       resolve(file);
     }
   });
 }
-

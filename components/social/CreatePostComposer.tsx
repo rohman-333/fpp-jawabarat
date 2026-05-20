@@ -187,7 +187,6 @@ export function CreatePostComposer({
 
     try {
       // 2. Create Post Draft in DB
-      console.log('[POST_DRAFT_CREATED] Creating draft...');
       const formData = new FormData();
       formData.append('content', currentContent);
       formData.append('type', currentType);
@@ -199,11 +198,11 @@ export function CreatePostComposer({
       }
 
       const realPost = draftRes.post;
-      console.log('[POST_DRAFT_CREATED] Draft success. Real ID:', realPost.id);
+      console.log(`[FEED_DRAFT_CREATED] ${realPost.id} progress=10`);
 
       // Replace temp post with draft post in the state
       if (onPostUpdated) {
-        onPostUpdated(tempId, { ...realPost, localPreviewUrl, progress: 10 });
+        onPostUpdated(tempId, { ...realPost, localPreviewUrl, progress: 10, upload_stage: 'draft_created' });
       }
 
       // 3. Trigger upload flow asynchronously
@@ -214,8 +213,9 @@ export function CreatePostComposer({
           media_type: 'text'
         });
         if (finalizeRes.success && finalizeRes.post) {
+          console.log(`[FEED_FINALIZE_DONE] ${realPost.id}`);
           if (onPostUpdated) {
-            onPostUpdated(tempId, finalizeRes.post);
+            onPostUpdated(tempId, { ...finalizeRes.post, status: 'active', progress: undefined, upload_stage: undefined });
           }
         } else {
           throw new Error(finalizeRes.error || 'Failed to finalize text post');
@@ -224,7 +224,7 @@ export function CreatePostComposer({
     } catch (err: any) {
       console.error('[POST_DRAFT_FAILED]', err);
       if (onPostUpdated) {
-        onPostUpdated(tempId, { ...tempPost, id: tempId, status: 'upload_failed', progress: 0 });
+        onPostUpdated(tempId, { ...tempPost, id: tempId, status: 'upload_failed', progress: 0, upload_stage: 'failed' });
       }
     }
   };

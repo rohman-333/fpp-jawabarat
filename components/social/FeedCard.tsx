@@ -14,6 +14,37 @@ import { toggleSave, hidePost, deletePost, setReaction, removeReaction } from '@
 import { ReportPostDialog } from './ReportPostDialog';
 import { Flag, EyeOff, Link as LinkIcon, X } from 'lucide-react';
 
+const getStageText = (stage: string, progress: number) => {
+  switch (stage) {
+    case 'preparing_media':
+      return 'Menyiapkan media...';
+    case 'compressing_image':
+      return `Mengompres gambar (${progress}%)...`;
+    case 'image_compress_skipped':
+      return 'Menyiapkan gambar (tidak dikompres)...';
+    case 'image_compress_done':
+    case 'image_compress_timeout_fallback':
+      return 'Kompresi selesai, bersiap mengunggah...';
+    case 'video_no_compress':
+      return 'Menyiapkan video...';
+    case 'upload_started':
+    case 'video_upload_started':
+      return 'Mulai mengunggah...';
+    case 'upload_progress':
+      return `Mengunggah media (${progress}%)...`;
+    case 'upload_finishing':
+      return 'Menyelesaikan unggahan...';
+    case 'finalizing':
+      return 'Menyimpan postingan...';
+    case 'completed':
+      return 'Selesai!';
+    case 'failed':
+      return 'Upload gagal.';
+    default:
+      return 'Upload masih berjalan...';
+  }
+};
+
 export function FeedCard({ 
   post, 
   currentUser,
@@ -240,7 +271,7 @@ export function FeedCard({
               {(post.status === 'uploading' || post.status === 'sending') && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 animate-pulse flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping shrink-0"></span>
-                  Mengirim ({post.progress || 0}%)
+                  {getStageText(post.upload_stage, post.progress || 0)}
                 </span>
               )}
               {(post.status === 'upload_failed' || post.status === 'failed') && (
@@ -392,11 +423,11 @@ export function FeedCard({
       )}
 
       {/* Post Progress Bar */}
-      {post.status === 'uploading' && (
+      {(post.status === 'uploading' || post.status === 'upload_failed') && (
         <div className="w-full bg-slate-100 h-1.5 overflow-hidden">
           <div 
-            className="bg-blue-600 h-full transition-all duration-300" 
-            style={{ width: `${post.progress || 0}%` }}
+            className={`h-full transition-all duration-300 ${post.status === 'upload_failed' ? 'bg-red-500' : 'bg-blue-600'}`} 
+            style={{ width: `${post.status === 'upload_failed' ? 100 : (post.progress || 0)}%` }}
           />
         </div>
       )}

@@ -49,13 +49,13 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
     // Save to pending files so we can retry if needed
     setPendingFiles(prev => ({ ...prev, [postId]: file }));
 
-    // Helper to update progress
-    const updateProgress = (progress: number) => {
-      console.log('[MEDIA_UPLOAD_PROGRESS] post', postId, progress, '%');
-      setPosts(prev => prev.map(p => p.id === idToUpdate ? { ...p, status: 'uploading', progress } : p));
+    // Helper to update progress and stage
+    const updatePostProgress = (progress: number, stage: string) => {
+      console.log(`[FEED_PROGRESS_STAGE] ${postId} stage=${stage} progress=${progress}`);
+      setPosts(prev => prev.map(p => p.id === idToUpdate ? { ...p, status: 'uploading', progress, upload_stage: stage } : p));
     };
 
-    updateProgress(10); // Start progress
+    updatePostProgress(15, 'preparing_media');
 
     try {
       const isVideo = file.type.startsWith('video/');
@@ -66,26 +66,27 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
       let uploadRes;
 
       if (mediaType === 'image') {
-        updateProgress(20);
-        console.log('[IMAGE_COMPRESS_START] post', postId);
-        const compressedFile = await compressImage(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.76 });
-        console.log('[IMAGE_COMPRESS_DONE] post', postId);
-        
-        updateProgress(35);
-        uploadRes = await uploadPostImageWithProgress(compressedFile, user.id, (p) => {
-          // Map progress from 35% to 90%
-          const mappedProgress = Math.round(35 + (p * 0.55));
-          updateProgress(mappedProgress);
+        const compressedFile = await compressImage(file, { 
+          maxWidth: 1280, 
+          maxHeight: 1280, 
+          quality: 0.76,
+          onProgress: (p, stage) => {
+            updatePostProgress(p, stage);
+          }
         });
+        
+        updatePostProgress(25, 'upload_started');
+        uploadRes = await uploadPostImageWithProgress(compressedFile, user.id, (payload) => {
+          updatePostProgress(payload.progress, payload.stage);
+        }, postId);
         imageUrl = uploadRes.url;
       } else {
-        console.log('[VIDEO_UPLOAD_NO_COMPRESS] post', postId);
-        updateProgress(30);
-        uploadRes = await uploadSocialVideoWithProgress(file, user.id, (p) => {
-          // Map progress from 30% to 90%
-          const mappedProgress = Math.round(30 + (p * 0.60));
-          updateProgress(mappedProgress);
-        });
+        // Video has no compression
+        updatePostProgress(15, 'video_no_compress');
+        updatePostProgress(25, 'video_upload_started');
+        uploadRes = await uploadSocialVideoWithProgress(file, user.id, (payload) => {
+          updatePostProgress(payload.progress, payload.stage);
+        }, postId);
         videoUrl = uploadRes.url;
       }
 
@@ -93,10 +94,11 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
         throw new Error(uploadRes.error || 'Upload returned empty URL');
       }
 
-      updateProgress(95);
+      console.log(`[FEED_UPLOAD_DONE] ${postId}`);
+      updatePostProgress(92, 'upload_finishing');
+      updatePostProgress(96, 'finalizing');
 
       // Finalize post media
-      console.log('[POST_FINALIZED] Finalizing post', postId);
       const finalRes = await finalizePostMedia(postId, {
         image_url: imageUrl || undefined,
         video_url: videoUrl || undefined,
@@ -108,9 +110,18 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
         throw new Error(finalRes.error || 'Finalize returned unsuccessful');
       }
 
-      // Success! Replace post with final post in state
-      console.log('[FEED_STATE_REPLACED] post', postId);
-      setPosts(prev => prev.map(p => p.id === idToUpdate ? finalRes.post : p));
+      updatePostProgress(100, 'completed');
+      console.log(`[FEED_FINALIZE_DONE] ${postId}`);
+
+      // Success! Replace post with final post in state, ensuring progress is cleared and status is active
+      const finalPost = {
+        ...finalRes.post,
+        status: 'active',
+        progress: undefined,
+        upload_stage: undefined
+      };
+
+      setPosts(prev => prev.map(p => p.id === idToUpdate ? finalPost : p));
       
       // Clear pending file
       setPendingFiles(prev => {
@@ -125,9 +136,9 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
       }, 1500);
 
     } catch (err: any) {
-      console.error('[POST_UPLOAD_FAILED] post', postId, err);
+      console.error(`[FEED_UPLOAD_FAILED] ${postId} error=`, err.message || err);
       await markPostUploadFailed(postId);
-      setPosts(prev => prev.map(p => p.id === idToUpdate ? { ...p, status: 'upload_failed', progress: 0 } : p));
+      setPosts(prev => prev.map(p => p.id === idToUpdate ? { ...p, status: 'upload_failed', progress: 0, upload_stage: 'failed' } : p));
     }
   }, [user.id, router]);
 
@@ -194,7 +205,7 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
           if (file && retryingPostId) {
             if (file.type.startsWith('video/')) {
               if (file.size > 50 * 1024 * 1024) {
-                alert('Video terlalu besar. Maksimal 50MB / 60 detik.');
+                alert('Video terlalu besar. Maksimal 50MB.');
                 return;
               }
             }

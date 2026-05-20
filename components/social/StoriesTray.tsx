@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Plus, X, Camera, Video, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,37 @@ import {
   uploadPostImageWithProgress, 
   uploadSocialVideoWithProgress 
 } from '@/lib/supabase/storage';
+
+const getStageText = (stage: string, progress: number) => {
+  switch (stage) {
+    case 'preparing_media':
+      return 'Menyiapkan media...';
+    case 'compressing_image':
+      return `Mengompres gambar (${progress}%)...`;
+    case 'image_compress_skipped':
+      return 'Menyiapkan gambar (tidak dikompres)...';
+    case 'image_compress_done':
+    case 'image_compress_timeout_fallback':
+      return 'Kompresi selesai, bersiap mengunggah...';
+    case 'video_no_compress':
+      return 'Menyiapkan video...';
+    case 'upload_started':
+    case 'video_upload_started':
+      return 'Mulai mengunggah...';
+    case 'upload_progress':
+      return `Mengunggah media (${progress}%)...`;
+    case 'upload_finishing':
+      return 'Menyelesaikan unggahan...';
+    case 'finalizing':
+      return 'Menyimpan status...';
+    case 'completed':
+      return 'Selesai!';
+    case 'failed':
+      return 'Upload gagal.';
+    default:
+      return 'Upload masih berjalan...';
+  }
+};
 
 export function StoriesTray({ user }: { user: any }) {
   const [stories, setStories] = useState<any[]>([]);
@@ -52,12 +83,39 @@ export function StoriesTray({ user }: { user: any }) {
     setLoading(false);
   };
 
+  const updateStoryProgress = useCallback((storyId: string, progress: number, stage: string) => {
+    console.log(`[STATUS_PROGRESS_STAGE] ${storyId} stage=${stage} progress=${progress}`);
+    
+    setStories(prev =>
+      prev.map(story =>
+        story.id === storyId
+          ? { ...story, progress, upload_stage: stage, status: progress === 100 ? 'active' : 'uploading', upload_status: progress === 100 ? 'completed' : 'uploading' }
+          : story
+      )
+    );
+
+    setActiveStory((prev: any) => {
+      if (prev && prev.id === storyId) {
+        return {
+          ...prev,
+          progress,
+          upload_stage: stage,
+          status: progress === 100 ? 'active' : 'uploading',
+          upload_status: progress === 100 ? 'completed' : 'uploading'
+        };
+      }
+      return prev;
+    });
+  }, []);
+
   const uploadStoryMediaFlow = async (storyId: string, file: File, tempId?: string) => {
     const idToUpdate = tempId || storyId;
     console.log('[STATUS_MEDIA_UPLOAD_START] story:', storyId, 'file:', file.name);
 
     // Save to pending files so we can retry if needed
     setPendingFiles(prev => ({ ...prev, [storyId]: file }));
+
+    updateStoryProgress(idToUpdate, 15, 'preparing_media');
 
     try {
       const isVideo = file.type.startsWith('video/');
@@ -68,19 +126,26 @@ export function StoriesTray({ user }: { user: any }) {
       let uploadRes;
 
       if (mediaType === 'image') {
-        console.log('[IMAGE_COMPRESS_START] story:', storyId);
-        const compressedFile = await compressImage(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.76 });
-        console.log('[IMAGE_COMPRESS_DONE] story:', storyId);
-
-        uploadRes = await uploadPostImageWithProgress(compressedFile, user.id, (p) => {
-          console.log('[STATUS_MEDIA_UPLOAD_PROGRESS] story:', storyId, p, '%');
+        const compressedFile = await compressImage(file, { 
+          maxWidth: 1280, 
+          maxHeight: 1280, 
+          quality: 0.76,
+          onProgress: (p, stage) => {
+            updateStoryProgress(idToUpdate, p, stage);
+          }
         });
+
+        updateStoryProgress(idToUpdate, 25, 'upload_started');
+        uploadRes = await uploadPostImageWithProgress(compressedFile, user.id, (payload) => {
+          updateStoryProgress(idToUpdate, payload.progress, payload.stage);
+        }, storyId);
         imageUrl = uploadRes.url;
       } else {
-        console.log('[STATUS_MEDIA_UPLOAD_PROGRESS] video no-compress upload start:', storyId);
-        uploadRes = await uploadSocialVideoWithProgress(file, user.id, (p) => {
-          console.log('[STATUS_MEDIA_UPLOAD_PROGRESS] story:', storyId, p, '%');
-        });
+        updateStoryProgress(idToUpdate, 15, 'video_no_compress');
+        updateStoryProgress(idToUpdate, 25, 'video_upload_started');
+        uploadRes = await uploadSocialVideoWithProgress(file, user.id, (payload) => {
+          updateStoryProgress(idToUpdate, payload.progress, payload.stage);
+        }, storyId);
         videoUrl = uploadRes.url;
       }
 
@@ -88,7 +153,9 @@ export function StoriesTray({ user }: { user: any }) {
         throw new Error(uploadRes.error || 'Upload returned empty URL');
       }
 
-      console.log('[STATUS_MEDIA_UPLOAD_DONE] story:', storyId);
+      console.log(`[STATUS_UPLOAD_DONE] ${storyId}`);
+      updateStoryProgress(idToUpdate, 92, 'upload_finishing');
+      updateStoryProgress(idToUpdate, 96, 'finalizing');
 
       const finalRes = await finalizeStoryMedia(storyId, {
         image_url: imageUrl || undefined,
@@ -101,10 +168,19 @@ export function StoriesTray({ user }: { user: any }) {
         throw new Error(finalRes.error || 'Failed to finalize story');
       }
 
-      console.log('[STATUS_FINALIZED] story:', storyId);
+      updateStoryProgress(idToUpdate, 100, 'completed');
+      console.log(`[STATUS_FINALIZE_DONE] ${storyId}`);
 
-      // Success! Update local stories state
-      setStories(prev => prev.map(s => s.id === idToUpdate ? finalRes.story : s));
+      const finalStoryObj = {
+        ...finalRes.story,
+        status: 'active',
+        upload_status: 'completed',
+        progress: undefined,
+        upload_stage: undefined
+      };
+
+      setStories(prev => prev.map(s => s.id === idToUpdate ? finalStoryObj : s));
+      setActiveStory((prev: any) => prev && prev.id === idToUpdate ? finalStoryObj : prev);
 
       // Clear from pending files
       setPendingFiles(prev => {
@@ -113,10 +189,17 @@ export function StoriesTray({ user }: { user: any }) {
         return copy;
       });
 
-    } catch (err) {
-      console.error('[STATUS_UPLOAD_FAILED] story:', storyId, err);
+    } catch (err: any) {
+      console.error(`[STATUS_UPLOAD_FAILED] ${storyId} error=`, err.message || err);
       await markStoryUploadFailed(storyId);
-      setStories(prev => prev.map(s => s.id === idToUpdate ? { ...s, status: 'upload_failed', upload_status: 'failed' } : s));
+      const failedStoryObj = {
+        status: 'upload_failed',
+        upload_status: 'failed',
+        progress: 0,
+        upload_stage: 'failed'
+      };
+      setStories(prev => prev.map(s => s.id === idToUpdate ? { ...s, ...failedStoryObj } : s));
+      setActiveStory((prev: any) => prev && prev.id === idToUpdate ? { ...prev, ...failedStoryObj } : prev);
     }
   };
 
@@ -138,6 +221,8 @@ export function StoriesTray({ user }: { user: any }) {
       expires_at: new Date(Date.now() + duration * 60 * 60 * 1000).toISOString(),
       status: 'uploading',
       upload_status: 'uploading',
+      progress: 10,
+      upload_stage: 'draft_created',
       created_at: new Date().toISOString(),
       author: {
         name: user.user_metadata?.name || 'Pengguna',
@@ -150,17 +235,16 @@ export function StoriesTray({ user }: { user: any }) {
     setStories(prev => [tempStory, ...prev]);
 
     try {
-      console.log('[STATUS_DRAFT_CREATED] Creating story draft...');
       const draftRes = await createStoryDraft(content, mediaType, duration);
       if (!draftRes.success || !draftRes.story) {
         throw new Error(draftRes.error || 'Failed to create story draft');
       }
 
       const realStory = draftRes.story;
-      console.log('[STATUS_DRAFT_CREATED] Story draft success. Real ID:', realStory.id);
+      console.log(`[STATUS_DRAFT_CREATED] ${realStory.id} progress=10`);
 
       // Replace temp story with real draft story containing preview URL in local state
-      setStories(prev => prev.map(s => s.id === tempId ? { ...realStory, media_url: localPreviewUrl } : s));
+      setStories(prev => prev.map(s => s.id === tempId ? { ...realStory, media_url: localPreviewUrl, progress: 10, upload_stage: 'draft_created' } : s));
 
       if (file) {
         uploadStoryMediaFlow(realStory.id, file, tempId);
@@ -169,12 +253,13 @@ export function StoriesTray({ user }: { user: any }) {
           media_type: 'text'
         });
         if (finalizeRes.success && finalizeRes.story) {
-          setStories(prev => prev.map(s => s.id === tempId ? finalizeRes.story : s));
+          console.log(`[STATUS_FINALIZE_DONE] ${realStory.id}`);
+          setStories(prev => prev.map(s => s.id === tempId ? { ...finalizeRes.story, status: 'active', upload_status: 'completed', progress: undefined, upload_stage: undefined } : s));
         }
       }
     } catch (err) {
       console.error('[STATUS_DRAFT_FAILED]', err);
-      setStories(prev => prev.map(s => s.id === tempId ? { ...tempStory, status: 'upload_failed', upload_status: 'failed' } : s));
+      setStories(prev => prev.map(s => s.id === tempId ? { ...tempStory, status: 'upload_failed', upload_status: 'failed', progress: 0, upload_stage: 'failed' } : s));
     }
   };
 
@@ -207,7 +292,7 @@ export function StoriesTray({ user }: { user: any }) {
 
           return (
             <div key={story.id} className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer relative" onClick={() => setActiveStory(story)}>
-              <div className={`w-16 h-16 rounded-full border-2 p-0.5 mb-1.5 relative overflow-hidden ${isFailed ? 'border-red-500 bg-red-50' : isUploading ? 'border-amber-400 animate-pulse bg-amber-50' : 'border-blue-500'}`}>
+              <div className={`w-16 h-16 rounded-full border-2 p-0.5 mb-1.5 relative overflow-hidden ${isFailed ? 'border-red-500 bg-red-50' : isUploading ? 'border-blue-400 animate-pulse bg-blue-50' : 'border-blue-500'}`}>
                 <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
                   {story.author?.avatar_url ? (
                     <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -216,13 +301,18 @@ export function StoriesTray({ user }: { user: any }) {
                   )}
                 </div>
                 {isUploading && (
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center flex-col">
+                    <span className="text-[10px] text-white font-extrabold">{story.progress || 10}%</span>
                   </div>
                 )}
               </div>
               <span className="text-[10px] sm:text-xs font-medium text-slate-700 truncate w-full text-center">
-                {isUploading ? 'Mengunggah...' : isFailed ? 'Gagal upload' : (story.author?.name?.split(' ')[0] || 'User')}
+                {isUploading 
+                  ? getStageText(story.upload_stage || 'draft_created', story.progress || 10) 
+                  : isFailed 
+                    ? 'Gagal upload' 
+                    : (story.author?.name?.split(' ')[0] || 'User')
+                }
               </span>
             </div>
           );
@@ -366,7 +456,7 @@ function StoryViewerModal({
           {isUploading && isOwner && (
             <div className="p-5 bg-slate-800/80 rounded-3xl flex flex-col items-center gap-3 w-full max-w-sm text-center">
               <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-              <span className="text-white text-sm font-bold">Sedang mengunggah media status...</span>
+              <span className="text-white text-sm font-bold">{getStageText(story.upload_stage || 'draft_created', story.progress || 10)}</span>
               <span className="text-white/60 text-xs">Status akan otomatis aktif setelah upload selesai.</span>
             </div>
           )}
@@ -398,167 +488,136 @@ function StoryViewerModal({
   );
 }
 
-function StoryComposerModal({ 
-  user, 
-  onClose, 
-  onStartStoryFlow 
-}: { 
-  user: any; 
-  onClose: () => void; 
+function StoryComposerModal({
+  user,
+  onClose,
+  onStartStoryFlow
+}: {
+  user: any;
+  onClose: () => void;
   onStartStoryFlow: (content: string, file: File | null, duration: number) => void;
 }) {
   const [content, setContent] = useState('');
-  const [file, setFile] = useState<File | null>(null);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
   const [duration, setDuration] = useState(24);
-  const [isDurationSheetOpen, setIsDurationSheetOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = async (selectedFile: File) => {
-    if (!selectedFile) return;
-    
-    if (selectedFile.type.startsWith('video/')) {
-      if (selectedFile.size > 50 * 1024 * 1024) {
-        alert('Video terlalu besar. Maksimal 50MB / 60 detik untuk versi awal.');
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type.startsWith('video/')) {
+      if (file.size > 50 * 1024 * 1024) {
+        alert('Video terlalu besar. Maksimal 50MB.');
         return;
       }
-      
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      video.src = URL.createObjectURL(selectedFile);
-      video.onloadedmetadata = () => {
-        URL.revokeObjectURL(video.src);
-        if (video.duration > 60) {
-          alert('Durasi video status maksimal 60 detik');
-          return;
-        }
-        setFile(selectedFile);
-      };
-      video.onerror = () => {
-        setFile(selectedFile);
-      };
-    } else if (selectedFile.type.startsWith('image/')) {
-      // Local preview immediately - no blocking browser compression
-      setFile(selectedFile);
+      setMediaType('video');
+    } else {
+      setMediaType('image');
     }
+
+    setMediaFile(file);
+    setMediaPreview(URL.createObjectURL(file));
   };
 
-  const handleSubmit = () => {
-    if (!content && !file) return;
-    onStartStoryFlow(content, file, duration);
+  const handlePost = async () => {
+    setIsSubmitting(true);
+    onStartStoryFlow(content, mediaFile, duration);
+    setIsSubmitting(false);
     onClose();
   };
 
-  const durations = [
-    { value: 6, label: '6 Jam' },
-    { value: 12, label: '12 Jam' },
-    { value: 24, label: '24 Jam' },
-  ];
-
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <h3 className="font-bold text-slate-800">Buat Status Baru</h3>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100"><X className="w-5 h-5 text-slate-500"/></button>
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-slate-100">
+            <X className="w-5 h-5 text-slate-500" />
+          </button>
         </div>
-        
-        <div className="p-6">
-          <textarea 
+
+        <div className="p-4 flex-1 overflow-y-auto space-y-4 min-h-0">
+          <textarea
+            placeholder="Ada kabar apa hari ini?"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Apa yang ingin Anda bagikan hari ini?"
-            className="w-full h-24 bg-transparent outline-none resize-none text-lg text-slate-800 placeholder-slate-400"
-            maxLength={200}
+            className="w-full min-h-[100px] resize-none border-0 focus:ring-0 text-slate-700 placeholder-slate-400 text-sm focus:outline-none"
           />
-          
-          {file && (
-            <div className="relative flex flex-col bg-slate-100 rounded-xl overflow-hidden mt-4 mb-4 border border-slate-200">
-              <div className="relative h-40 w-full overflow-hidden bg-black flex items-center justify-center">
-                {file.type.startsWith('video/') ? (
-                  <video 
-                    src={URL.createObjectURL(file)} 
-                    muted 
-                    playsInline 
-                    preload="metadata" 
-                    controls 
-                    className="w-full h-full object-contain" 
-                  />
-                ) : (
-                  <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
-                )}
-              </div>
-              <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-600 gap-3 pr-12">
-                <span className="font-bold truncate max-w-[180px]" title={file.name}>{file.name}</span>
-                <span className="shrink-0 font-medium">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
-              </div>
-              <button onClick={() => setFile(null)} className="absolute top-2 right-2 w-8 h-8 bg-slate-900/55 text-white rounded-full flex items-center justify-center hover:bg-slate-900 transition-colors backdrop-blur-sm"><X className="w-4 h-4"/></button>
+
+          {mediaPreview && (
+            <div className="relative rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 max-h-[250px] flex items-center justify-center">
+              {mediaType === 'video' ? (
+                <video src={mediaPreview} controls className="max-h-[250px] w-auto" />
+              ) : (
+                <img src={mediaPreview} alt="Preview" className="max-h-[250px] w-auto object-contain" />
+              )}
+              <button
+                onClick={() => {
+                  setMediaFile(null);
+                  setMediaPreview(null);
+                  setMediaType(null);
+                }}
+                className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           )}
 
-          <div className="flex flex-wrap gap-3 mt-4">
-            <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
-              <ImageIcon className="w-4 h-4 text-blue-500" /> Foto Galeri
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && handleFileChange(e.target.files[0])} />
-            </label>
-            <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
-              <Camera className="w-4 h-4 text-blue-500" /> Ambil Foto
-              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files && handleFileChange(e.target.files[0])} />
-            </label>
-            <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
-              <Video className="w-4 h-4 text-rose-500" /> Video Galeri
-              <input type="file" accept="video/*" className="hidden" onChange={(e) => e.target.files && handleFileChange(e.target.files[0])} />
-            </label>
-            <label className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-full cursor-pointer text-sm font-bold text-slate-700 transition-colors">
-              <Video className="w-4 h-4 text-rose-500" /> Rekam Video
-              <input type="file" accept="video/*" capture="environment" className="hidden" onChange={(e) => e.target.files && handleFileChange(e.target.files[0])} />
-            </label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 py-3 px-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 text-slate-600 font-bold text-sm"
+            >
+              <ImageIcon className="w-4 h-4 text-emerald-500" />
+              Media
+            </button>
+            <input
+              type="file"
+              accept="image/*,video/*"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+            />
           </div>
 
-          <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-            <button
-              type="button"
-              onClick={() => setIsDurationSheetOpen(true)}
-              className="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-full border border-slate-200 transition-all flex items-center gap-1 active:scale-95"
-            >
-              <span>Masa Aktif: {durations.find(d => d.value === duration)?.label}</span>
-              <span className="text-[7px] opacity-60">▼</span>
-            </button>
-            
-            <Button onClick={handleSubmit} disabled={(!content && !file)} className="bg-blue-600 hover:bg-blue-700 font-bold rounded-full px-6">
-              Bagikan
-            </Button>
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-500">Durasi Tayang</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[12, 24, 48].map((hours) => (
+                <button
+                  key={hours}
+                  onClick={() => setDuration(hours)}
+                  className={`py-2 rounded-xl text-xs font-extrabold transition-all border ${
+                    duration === hours
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {hours} Jam
+                </button>
+              ))}
+            </div>
           </div>
+        </div>
+
+        <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+          <Button variant="ghost" onClick={onClose} disabled={isSubmitting} className="rounded-xl font-bold">
+            Batal
+          </Button>
+          <Button
+            onClick={handlePost}
+            disabled={isSubmitting || (!content.trim() && !mediaFile)}
+            className="rounded-xl font-extrabold bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+          >
+            {isSubmitting ? 'Mengunggah...' : 'Bagikan Status'}
+          </Button>
         </div>
       </div>
-
-      <MobileBottomSheet
-        isOpen={isDurationSheetOpen}
-        onClose={() => setIsDurationSheetOpen(false)}
-        title="Pilih Masa Aktif Status"
-      >
-        <div className="space-y-2">
-          {durations.map(d => {
-            const isSelected = duration === d.value;
-            return (
-              <button
-                key={d.value}
-                type="button"
-                onClick={() => {
-                  setDuration(d.value);
-                  setIsDurationSheetOpen(false);
-                }}
-                className={`w-full py-3.5 px-4 rounded-2xl flex items-center justify-between transition-all active:scale-98 text-left ${
-                  isSelected 
-                    ? 'bg-blue-50 text-blue-700 font-extrabold border border-blue-200/55' 
-                    : 'bg-slate-50 hover:bg-slate-100/80 text-slate-700 border border-transparent'
-                }`}
-              >
-                <span className="text-sm font-bold">{d.label}</span>
-                {isSelected && <span className="text-blue-600 font-extrabold">✓</span>}
-              </button>
-            );
-          })}
-        </div>
-      </MobileBottomSheet>
     </div>
   );
 }
