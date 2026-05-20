@@ -30,18 +30,23 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files
+.env
+.env.*
+!.env.example
+.env.migration
 
 # vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Android keys & credentials secrets
+*.pem
+*.key
+*.jks
+*.keystore
+signing.properties
+key.properties
 
-.env*.local
-.env
-.env.migration
+# data dumps
 migration/data/*.csv
 !migration/data/*.example.csv

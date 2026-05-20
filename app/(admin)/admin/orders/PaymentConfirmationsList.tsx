@@ -1,3 +1,4 @@
+// app/(admin)/admin/orders/PaymentConfirmationsList.tsx
 'use client';
 
 import { useState } from 'react';
@@ -10,6 +11,20 @@ export function PaymentConfirmationsList({ initialPayments }: { initialPayments:
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [activeProofUrl, setActiveProofUrl] = useState<string | null>(null);
   const supabase = createClient();
+
+  // Custom modal state
+  const [activeConfirmModal, setActiveConfirmModal] = useState<{
+    type: 'approve' | 'reject';
+    paymentId: string;
+    orderId: string;
+  } | null>(null);
+  const [rejectReasonInput, setRejectReasonInput] = useState('');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   const handleVerify = async (paymentId: string, orderId: string, action: 'approve' | 'reject', rejectReason = '') => {
     setLoadingId(paymentId);
@@ -69,12 +84,14 @@ export function PaymentConfirmationsList({ initialPayments }: { initialPayments:
         return p;
       }));
 
-      alert(isApproved ? 'Pembayaran berhasil disetujui!' : 'Pembayaran berhasil ditolak.');
+      showToast(isApproved ? 'Pembayaran berhasil disetujui!' : 'Pembayaran berhasil ditolak.');
     } catch (err: any) {
       console.error(err);
-      alert('Gagal memverifikasi pembayaran: ' + err.message);
+      showToast('Gagal memverifikasi: ' + (err.message || 'Terjadi kendala. Coba lagi.'));
     } finally {
       setLoadingId(null);
+      setActiveConfirmModal(null);
+      setRejectReasonInput('');
     }
   };
 
@@ -168,10 +185,11 @@ export function PaymentConfirmationsList({ initialPayments }: { initialPayments:
                 <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex gap-3">
                   <Button 
                     onClick={() => {
-                      const reason = prompt('Masukkan alasan penolakan (opsional):') || '';
-                      if (reason !== null) {
-                        handleVerify(payment.id, payment.order_id, 'reject', reason);
-                      }
+                      setActiveConfirmModal({
+                        type: 'reject',
+                        paymentId: payment.id,
+                        orderId: payment.order_id
+                      });
                     }}
                     disabled={loadingId === payment.id}
                     variant="outline" 
@@ -183,9 +201,11 @@ export function PaymentConfirmationsList({ initialPayments }: { initialPayments:
 
                   <Button 
                     onClick={() => {
-                      if (confirm('Setujui pembayaran manual ini?')) {
-                        handleVerify(payment.id, payment.order_id, 'approve');
-                      }
+                      setActiveConfirmModal({
+                        type: 'approve',
+                        paymentId: payment.id,
+                        orderId: payment.order_id
+                      });
                     }}
                     disabled={loadingId === payment.id}
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10 rounded-xl"
@@ -197,6 +217,61 @@ export function PaymentConfirmationsList({ initialPayments }: { initialPayments:
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Dynamic State Overlay Modal instead of window.confirm/prompt */}
+      {activeConfirmModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full border border-slate-200 shadow-2xl space-y-4">
+            <h3 className="font-extrabold text-slate-800 text-sm">
+              {activeConfirmModal.type === 'approve' ? '✔️ Konfirmasi Persetujuan' : '❌ Konfirmasi Penolakan'}
+            </h3>
+            
+            <p className="text-slate-500 text-xs leading-relaxed">
+              {activeConfirmModal.type === 'approve' 
+                ? 'Apakah Anda yakin ingin menyetujui bukti pembayaran transfer manual ini?' 
+                : 'Silakan masukkan alasan penolakan bukti pembayaran:'}
+            </p>
+
+            {activeConfirmModal.type === 'reject' && (
+              <textarea
+                value={rejectReasonInput}
+                onChange={(e) => setRejectReasonInput(e.target.value)}
+                placeholder="Contoh: Bukti buram atau jumlah tidak sesuai..."
+                className="w-full p-3 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-blue-500 font-medium"
+                rows={3}
+              />
+            )}
+
+            <div className="flex gap-3 justify-end pt-2">
+              <Button
+                onClick={() => {
+                  setActiveConfirmModal(null);
+                  setRejectReasonInput('');
+                }}
+                variant="outline"
+                className="text-xs font-bold h-10 rounded-xl px-4"
+              >
+                Batal
+              </Button>
+              <Button
+                onClick={() => {
+                  handleVerify(
+                    activeConfirmModal.paymentId,
+                    activeConfirmModal.orderId,
+                    activeConfirmModal.type,
+                    rejectReasonInput
+                  );
+                }}
+                className={`text-xs font-bold h-10 rounded-xl px-5 ${
+                  activeConfirmModal.type === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-rose-600 hover:bg-rose-700 text-white'
+                }`}
+              >
+                Konfirmasi
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -212,6 +287,14 @@ export function PaymentConfirmationsList({ initialPayments }: { initialPayments:
             </button>
             <img src={activeProofUrl} alt="Zoom Receipt" className="max-w-full max-h-[80vh] rounded-2xl object-contain shadow-2xl border border-white/10" />
           </div>
+        </div>
+      )}
+
+      {/* Inline Toast Banner */}
+      {toastMessage && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3.5 rounded-2xl shadow-xl border text-xs sm:text-sm font-extrabold bg-white border-blue-100 text-slate-800 animate-bounce">
+          <span className="text-blue-600">ℹ</span>
+          <span>{toastMessage}</span>
         </div>
       )}
     </div>

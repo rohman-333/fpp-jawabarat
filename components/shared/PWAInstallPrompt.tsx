@@ -9,9 +9,10 @@ export function PWAInstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // 1. Check if already running in standalone mode (installed PWA)
+    // 1. Check if already running in standalone mode (installed PWA) or inside Android TWA app
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-      || (navigator as any).standalone === true;
+      || (navigator as any).standalone === true
+      || (typeof document !== 'undefined' && document.referrer.includes('android-app://'));
     
     if (isStandalone) return;
 
