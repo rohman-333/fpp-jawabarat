@@ -34,7 +34,7 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
       </div>
 
       <StoriesTray user={user} />
-      <CreatePostComposer user={user} onSuccess={triggerRefresh} />
+      <CreatePostComposer user={user} />
 
       {/* Mobile-only lightweight carousels */}
       <div className="block md:hidden mb-6 space-y-4">

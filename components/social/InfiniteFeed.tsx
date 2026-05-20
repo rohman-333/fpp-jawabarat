@@ -48,12 +48,20 @@ export function InfiniteFeed({
     fetchAds();
   }, [supabase]);
 
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+
   // Handle Optimistic UI Updates from CreatePostComposer
   useEffect(() => {
     const handleOptimisticPost = (e: Event) => {
       const customEvent = e as CustomEvent;
       const newPost = customEvent.detail;
       if (newPost) {
+        if (activeTabRef.current !== 'semua' && activeTabRef.current !== newPost.type) {
+          return;
+        }
         setPosts(prev => {
           if (prev.some(p => p.id === newPost.id)) return prev;
           return [newPost, ...prev];

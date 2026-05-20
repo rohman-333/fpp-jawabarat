@@ -42,8 +42,25 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
           supabase.from('delivery_fare_rules').select('*'),
           supabase.from('external_shipping_providers').select('*').eq('is_active', true)
         ]);
-        if (zonesRes.data) setActiveZones(zonesRes.data);
-        if (methodsRes.data) setActiveMethods(methodsRes.data);
+        
+        let zonesData = zonesRes.data || [];
+        if (zonesData.length === 0) {
+          zonesData = [{ id: 'fallback-manual-zone', name: 'Lainnya / Pengiriman Manual', slug: 'lainnya', city: 'Seluruh Indonesia', province: 'Lainnya', is_active: true }];
+        }
+        setActiveZones(zonesData);
+        if (zonesData.length > 0) {
+          setSelectedZone(zonesData[0].id);
+        }
+
+        let methodsData = methodsRes.data || [];
+        if (methodsData.length === 0) {
+          methodsData = [{ id: 'fallback-manual-method', code: 'manual_shipping', name: 'Pengiriman Manual', description: 'Kesepakatan pengiriman manual antara penjual dan pembeli', is_active: true }];
+        }
+        setActiveMethods(methodsData);
+        
+        const hasCourier = methodsData.some(m => m.code === 'internal_courier');
+        setSelectedMethod(hasCourier ? 'internal_courier' : methodsData[0].code);
+
         if (rulesRes.data) setFareRules(rulesRes.data);
         if (providersRes.data) {
           setActiveProviders(providersRes.data);
@@ -53,6 +70,12 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
         }
       } catch (err) {
         console.error('[LOAD_CHECKOUT_LOGISTICS_ERR]', err);
+        const fallbackZ = [{ id: 'fallback-manual-zone', name: 'Lainnya / Pengiriman Manual', slug: 'lainnya', city: 'Seluruh Indonesia', province: 'Lainnya', is_active: true }];
+        const fallbackM = [{ id: 'fallback-manual-method', code: 'manual_shipping', name: 'Pengiriman Manual', description: 'Kesepakatan pengiriman manual antara penjual dan pembeli', is_active: true }];
+        setActiveZones(fallbackZ);
+        setSelectedZone(fallbackZ[0].id);
+        setActiveMethods(fallbackM);
+        setSelectedMethod(fallbackM[0].code);
       }
     }
     loadLogisticsOptions();
@@ -60,7 +83,13 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
 
   // Re-calculate shipping argo and COD fees dynamically using our Fare Engine
   useEffect(() => {
-    if (!selectedZone) {
+    if (selectedMethod === 'manual_shipping' || selectedMethod === 'pickup') {
+      setShippingCost(0);
+      setCodFee(0);
+      return;
+    }
+
+    if (!selectedZone || selectedZone === 'fallback-manual-zone') {
       setShippingCost(0);
       setCodFee(0);
       return;
@@ -133,12 +162,15 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
 
         // Get shipping method ID
         const currentMethodObj = activeMethods.find(m => m.code === selectedMethod);
+        const actualMethodId = currentMethodObj?.id && currentMethodObj.id !== 'fallback-manual-method'
+          ? currentMethodObj.id
+          : null;
 
         // Calculate fare breakdown using the fare engine
-        const rule = fareRules.find(r => r.zone_id === selectedZone);
+        const rule = selectedZone !== 'fallback-manual-zone' ? fareRules.find(r => r.zone_id === selectedZone) : null;
         const fareInput = {
           shippingMethodCode: selectedMethod,
-          destinationZoneId: selectedZone,
+          destinationZoneId: selectedZone !== 'fallback-manual-zone' ? selectedZone : '',
           isCod: selectedMethod === 'cod',
           orderAmount: sellerTotal,
           distanceKm: 3
@@ -154,6 +186,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
         }
 
         const selectedProvObj = activeProviders.find(p => p.code === selectedProvider);
+        const actualZoneId = selectedZone && selectedZone !== 'fallback-manual-zone' ? selectedZone : null;
 
         const { data: order, error: orderError } = await supabase
           .from('orders')
@@ -164,7 +197,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
             total_amount: sellerTotal + shippingCost + codFee,
             shipping_cost: shippingCost,
             cod_fee: codFee,
-            shipping_method_id: currentMethodObj?.id || null,
+            shipping_method_id: actualMethodId,
             shipping_method_code: selectedMethod,
             shipping_provider_id: selectedMethod === 'external_shipping' ? (selectedProvObj?.id || null) : null,
             shipping_provider_name: selectedMethod === 'external_shipping' ? (selectedProvObj?.name || null) : null,
@@ -179,7 +212,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
             shipping_address: address,
             customer_phone: phone,
             notes: notes,
-            delivery_zone_id: selectedZone || null
+            delivery_zone_id: actualZoneId
           })
           .select()
           .single();
@@ -205,7 +238,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
         }
 
         // Create delivery row if courier is required
-        if (selectedMethod === 'internal_courier' || selectedMethod === 'cod') {
+        if ((selectedMethod === 'internal_courier' || selectedMethod === 'cod') && actualZoneId) {
           // Get seller profile details
           const { data: sellerProfile } = await supabase
             .from('profiles')
@@ -270,6 +303,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
   );
 
   const selectedZoneObj = activeZones.find(z => z.id === selectedZone);
+
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">

@@ -20,6 +20,7 @@ interface LogisticsClientProps {
   initialDeliveries: any[];
   initialPayouts: any[];
   initialSettings: Record<string, any>;
+  initialTab?: string;
 }
 
 export function LogisticsClient({
@@ -30,13 +31,14 @@ export function LogisticsClient({
   initialCouriers,
   initialDeliveries,
   initialPayouts,
-  initialSettings
+  initialSettings,
+  initialTab = 'overview'
 }: LogisticsClientProps) {
   const supabase = createClient();
   const searchParams = useSearchParams();
   
   // Navigation active tab state
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [actionLoading, setActionLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
