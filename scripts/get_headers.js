@@ -1,9 +1,10 @@
 async function run() {
-  const url = 'https://tazbsyjulkmyscohiwgq.supabase.co/rest/v1/';
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tazbsyjulkmyscohiwgq.supabase.co') + '/rest/v1/';
+  const apiKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your_supabase_anon_key';
   try {
     const res = await fetch(url, {
       headers: {
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhemJzeWp1bGtteXNjb2hpd2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNDE4ODcsImV4cCI6MjA5NDYxNzg4N30.7T9YHRPXXXQSor_4OyZpK2N2C8eMYSDjWLSnDrbi0eU'
+        'apikey': apiKey
       }
     });
     console.log("Status:", res.status);

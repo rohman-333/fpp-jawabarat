@@ -18,7 +18,19 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { compressImage } from '@/lib/media/compressImage';
 import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
 
-export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?: () => void }) {
+interface CreatePostComposerProps {
+  user: any;
+  onOptimisticPost?: (tempPost: any) => void;
+  onPostCreated?: (realPost: any, tempId: string) => void;
+  onPostFailed?: (tempId: string, error: string) => void;
+}
+
+export function CreatePostComposer({ 
+  user, 
+  onOptimisticPost, 
+  onPostCreated, 
+  onPostFailed 
+}: CreatePostComposerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [content, setContent] = useState('');
@@ -57,6 +69,28 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
       window.history.replaceState({ ...window.history.state }, '', newUrl);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const handleRetry = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const failedPost = customEvent.detail;
+      if (failedPost && failedPost.author_id === user?.id) {
+        setContent(failedPost.content || '');
+        setType(failedPost.type || 'kabar');
+        if (failedPost.image_url || failedPost.video_url) {
+          setMediaPreview(failedPost.image_url || failedPost.video_url);
+          setMediaType(failedPost.media_type);
+        }
+        setIsExpanded(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    window.addEventListener('retry-post', handleRetry);
+    return () => {
+      window.removeEventListener('retry-post', handleRetry);
+    };
+  }, [user?.id]);
 
   const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'image') => {
     const file = e.target.files?.[0];
@@ -133,11 +167,15 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
     setContent(prev => prev + emojiObject.emoji);
   };
 
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
+
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!content.trim() && !mediaFile) return;
     
     setIsSubmitting(true);
+    setError(null);
+    setUploadProgress('Menyiapkan media...');
     
     // Generate unique temporary identifier for optimistic prepends
     const tempId = `temp-${Date.now()}`;
@@ -169,20 +207,26 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
       my_reaction: null
     };
 
-    window.dispatchEvent(new CustomEvent('optimistic-post', { detail: optimisticPostDetail }));
+    console.log('[FEED_POST_SUBMIT_START]', tempId);
+    if (onOptimisticPost) {
+      onOptimisticPost(optimisticPostDetail);
+      console.log('[FEED_OPTIMISTIC_ADDED]', tempId);
+    }
     
     try {
       let imageUrl = null;
       let videoUrl = null;
       
       if (mediaFile) {
+        setUploadProgress('Mengunggah...');
         if (mediaType === 'image') {
           const { url, error } = await uploadPostImage(mediaFile, user.id);
           if (error) {
             console.error('[UPLOAD_IMAGE_ERROR]', error);
             showError('Gagal mengunggah gambar. Silakan klik Posting untuk mencoba kembali.');
             setIsSubmitting(false);
-            window.dispatchEvent(new CustomEvent('optimistic-post-failure', { detail: { tempId } }));
+            setUploadProgress(null);
+            if (onPostFailed) onPostFailed(tempId, error);
             return;
           } else {
             imageUrl = url;
@@ -193,7 +237,8 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
             console.error('[UPLOAD_VIDEO_ERROR]', error);
             showError('Gagal mengunggah video. Silakan klik Posting untuk mencoba kembali.');
             setIsSubmitting(false);
-            window.dispatchEvent(new CustomEvent('optimistic-post-failure', { detail: { tempId } }));
+            setUploadProgress(null);
+            if (onPostFailed) onPostFailed(tempId, error);
             return;
           } else {
             videoUrl = url;
@@ -201,6 +246,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
         }
       }
 
+      setUploadProgress('Menyimpan postingan...');
       const formData = new FormData();
       formData.append('content', content);
       formData.append('type', type);
@@ -215,35 +261,26 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
       if (res?.error) {
         console.error('[CREATE_POST_CLIENT_ERROR]', res.error);
         showError('Gagal memposting: ' + res.error);
-        window.dispatchEvent(new CustomEvent('optimistic-post-failure', { detail: { tempId } }));
+        if (onPostFailed) onPostFailed(tempId, res.error);
       } else {
+        console.log('[FEED_POST_CREATED]', res.post?.id);
         setContent('');
         removeMedia();
         setShowEmoji(false);
         setIsExpanded(false);
 
-        // Replace optimistic post with backend-saved post data
-        window.dispatchEvent(new CustomEvent('optimistic-post-success', { 
-          detail: { 
-            tempId, 
-            post: {
-              id: res.post?.id || tempId,
-              image_url: imageUrl,
-              video_url: videoUrl,
-              created_at: new Date().toISOString()
-            } 
-          } 
-        }));
-
-        if (onSuccess) onSuccess();
+        if (onPostCreated && res.post) {
+          onPostCreated(res.post, tempId);
+        }
         router.refresh();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('[CREATE_POST_CLIENT_EXCEPTION]', err);
       showError('Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
-      window.dispatchEvent(new CustomEvent('optimistic-post-failure', { detail: { tempId } }));
+      if (onPostFailed) onPostFailed(tempId, err?.message || 'Unknown Exception');
     } finally {
       setIsSubmitting(false);
+      setUploadProgress(null);
     }
   };
 
@@ -391,7 +428,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
               {isSubmitting && (
                 <div className="mb-3 p-3 bg-blue-600 text-white text-xs font-extrabold rounded-xl flex items-center gap-2 shadow-md">
                   <Loader2 className="w-4 h-4 shrink-0 animate-spin text-white" />
-                  <span>{mediaFile ? 'Mengunggah media...' : 'Mengirim postingan...'} Harap jangan tutup aplikasi.</span>
+                  <span>{uploadProgress || 'Mengirim postingan...'} Harap jangan tutup aplikasi.</span>
                 </div>
               )}
 

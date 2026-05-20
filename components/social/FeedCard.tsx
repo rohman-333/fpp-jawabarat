@@ -14,7 +14,15 @@ import { toggleSave, hidePost, deletePost, setReaction, removeReaction } from '@
 import { ReportPostDialog } from './ReportPostDialog';
 import { Flag, EyeOff, Link as LinkIcon, X } from 'lucide-react';
 
-export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }) {
+export function FeedCard({ 
+  post, 
+  currentUser,
+  onRetry
+}: { 
+  post: any; 
+  currentUser?: any;
+  onRetry?: (post: any) => void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -234,9 +242,20 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
                 </span>
               )}
               {post.status === 'failed' && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 flex items-center gap-1 shrink-0">
-                  ⚠️ Gagal mengirim
-                </span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 flex items-center gap-1">
+                    ⚠️ Gagal mengirim
+                  </span>
+                  {onRetry && (
+                    <button
+                      type="button"
+                      onClick={() => onRetry(post)}
+                      className="text-[10px] font-extrabold text-blue-600 hover:text-blue-700 hover:underline px-1.5 py-0.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-all active:scale-95"
+                    >
+                      Coba Lagi
+                    </button>
+                  )}
+                </div>
               )}
               {currentUserId && currentUserId !== post.author_id && post.status !== 'sending' && post.status !== 'failed' && (
                 <div className="hidden sm:block ml-1">

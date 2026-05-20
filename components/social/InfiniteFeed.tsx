@@ -13,19 +13,28 @@ export function InfiniteFeed({
   currentUser,
   refreshKey = 0,
   targetUserId,
-  initialPosts
+  initialPosts,
+  posts: passedPosts,
+  setPosts: passedSetPosts,
+  onRetry
 }: {
   activeTab: string;
   currentUser?: any;
   refreshKey?: number;
   targetUserId?: string;
   initialPosts?: any[];
+  posts?: any[];
+  setPosts?: React.Dispatch<React.SetStateAction<any[]>>;
+  onRetry?: (post: any) => void;
 }) {
   const supabase = createClient();
   const PAGE_SIZE = 10;
 
-  // Enriched posts list
-  const [posts, setPosts] = useState<any[]>(initialPosts || []);
+  // Local state fallback for independent feed scroll views (e.g. Profile Page)
+  const [localPosts, setLocalPosts] = useState<any[]>(initialPosts || []);
+  const posts = passedPosts !== undefined ? passedPosts : localPosts;
+  const setPosts = passedSetPosts !== undefined ? passedSetPosts : setLocalPosts;
+
   const [page, setPage] = useState(0);
   const [ads, setAds] = useState<any[]>([]);
 
@@ -47,61 +56,6 @@ export function InfiniteFeed({
     }
     fetchAds();
   }, [supabase]);
-
-  const activeTabRef = useRef(activeTab);
-  useEffect(() => {
-    activeTabRef.current = activeTab;
-  }, [activeTab]);
-
-  // Handle Optimistic UI Updates from CreatePostComposer
-  useEffect(() => {
-    const handleOptimisticPost = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      const newPost = customEvent.detail;
-      if (newPost) {
-        if (activeTabRef.current !== 'semua' && activeTabRef.current !== newPost.type) {
-          return;
-        }
-        setPosts(prev => {
-          if (prev.some(p => p.id === newPost.id)) return prev;
-          return [newPost, ...prev];
-        });
-      }
-    };
-
-    const handleOptimisticPostSuccess = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      const { tempId, post } = customEvent.detail;
-      setPosts(prev => prev.map(p => {
-        if (p.id === tempId) {
-          return {
-            ...p,
-            id: post.id,
-            image_url: post.image_url || p.image_url,
-            video_url: post.video_url || p.video_url,
-            status: 'active'
-          };
-        }
-        return p;
-      }));
-    };
-
-    const handleOptimisticPostFailure = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      const { tempId } = customEvent.detail;
-      setPosts(prev => prev.filter(p => p.id !== tempId));
-    };
-
-    window.addEventListener('optimistic-post', handleOptimisticPost);
-    window.addEventListener('optimistic-post-success', handleOptimisticPostSuccess);
-    window.addEventListener('optimistic-post-failure', handleOptimisticPostFailure);
-
-    return () => {
-      window.removeEventListener('optimistic-post', handleOptimisticPost);
-      window.removeEventListener('optimistic-post-success', handleOptimisticPostSuccess);
-      window.removeEventListener('optimistic-post-failure', handleOptimisticPostFailure);
-    };
-  }, []);
 
   // Split-up loading states
   const [initialLoading, setInitialLoading] = useState(initialPosts && initialPosts.length > 0 ? false : true);
@@ -395,7 +349,7 @@ export function InfiniteFeed({
         {posts.map((post, index) => {
           const postElement = (
             <div key={post.id}>
-              <FeedCard post={post} currentUser={currentUser} />
+              <FeedCard post={post} currentUser={currentUser} onRetry={onRetry} />
             </div>
           );
 

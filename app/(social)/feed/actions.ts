@@ -32,13 +32,41 @@ export async function createPost(formData: FormData) {
       status: 'active',
       visibility: 'public'
     }])
-    .select('id')
+    .select(`
+      id, content, type, image_url, video_url, media_type, author_id, product_id,
+      visibility, status, created_at, updated_at
+    `)
     .single();
 
   if (error) {
     console.error('[CREATE_POST_ERROR]', error);
     return { success: false, error: error.message };
   }
+
+  // Fetch author profile to complete the response
+  const { data: authorProfile } = await supabase
+    .from('profiles')
+    .select('id, name, username, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified, followers:social_follows!social_follows_following_id_fkey(count)')
+    .eq('id', user.id)
+    .single();
+
+  const fullPost = {
+    ...post,
+    author: authorProfile || {
+      id: user.id,
+      name: user.user_metadata?.name || 'Pengguna',
+      username: user.user_metadata?.username || 'pengguna',
+      avatar_url: user.user_metadata?.avatar_url || null,
+      role: 'member'
+    },
+    likes_count: [{ count: 0 }],
+    reactions: [],
+    comments_count: [{ count: 0 }],
+    has_liked: false,
+    has_saved: false,
+    author_followed: false,
+    my_reaction: null
+  };
 
   // Parse mentions
   if (content) {
@@ -84,7 +112,7 @@ export async function createPost(formData: FormData) {
 
   revalidatePath('/feed');
   revalidatePath('/');
-  return { success: true, post };
+  return { success: true, post: fullPost };
 }
 
 export async function toggleLike(postId: string) {

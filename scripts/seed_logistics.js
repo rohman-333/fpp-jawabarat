@@ -1,7 +1,12 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = 'https://tazbsyjulkmyscohiwgq.supabase.co';
-const SUPABASE_SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhemJzeWp1bGtteXNjb2hpd2dxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTA0MTg4NywiZXhwIjoyMDk0NjE3ODg3fQ.GEh0emum8SIEQczH2zEtmCDj80zKXII8GJb8aXJJqNM';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tazbsyjulkmyscohiwgq.supabase.co';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_SERVICE_ROLE_KEY) {
+  console.error("Error: SUPABASE_SERVICE_ROLE_KEY environment variable is not set.");
+  process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: {
