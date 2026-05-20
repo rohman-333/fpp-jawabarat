@@ -8,6 +8,7 @@ import { SuggestedUsers } from './SuggestedUsers';
 import { SuggestedProducts } from './SuggestedProducts';
 import { SuggestedPrograms } from './SuggestedPrograms';
 import { StoriesTray } from './StoriesTray';
+import { PushPermissionPrompt } from '@/components/shared/PushPermissionPrompt';
 import { useRouter } from 'next/navigation';
 import { 
   deletePost, 
@@ -187,6 +188,7 @@ export function FeedContainer({ user, initialTab = 'semua', initialPosts }: { us
       </div>
 
       <StoriesTray user={user} />
+      <PushPermissionPrompt />
       
       <CreatePostComposer 
         user={user} 

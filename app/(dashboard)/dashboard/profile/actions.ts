@@ -4,11 +4,13 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function saveProfile(formData: FormData) {
+  console.log('[PROFILE_SAVE_START]');
+  
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    throw new Error('Not authenticated');
+    return { success: false, error: 'Sesi telah berakhir. Silakan login ulang.', profile: null };
   }
 
   const instagram = formData.get('instagram') as string;
@@ -34,14 +36,28 @@ export async function saveProfile(formData: FormData) {
     profile_completed: true,
   };
 
-  const { error } = await supabase
-    .from('profiles')
-    .update(payload)
-    .eq('id', user.id);
+  try {
+    const { data: updatedProfile, error } = await supabase
+      .from('profiles')
+      .update(payload)
+      .eq('id', user.id)
+      .select('id, name, username, avatar_url, cover_url, bio, location, website, birth_date, phone, social_links, role, profile_completed, email')
+      .single();
 
-  if (error) throw new Error(error.message);
+    if (error) {
+      console.error('[PROFILE_SAVE_FAILED]', error.message);
+      return { success: false, error: 'Gagal menyimpan profil: ' + error.message, profile: null };
+    }
 
-  revalidatePath('/dashboard', 'layout');
-  revalidatePath('/admin', 'layout');
-  revalidatePath('/dashboard/profile');
+    console.log('[PROFILE_SAVE_SUCCESS]', user.id);
+
+    revalidatePath('/dashboard', 'layout');
+    revalidatePath('/admin', 'layout');
+    revalidatePath('/dashboard/profile');
+
+    return { success: true, error: null, profile: updatedProfile };
+  } catch (err: any) {
+    console.error('[PROFILE_SAVE_FAILED]', err);
+    return { success: false, error: 'Terjadi kesalahan internal.', profile: null };
+  }
 }

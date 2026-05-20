@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const auth = subscription.keys?.auth;
     const userAgent = req.headers.get('user-agent') || 'Unknown';
 
-    // Upsert subscription
+    // Upsert subscription — mark as active on re-subscribe
     const { error } = await supabase
       .from('push_subscriptions')
       .upsert({
@@ -28,7 +28,9 @@ export async function POST(req: Request) {
         endpoint: subscription.endpoint,
         p256dh,
         auth,
-        user_agent: userAgent
+        user_agent: userAgent,
+        is_active: true,
+        updated_at: new Date().toISOString()
       }, {
         onConflict: 'user_id,endpoint'
       });
@@ -38,6 +40,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to save subscription' }, { status: 500 });
     }
 
+    console.log('[PUSH_SUBSCRIBED]', user.id, subscription.endpoint.slice(-20));
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error('[PUSH_SUBSCRIBE_ERROR]', err);

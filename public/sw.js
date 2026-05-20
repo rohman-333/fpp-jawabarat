@@ -10,8 +10,8 @@ self.addEventListener('push', function(event) {
         vibrate: [100, 50, 100],
         data: {
           dateOfArrival: Date.now(),
-          primaryKey: '2',
-          url: data.url || '/'
+          notificationId: data.notificationId || null,
+          url: data.href || data.url || '/notifications'
         }
       };
       
@@ -27,25 +27,26 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
-  if (event.notification.data && event.notification.data.url) {
-    event.waitUntil(
-      clients.matchAll({ type: 'window' }).then(windowClients => {
-        for (let i = 0; i < windowClients.length; i++) {
-          const client = windowClients[i];
-          if (client.url === event.notification.data.url && 'focus' in client) {
-            return client.focus();
-          }
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/notifications';
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if ('focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
         }
-        if (clients.openWindow) {
-          return clients.openWindow(event.notification.data.url);
-        }
-      })
-    );
-  }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });
 
 // CACHE VERSION — increment this on every deploy to force old cache purge
-const CACHE_NAME = 'wibawa-cache-v7';
+const CACHE_NAME = 'wibawa-cache-v8';
 const urlsToCache = [
   '/manifest.webmanifest',
   '/icon.jpg'

@@ -13,23 +13,30 @@ export async function POST(req: Request) {
     }
 
     const payload = await req.json();
-    const { userId, title, body, href, type } = payload;
+    const { userId, title, body, href, type, metadata } = payload;
 
     if (!userId || !title || !body) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields: userId, title, body' }, { status: 400 });
     }
 
     // Call the server helper which handles both internal DB notification and web push
-    await createNotification({
-      userId: userId,
+    const result = await createNotification({
+      userId,
       actorId: user.id,
-      type: type || 'chat_message',
+      type: type || 'system',
       title,
       body,
-      href
+      href,
+      metadata,
+      sendPush: true
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true,
+      internalNotificationCreated: !!result.notification,
+      pushSent: result.pushSent,
+      pushFailed: result.pushFailed
+    });
   } catch (error: any) {
     console.error('[API_PUSH_NOTIFY_ERROR]', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

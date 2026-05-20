@@ -7,7 +7,9 @@ export async function createNotification({
   type, 
   title, 
   body, 
-  href 
+  href,
+  metadata,
+  sendPush = true
 }: {
   userId: string;
   actorId?: string;
@@ -15,69 +17,97 @@ export async function createNotification({
   title: string;
   body: string;
   href?: string;
+  metadata?: Record<string, any>;
+  sendPush?: boolean;
 }) {
   if (userId === actorId) {
     // Don't send notification to self
-    return null;
+    return { notification: null, pushSent: 0, pushFailed: 0 };
   }
 
   const supabase = await createClient();
 
-  // Build payload — always include the new columns.
-  // Legacy columns (message, target_url) included for backward compatibility.
-  // If the columns don't exist, Postgres will ignore them gracefully when using upsert/insert.
+  // Build payload — write both new and legacy columns for backward compatibility
   const payload: Record<string, any> = {
     user_id: userId,
     actor_id: actorId ?? null,
     type,
     title,
     body,
+    message: body,        // legacy column
     href: href ?? null,
+    target_url: href ?? null, // legacy column
+    metadata: metadata ?? {},
     is_read: false,
   };
 
-  // Attempt to also set legacy columns (silently ignore column-not-found errors)
+  let notification = null;
+  let pushSent = 0;
+  let pushFailed = 0;
+
+  // 1. Insert internal notification (always)
   try {
-    const { data: notification, error } = await supabase
+    const { data, error } = await supabase
       .from('notifications')
       .insert(payload)
       .select()
       .single();
 
     if (error) {
-      console.error('[CREATE_NOTIFICATION_ERROR]', error);
-      return null;
+      console.error('[CREATE_NOTIFICATION_ERROR]', error.message);
+      return { notification: null, pushSent: 0, pushFailed: 0 };
     }
 
-    // 2. Try Web Push if configured
+    notification = data;
+    console.log('[NOTIFICATION_CREATED]', notification.id, 'type=', type, 'user=', userId);
+  } catch (err) {
+    console.error('[CREATE_NOTIFICATION_UNEXPECTED]', err);
+    return { notification: null, pushSent: 0, pushFailed: 0 };
+  }
+
+  // 2. Try Web Push (only if sendPush is true and VAPID is configured)
+  if (sendPush) {
     try {
       const { data: subs } = await supabase
         .from('push_subscriptions')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .eq('is_active', true);
 
       if (subs && subs.length > 0) {
         const pushPayload = {
           title,
           body,
-          href: href || '/',
-          icon: '/icon.jpg'
+          href: href || '/notifications',
+          icon: '/icon.jpg',
+          notificationId: notification?.id || null,
         };
 
         for (const sub of subs) {
-          const result = await sendWebPush(sub, pushPayload);
-          if (result.expired) {
-            await supabase.from('push_subscriptions').delete().eq('id', sub.id);
+          try {
+            const result = await sendWebPush(sub, pushPayload);
+            if (result.success) {
+              pushSent++;
+            } else if (result.expired) {
+              // Mark subscription as inactive instead of deleting
+              await supabase
+                .from('push_subscriptions')
+                .update({ is_active: false, updated_at: new Date().toISOString() })
+                .eq('id', sub.id);
+              pushFailed++;
+            } else {
+              pushFailed++;
+            }
+          } catch (pushErr) {
+            console.error('[WEB_PUSH_SINGLE_ERROR]', pushErr);
+            pushFailed++;
           }
         }
       }
     } catch (pushErr) {
       console.error('[WEB_PUSH_SEND_ERROR]', pushErr);
     }
-
-    return notification;
-  } catch (err) {
-    console.error('[CREATE_NOTIFICATION_UNEXPECTED]', err);
-    return null;
   }
+
+  return { notification, pushSent, pushFailed };
 }
