@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import { FeedContainer } from '@/components/social/FeedContainer';
 import { LegacyPasswordBanner } from '@/components/shared/LegacyPasswordBanner';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function FeedPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

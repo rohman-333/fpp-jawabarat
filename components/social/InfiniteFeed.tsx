@@ -30,7 +30,7 @@ export function InfiniteFeed({
   const supabase = createClient();
   const PAGE_SIZE = 10;
 
-  // Local state fallback for independent feed scroll views (e.g. Profile Page)
+  // Local state fallback for standalone usage (e.g. Profile Page)
   const [localPosts, setLocalPosts] = useState<any[]>(initialPosts || []);
   const posts = passedPosts !== undefined ? passedPosts : localPosts;
   const setPosts = passedSetPosts !== undefined ? passedSetPosts : setLocalPosts;
@@ -55,7 +55,8 @@ export function InfiniteFeed({
       }
     }
     fetchAds();
-  }, [supabase]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Split-up loading states
   const [initialLoading, setInitialLoading] = useState(initialPosts && initialPosts.length > 0 ? false : true);
@@ -67,14 +68,13 @@ export function InfiniteFeed({
   const [hasMore, setHasMore] = useState(initialPosts && initialPosts.length >= PAGE_SIZE ? true : false);
 
   const { ref, inView } = useInView({
-    rootMargin: '300px', // trigger fetch early for ultra-smooth native scroll
+    rootMargin: '300px',
   });
 
-  // Active Refs to prevent stale React closure bugs in asynchronous loops
+  // Active Refs to prevent stale React closure bugs
   const isLoadingRef = useRef(false);
   const hasMoreRef = useRef(hasMore);
 
-  // Sync refs instantly with state updates
   useEffect(() => {
     isLoadingRef.current = initialLoading || loadingMore || refreshing;
   }, [initialLoading, loadingMore, refreshing]);
@@ -83,26 +83,27 @@ export function InfiniteFeed({
     hasMoreRef.current = hasMore;
   }, [hasMore]);
 
+  // Stable ref for activeTab to avoid fetchPosts dependency issues
+  const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
+
   const fetchPosts = useCallback(async (pageNum: number, isReset: boolean = false) => {
-    // Strict block to prevent parallel duplicated page fetch triggers
     if (isLoadingRef.current && !isReset) return;
     if (!hasMoreRef.current && !isReset) return;
 
     try {
       if (isReset) {
         setError(null);
-        if (posts.length === 0) {
-          setInitialLoading(true);
-        }
+        setInitialLoading(true);
       } else {
         setLoadingMore(true);
       }
       isLoadingRef.current = true;
 
-      // Dynamic pagination limits: 8 posts on initial page, 6 on subsequent load-mores
       const limit = isReset ? 8 : 6;
       const from = isReset ? 0 : 8 + (pageNum - 1) * 6;
       const to = from + limit - 1;
+      const currentTab = activeTabRef.current;
 
       let query = supabase
         .from('social_posts')
@@ -121,11 +122,11 @@ export function InfiniteFeed({
 
       if (targetUserId) {
         query = query.eq('author_id', targetUserId);
-      } else if (activeTab !== 'semua' && activeTab !== 'mengikuti' && activeTab !== 'tersimpan') {
-        query = query.eq('type', activeTab);
+      } else if (currentTab !== 'semua' && currentTab !== 'mengikuti' && currentTab !== 'tersimpan') {
+        query = query.eq('type', currentTab);
       }
 
-      if (!targetUserId && activeTab === 'mengikuti' && currentUser?.id) {
+      if (!targetUserId && currentTab === 'mengikuti' && currentUser?.id) {
         const { data: followsData } = await supabase
           .from('social_follows')
           .select('following_id')
@@ -141,7 +142,7 @@ export function InfiniteFeed({
         }
       }
 
-      if (!targetUserId && activeTab === 'tersimpan' && currentUser?.id) {
+      if (!targetUserId && currentTab === 'tersimpan' && currentUser?.id) {
         const { data: savedData } = await supabase
           .from('social_saves')
           .select('post_id')
@@ -218,15 +219,14 @@ export function InfiniteFeed({
         if (isReset) {
           setPosts(enrichedData);
         } else {
+          // APPEND only — never wipe existing posts (including newly-prepended ones)
           setPosts(prev => {
-            const newPosts = [...prev, ...enrichedData];
-            const unique = Array.from(new Set(newPosts.map(a => a.id)))
-              .map(id => newPosts.find(a => a.id === id));
-            return unique;
+            const existingIds = new Set(prev.map(p => p.id));
+            const newOnly = enrichedData.filter(p => !existingIds.has(p.id));
+            return [...prev, ...newOnly];
           });
         }
 
-        // Terminate boundary: if fetched array is smaller than target limit, no more pages exist
         if (data.length < limit) {
           setHasMore(false);
         } else {
@@ -236,7 +236,7 @@ export function InfiniteFeed({
         if (isReset) {
           setPosts([]);
         }
-        setHasMore(false); // Instantly block observers from requesting page pageNum+1
+        setHasMore(false);
       }
     } catch (err: any) {
       setError(err.message || 'Gagal memuat postingan');
@@ -247,16 +247,17 @@ export function InfiniteFeed({
       setRefreshing(false);
       isLoadingRef.current = false;
     }
-  }, [supabase, targetUserId, activeTab, currentUser?.id, posts.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supabase, targetUserId, currentUser?.id]);
 
   const initialMount = useRef(true);
 
-  // Reset and fetch on tab change or refresh
+  // Reset and fetch on tab change
   useEffect(() => {
     if (initialMount.current) {
       initialMount.current = false;
       if (initialPosts && initialPosts.length > 0 && activeTab === 'semua') {
-        // Skip fetch if SSR provided initial posts
+        // SSR provided initial posts — skip redundant fetch
         return;
       }
     }
@@ -265,7 +266,8 @@ export function InfiniteFeed({
     setHasMore(true);
     hasMoreRef.current = true;
     fetchPosts(0, true);
-  }, [activeTab, fetchPosts, refreshKey]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, refreshKey]);
 
   // Load more on scroll boundary triggers
   useEffect(() => {
@@ -276,7 +278,8 @@ export function InfiniteFeed({
         return next;
       });
     }
-  }, [inView, hasMore, initialLoading, loadingMore, refreshing, fetchPosts]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView, hasMore, initialLoading, loadingMore, refreshing]);
 
   const handleManualRefresh = () => {
     setRefreshing(true);
@@ -353,10 +356,6 @@ export function InfiniteFeed({
             </div>
           );
 
-          // Render inline ads naturally:
-          // - setelah post ke-3 (index === 2)
-          // - setelah post ke-8 (index === 7)
-          // - lalu setiap 8 post thereafter (index 15, 23, 31, etc.)
           let adToRender = null;
           if (ads.length > 0) {
             if (index === 2) {

@@ -20,16 +20,12 @@ import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
 
 interface CreatePostComposerProps {
   user: any;
-  onOptimisticPost?: (tempPost: any) => void;
-  onPostCreated?: (realPost: any, tempId: string) => void;
-  onPostFailed?: (tempId: string, error: string) => void;
+  onPostCreated?: (post: any) => void;
 }
 
 export function CreatePostComposer({ 
   user, 
-  onOptimisticPost, 
-  onPostCreated, 
-  onPostFailed 
+  onPostCreated 
 }: CreatePostComposerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,27 +66,7 @@ export function CreatePostComposer({
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    const handleRetry = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      const failedPost = customEvent.detail;
-      if (failedPost && failedPost.author_id === user?.id) {
-        setContent(failedPost.content || '');
-        setType(failedPost.type || 'kabar');
-        if (failedPost.image_url || failedPost.video_url) {
-          setMediaPreview(failedPost.image_url || failedPost.video_url);
-          setMediaType(failedPost.media_type);
-        }
-        setIsExpanded(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    };
 
-    window.addEventListener('retry-post', handleRetry);
-    return () => {
-      window.removeEventListener('retry-post', handleRetry);
-    };
-  }, [user?.id]);
 
   const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'image') => {
     const file = e.target.files?.[0];
@@ -175,45 +151,11 @@ export function CreatePostComposer({
     
     setIsSubmitting(true);
     setError(null);
-    setUploadProgress('Menyiapkan media...');
-    
-    // Generate unique temporary identifier for optimistic prepends
-    const tempId = `temp-${Date.now()}`;
-    
-    const optimisticPostDetail = {
-      id: tempId,
-      content: content,
-      type: type || 'kabar',
-      image_url: mediaPreview && mediaType === 'image' ? mediaPreview : null,
-      video_url: mediaPreview && mediaType === 'video' ? mediaPreview : null,
-      media_type: mediaType || 'text',
-      author_id: user?.id,
-      visibility: 'public',
-      status: 'sending',
-      created_at: new Date().toISOString(),
-      author: {
-        id: user?.id,
-        name: user?.name || user?.user_metadata?.name || 'Mengirim...',
-        username: user?.username || user?.user_metadata?.username || 'member',
-        avatar_url: user?.avatar_url || user?.user_metadata?.avatar_url || null,
-        role: user?.role || 'member'
-      },
-      likes_count: [{ count: 0 }],
-      reactions: [],
-      comments_count: [{ count: 0 }],
-      has_liked: false,
-      has_saved: false,
-      author_followed: false,
-      my_reaction: null
-    };
-
-    console.log('[FEED_POST_SUBMIT_START]', tempId);
-    if (onOptimisticPost) {
-      onOptimisticPost(optimisticPostDetail);
-      console.log('[FEED_OPTIMISTIC_ADDED]', tempId);
-    }
+    setUploadProgress(mediaFile ? 'Menyiapkan media...' : 'Mengirim postingan...');
+    console.log('[FEED_POST_SUBMIT_START]');
     
     try {
+      // Step 1: Upload media if present
       let imageUrl = null;
       let videoUrl = null;
       
@@ -222,30 +164,27 @@ export function CreatePostComposer({
         if (mediaType === 'image') {
           const { url, error } = await uploadPostImage(mediaFile, user.id);
           if (error) {
-            console.error('[UPLOAD_IMAGE_ERROR]', error);
-            showError('Gagal mengunggah gambar. Silakan klik Posting untuk mencoba kembali.');
+            console.error('[FEED_UPLOAD_IMAGE_ERROR]', error);
+            showError('Gagal mengunggah gambar. Silakan coba lagi.');
             setIsSubmitting(false);
             setUploadProgress(null);
-            if (onPostFailed) onPostFailed(tempId, error);
             return;
-          } else {
-            imageUrl = url;
           }
+          imageUrl = url;
         } else if (mediaType === 'video') {
           const { url, error } = await uploadSocialVideo(mediaFile, user.id);
           if (error) {
-            console.error('[UPLOAD_VIDEO_ERROR]', error);
-            showError('Gagal mengunggah video. Silakan klik Posting untuk mencoba kembali.');
+            console.error('[FEED_UPLOAD_VIDEO_ERROR]', error);
+            showError('Gagal mengunggah video. Silakan coba lagi.');
             setIsSubmitting(false);
             setUploadProgress(null);
-            if (onPostFailed) onPostFailed(tempId, error);
             return;
-          } else {
-            videoUrl = url;
           }
+          videoUrl = url;
         }
       }
 
+      // Step 2: Insert post via server action
       setUploadProgress('Menyimpan postingan...');
       const formData = new FormData();
       formData.append('content', content);
@@ -259,25 +198,27 @@ export function CreatePostComposer({
       const res = await createPost(formData);
       
       if (res?.error) {
-        console.error('[CREATE_POST_CLIENT_ERROR]', res.error);
+        console.error('[FEED_CREATE_POST_ERROR]', res.error);
         showError('Gagal memposting: ' + res.error);
-        if (onPostFailed) onPostFailed(tempId, res.error);
-      } else {
-        console.log('[FEED_POST_CREATED]', res.post?.id);
-        setContent('');
-        removeMedia();
-        setShowEmoji(false);
-        setIsExpanded(false);
-
-        if (onPostCreated && res.post) {
-          onPostCreated(res.post, tempId);
-        }
-        router.refresh();
+        return;
       }
+
+      // Step 3: SUCCESS — prepend real post to feed, then reset composer
+      console.log('[FEED_POST_CREATED]', res.post?.id);
+      
+      if (onPostCreated && res.post) {
+        onPostCreated(res.post);
+      }
+
+      // Reset composer AFTER the post is in the feed
+      setContent('');
+      removeMedia();
+      setShowEmoji(false);
+      setIsExpanded(false);
+
     } catch (err: any) {
-      console.error('[CREATE_POST_CLIENT_EXCEPTION]', err);
-      showError('Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
-      if (onPostFailed) onPostFailed(tempId, err?.message || 'Unknown Exception');
+      console.error('[FEED_CREATE_POST_EXCEPTION]', err);
+      showError('Terjadi kesalahan. Postingan Anda belum dikirim. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
       setUploadProgress(null);

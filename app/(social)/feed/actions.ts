@@ -5,114 +5,121 @@ import { revalidatePath } from 'next/cache';
 import { createNotification } from '@/lib/notifications/createNotification';
 
 export async function createPost(formData: FormData) {
-  const content = formData.get('content') as string;
-  const type = formData.get('type') as string;
-  const image_url = formData.get('image_url') as string;
-  const video_url = formData.get('video_url') as string;
-  const media_type = formData.get('media_type') as string;
+  try {
+    const content = formData.get('content') as string;
+    const type = formData.get('type') as string;
+    const image_url = formData.get('image_url') as string;
+    const video_url = formData.get('video_url') as string;
+    const media_type = formData.get('media_type') as string;
 
-  if (!content && !image_url && !video_url) {
-    return { error: 'Content or media is required' };
-  }
+    if (!content && !image_url && !video_url) {
+      return { success: false, error: 'Konten atau media diperlukan', debugCode: 'FEED_EMPTY_CONTENT' };
+    }
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) return { error: 'Not authenticated' };
+    if (!user) return { success: false, error: 'Anda belum login. Silakan login kembali.', debugCode: 'FEED_NOT_AUTHENTICATED' };
 
-  const { data: post, error } = await supabase
-    .from('social_posts')
-    .insert([{
-      author_id: user.id,
-      content,
-      type: type || 'kabar',
-      image_url: image_url || null,
-      video_url: video_url || null,
-      media_type: media_type || 'text',
-      status: 'active',
-      visibility: 'public'
-    }])
-    .select(`
-      id, content, type, image_url, video_url, media_type, author_id, product_id,
-      visibility, status, created_at, updated_at
-    `)
-    .single();
+    const { data: post, error } = await supabase
+      .from('social_posts')
+      .insert([{
+        author_id: user.id,
+        content,
+        type: type || 'kabar',
+        image_url: image_url || null,
+        video_url: video_url || null,
+        media_type: media_type || 'text',
+        status: 'active',
+        visibility: 'public'
+      }])
+      .select(`
+        id, content, type, image_url, video_url, media_type, author_id, product_id,
+        visibility, status, created_at, updated_at
+      `)
+      .single();
 
-  if (error) {
-    console.error('[CREATE_POST_ERROR]', error);
-    return { success: false, error: error.message };
-  }
+    if (error) {
+      console.error('[FEED_CREATE_POST_ERROR]', error.message, error.code);
+      return { success: false, error: 'Gagal menyimpan postingan. Silakan coba lagi.', debugCode: 'FEED_INSERT_FAILED' };
+    }
 
-  // Fetch author profile to complete the response
-  const { data: authorProfile } = await supabase
-    .from('profiles')
-    .select('id, name, username, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified, followers:social_follows!social_follows_following_id_fkey(count)')
-    .eq('id', user.id)
-    .single();
+    // Fetch author profile to complete the response
+    const { data: authorProfile } = await supabase
+      .from('profiles')
+      .select('id, name, username, avatar_url, role, has_pesantren, is_seller, seller_status, is_courier, courier_status, team_division, is_verified, followers:social_follows!social_follows_following_id_fkey(count)')
+      .eq('id', user.id)
+      .single();
 
-  const fullPost = {
-    ...post,
-    author: authorProfile || {
-      id: user.id,
-      name: user.user_metadata?.name || 'Pengguna',
-      username: user.user_metadata?.username || 'pengguna',
-      avatar_url: user.user_metadata?.avatar_url || null,
-      role: 'member'
-    },
-    likes_count: [{ count: 0 }],
-    reactions: [],
-    comments_count: [{ count: 0 }],
-    has_liked: false,
-    has_saved: false,
-    author_followed: false,
-    my_reaction: null
-  };
+    const fullPost = {
+      ...post,
+      author: authorProfile || {
+        id: user.id,
+        name: user.user_metadata?.name || 'Pengguna',
+        username: user.user_metadata?.username || 'pengguna',
+        avatar_url: user.user_metadata?.avatar_url || null,
+        role: 'member'
+      },
+      likes_count: [{ count: 0 }],
+      reactions: [],
+      comments_count: [{ count: 0 }],
+      has_liked: false,
+      has_saved: false,
+      author_followed: false,
+      my_reaction: null
+    };
 
-  // Parse mentions
-  if (content) {
-    const mentionRegex = /@([a-zA-Z0-9_.-]+)/g;
-    const matches = Array.from(content.matchAll(mentionRegex));
-    const usernames = matches.map(m => m[1]);
+    // Parse mentions (best-effort, don't fail post if this errors)
+    try {
+      if (content) {
+        const mentionRegex = /@([a-zA-Z0-9_.-]+)/g;
+        const matches = Array.from(content.matchAll(mentionRegex));
+        const usernames = matches.map(m => m[1]);
 
-    if (usernames.length > 0) {
-      // Find valid users
-      const { data: mentionedUsers } = await supabase
-        .from('profiles')
-        .select('id, username')
-        .in('username', usernames);
+        if (usernames.length > 0) {
+          const { data: mentionedUsers } = await supabase
+            .from('profiles')
+            .select('id, username')
+            .in('username', usernames);
 
-      if (mentionedUsers && mentionedUsers.length > 0) {
-        // Insert to post_mentions
-        const mentionPayloads = mentionedUsers.map(u => ({
-          post_id: post.id,
-          mentioned_user_id: u.id,
-          created_by: user.id
-        }));
-        await supabase.from('post_mentions').insert(mentionPayloads);
+          if (mentionedUsers && mentionedUsers.length > 0) {
+            const mentionPayloads = mentionedUsers.map(u => ({
+              post_id: post.id,
+              mentioned_user_id: u.id,
+              created_by: user.id
+            }));
+            await supabase.from('post_mentions').insert(mentionPayloads);
 
-        // Fetch author name for notification
-        const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
-        const actorName = actor?.name || 'Seseorang';
+            const { data: actor } = await supabase.from('profiles').select('name').eq('id', user.id).single();
+            const actorName = actor?.name || 'Seseorang';
 
-        // Notify mentioned users
-        for (const u of mentionedUsers) {
-          if (u.id === user.id) continue;
-          await createNotification({
-            userId: u.id,
-            actorId: user.id,
-            type: 'mention',
-            title: `${actorName} menyebut Anda dalam sebuah kiriman`,
-            body: content.length > 50 ? content.substring(0, 50) + '...' : content,
-            href: `/post/${post.id}`
-          });
+            for (const u of mentionedUsers) {
+              if (u.id === user.id) continue;
+              await createNotification({
+                userId: u.id,
+                actorId: user.id,
+                type: 'mention',
+                title: `${actorName} menyebut Anda dalam sebuah kiriman`,
+                body: content.length > 50 ? content.substring(0, 50) + '...' : content,
+                href: `/post/${post.id}`
+              });
+            }
+          }
         }
       }
+    } catch (mentionErr) {
+      console.error('[FEED_MENTION_ERROR]', mentionErr);
+      // Don't fail the entire post creation
     }
-  }
 
-  revalidatePath('/feed');
-  revalidatePath('/');
-  return { success: true, post: fullPost };
+    revalidatePath('/feed');
+    revalidatePath('/');
+    return { success: true, post: fullPost };
+
+  } catch (err: any) {
+    console.error('[FEED_CREATE_POST_EXCEPTION]', err);
+    return { success: false, error: 'Terjadi kesalahan server. Silakan coba lagi.', debugCode: 'FEED_SERVER_EXCEPTION' };
+  }
 }
 
 export async function toggleLike(postId: string) {

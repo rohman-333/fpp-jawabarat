@@ -30,14 +30,12 @@ self.addEventListener('notificationclick', function(event) {
   if (event.notification.data && event.notification.data.url) {
     event.waitUntil(
       clients.matchAll({ type: 'window' }).then(windowClients => {
-        // Check if there is already a window open with this URL
         for (let i = 0; i < windowClients.length; i++) {
           const client = windowClients[i];
           if (client.url === event.notification.data.url && 'focus' in client) {
             return client.focus();
           }
         }
-        // If not, open a new window
         if (clients.openWindow) {
           return clients.openWindow(event.notification.data.url);
         }
@@ -46,8 +44,8 @@ self.addEventListener('notificationclick', function(event) {
   }
 });
 
-// Cache versioning - change this to force clients to load updated assets
-const CACHE_NAME = 'wibawa-cache-v3';
+// CACHE VERSION — increment this on every deploy to force old cache purge
+const CACHE_NAME = 'wibawa-cache-v5';
 const urlsToCache = [
   '/manifest.webmanifest',
   '/icon.jpg'
@@ -63,14 +61,15 @@ self.addEventListener('install', function(event) {
   );
 });
 
-// Active old cache purge
+// On activate: DELETE ALL old caches unconditionally
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
       return Promise.all(
         cacheNames.map(function(cacheName) {
+          // Delete every cache that is not the current version
           if (cacheName !== CACHE_NAME) {
-            console.log('[SW] Deleting old cache:', cacheName);
+            console.log('[SW] Purging old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -79,23 +78,48 @@ self.addEventListener('activate', function(event) {
   );
 });
 
-// Network-First with Cache Fallback strategy for static assets, network-only for HTML
+// Fetch strategy: 
+// - HTML pages (document requests) and RSC data: NETWORK-ONLY (never cache)
+// - Feed paths: NETWORK-ONLY
+// - API/auth/_next: bypass entirely
+// - Static assets (.js, .css, images): network-first with cache fallback
 self.addEventListener('fetch', function(event) {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // Bypass service worker intercept entirely for dynamic API or Auth endpoints
+  // Bypass service worker entirely for API, auth, and Next.js internal routes
   if (url.pathname.startsWith('/api') || url.pathname.startsWith('/auth') || url.pathname.includes('_next')) {
     return;
   }
 
-  // Network-First strategy
+  // NEVER cache HTML document requests or RSC payload — always go to network
+  const isDocumentRequest = event.request.mode === 'navigate' || 
+    event.request.headers.get('accept')?.includes('text/html') ||
+    event.request.headers.get('RSC') === '1' ||
+    url.searchParams.has('_rsc');
+
+  if (isDocumentRequest) {
+    event.respondWith(
+      fetch(event.request).catch(function() {
+        return new Response('Koneksi Anda terputus. Silakan periksa jaringan internet Anda.', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })
+        });
+      })
+    );
+    return;
+  }
+
+  // Network-First for static assets only
   event.respondWith(
     fetch(event.request)
       .then(function(networkResponse) {
-        // If request is successful, clone and save in cache for offline support (if asset)
-        if (networkResponse && networkResponse.status === 200 && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.endsWith('.jpg') || url.pathname.endsWith('.png') || url.pathname.endsWith('.webmanifest'))) {
+        if (networkResponse && networkResponse.status === 200 && 
+            (url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || 
+             url.pathname.endsWith('.jpg') || url.pathname.endsWith('.png') || 
+             url.pathname.endsWith('.webmanifest') || url.pathname.endsWith('.woff2'))) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(event.request, responseToCache);
@@ -104,13 +128,11 @@ self.addEventListener('fetch', function(event) {
         return networkResponse;
       })
       .catch(function() {
-        // Network failed - attempt cache lookup
         return caches.match(event.request).then(function(cachedResponse) {
           if (cachedResponse) {
             return cachedResponse;
           }
-          // offline fallback
-          return new Response('Koneksi Anda terputus. Silakan periksa jaringan internet Anda.', {
+          return new Response('Offline', {
             status: 503,
             statusText: 'Service Unavailable',
             headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })
