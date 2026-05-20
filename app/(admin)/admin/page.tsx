@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { DashboardSidebar } from '@/components/shared/DashboardSidebar';
 import { DashboardTopbar } from '@/components/shared/DashboardTopbar';
 import { StatCard } from '@/components/shared/StatCard';
-import { Users, Building2, ShoppingCart, AlertCircle, ShoppingBag, Landmark, MessageSquare, FolderHeart, Store, Truck } from 'lucide-react';
+import { Users, Building2, ShoppingCart, AlertCircle, ShoppingBag, Landmark, MessageSquare, FolderHeart, Store, Truck, Database } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -204,6 +204,17 @@ export default async function AdminPage() {
                       <h3 className="text-sm font-bold text-slate-800">Laporan Konten</h3>
                       <p className="text-xs text-slate-500 mb-2">{pendingReportsCount || 0} laporan masuk</p>
                       <Link href="/admin/moderation" className="text-xs font-bold text-blue-600 hover:text-blue-700">Tinjau Laporan &rarr;</Link>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-slate-100 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                      <Database className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-800">Migrasi Akun</h3>
+                      <p className="text-xs text-slate-500 mb-2">Kelola migrasi & akun placeholder</p>
+                      <Link href="/admin/auth-migration" className="text-xs font-bold text-blue-600 hover:text-blue-700">Tinjau Migrasi &rarr;</Link>
                     </div>
                   </div>
                 </div>

@@ -68,7 +68,7 @@ export default async function LoginPage({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-blue-100">Password</label>
-              <Link href="#" className="text-xs text-blue-400 hover:text-blue-300">Lupa password?</Link>
+              <Link href="/auth/forgot-password" className="text-xs text-blue-400 hover:text-blue-300">Lupa password?</Link>
             </div>
             <input
               name="password"
@@ -81,6 +81,11 @@ export default async function LoginPage({
           <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-12 mt-4 rounded-xl shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5">
             Masuk
           </Button>
+          <div className="text-center pt-2">
+            <Link href="/auth/activate" className="text-xs text-blue-300 hover:text-white font-semibold transition-colors">
+              Aktivasi Akun Lama (Migrasi)
+            </Link>
+          </div>
         </form>
 
         <p className="mt-8 text-center text-sm text-blue-200/70">
