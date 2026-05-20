@@ -492,7 +492,7 @@ export async function acceptDeliveryJob(deliveryId: string) {
 
     const { data: d } = await supabase
       .from('deliveries')
-      .select('status')
+      .select('status, buyer_id')
       .eq('id', deliveryId)
       .single();
 
@@ -521,6 +521,39 @@ export async function acceptDeliveryJob(deliveryId: string) {
       actor_id: user.id
     });
 
+    // Create automatic chat between buyer and courier
+    if (d.buyer_id) {
+      const { data: existingConvo } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('buyer_id', d.buyer_id)
+        .eq('seller_id', user.id) // courier acts as seller
+        .maybeSingle();
+
+      if (!existingConvo) {
+        const { data: newConvo } = await supabase
+          .from('conversations')
+          .insert({
+            buyer_id: d.buyer_id,
+            seller_id: user.id,
+            last_message: 'Halo, saya kurir Anda. Saya telah menerima tugas pengiriman ini dan akan segera memprosesnya.',
+            last_message_at: new Date().toISOString()
+          })
+          .select('id')
+          .maybeSingle();
+
+        if (newConvo) {
+          await supabase
+            .from('conversation_messages')
+            .insert({
+              conversation_id: newConvo.id,
+              sender_id: user.id,
+              message: 'Halo, saya kurir Anda. Saya telah menerima tugas pengiriman ini dan akan segera memprosesnya.'
+            });
+        }
+      }
+    }
+
     revalidatePath(`/dashboard/courier/jobs`);
     revalidatePath(`/dashboard/courier/jobs/${deliveryId}`);
     return { success: true };
@@ -529,6 +562,7 @@ export async function acceptDeliveryJob(deliveryId: string) {
     return { error: 'Gagal menerima pesanan.' };
   }
 }
+
 
 // Courier Update Delivery Status Step-by-Step
 export async function updateDeliveryStep(deliveryId: string, status: string, note?: string) {

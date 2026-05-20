@@ -272,7 +272,7 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
             <div className="relative flex flex-col bg-slate-100 rounded-xl overflow-hidden mt-4 mb-4 border border-slate-200">
               <div className="relative h-40 w-full overflow-hidden">
                 {file.type.startsWith('video/') ? (
-                  <video src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
+                  <video src={URL.createObjectURL(file)} muted playsInline preload="metadata" className="w-full h-full object-cover" />
                 ) : (
                   <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
                 )}

@@ -139,6 +139,38 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
     
     setIsSubmitting(true);
     
+    // Generate unique temporary identifier for optimistic prepends
+    const tempId = `temp-${Date.now()}`;
+    
+    const optimisticPostDetail = {
+      id: tempId,
+      content: content,
+      type: type || 'kabar',
+      image_url: mediaPreview && mediaType === 'image' ? mediaPreview : null,
+      video_url: mediaPreview && mediaType === 'video' ? mediaPreview : null,
+      media_type: mediaType || 'text',
+      author_id: user?.id,
+      visibility: 'public',
+      status: 'sending',
+      created_at: new Date().toISOString(),
+      author: {
+        id: user?.id,
+        name: user?.name || user?.user_metadata?.name || 'Mengirim...',
+        username: user?.username || user?.user_metadata?.username || 'member',
+        avatar_url: user?.avatar_url || user?.user_metadata?.avatar_url || null,
+        role: user?.role || 'member'
+      },
+      likes_count: [{ count: 0 }],
+      reactions: [],
+      comments_count: [{ count: 0 }],
+      has_liked: false,
+      has_saved: false,
+      author_followed: false,
+      my_reaction: null
+    };
+
+    window.dispatchEvent(new CustomEvent('optimistic-post', { detail: optimisticPostDetail }));
+    
     try {
       let imageUrl = null;
       let videoUrl = null;
@@ -150,6 +182,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
             console.error('[UPLOAD_IMAGE_ERROR]', error);
             showError('Gagal mengunggah gambar. Silakan klik Posting untuk mencoba kembali.');
             setIsSubmitting(false);
+            window.dispatchEvent(new CustomEvent('optimistic-post-failure', { detail: { tempId } }));
             return;
           } else {
             imageUrl = url;
@@ -160,6 +193,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
             console.error('[UPLOAD_VIDEO_ERROR]', error);
             showError('Gagal mengunggah video. Silakan klik Posting untuk mencoba kembali.');
             setIsSubmitting(false);
+            window.dispatchEvent(new CustomEvent('optimistic-post-failure', { detail: { tempId } }));
             return;
           } else {
             videoUrl = url;
@@ -181,17 +215,33 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
       if (res?.error) {
         console.error('[CREATE_POST_CLIENT_ERROR]', res.error);
         showError('Gagal memposting: ' + res.error);
+        window.dispatchEvent(new CustomEvent('optimistic-post-failure', { detail: { tempId } }));
       } else {
         setContent('');
         removeMedia();
         setShowEmoji(false);
         setIsExpanded(false);
+
+        // Replace optimistic post with backend-saved post data
+        window.dispatchEvent(new CustomEvent('optimistic-post-success', { 
+          detail: { 
+            tempId, 
+            post: {
+              id: res.post?.id || tempId,
+              image_url: imageUrl,
+              video_url: videoUrl,
+              created_at: new Date().toISOString()
+            } 
+          } 
+        }));
+
         if (onSuccess) onSuccess();
         router.refresh();
       }
     } catch (err) {
       console.error('[CREATE_POST_CLIENT_EXCEPTION]', err);
       showError('Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
+      window.dispatchEvent(new CustomEvent('optimistic-post-failure', { detail: { tempId } }));
     } finally {
       setIsSubmitting(false);
     }
@@ -358,7 +408,7 @@ export function CreatePostComposer({ user, onSuccess }: { user: any, onSuccess?:
                   {mediaType === 'image' ? (
                     <img src={mediaPreview} alt="Preview" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain" />
                   ) : (
-                    <video src={mediaPreview} controls playsInline preload="metadata" className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain"></video>
+                    <video src={mediaPreview} controls playsInline preload="metadata" muted className="max-h-[220px] w-full sm:w-auto object-cover sm:object-contain"></video>
                   )}
                   <div className="p-2.5 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-600 gap-1.5 pr-12">
                     <span className="font-bold truncate max-w-[180px]" title={originalName || mediaFile.name}>{originalName || mediaFile.name}</span>

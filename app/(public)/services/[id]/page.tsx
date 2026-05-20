@@ -32,6 +32,20 @@ export default async function ServiceTrackingPage({ params }: { params: Promise<
     notFound();
   }
 
+  // Fetch Conversation if Courier is assigned
+  let conversationId = null;
+  if (delivery.courier_profile?.user_id && user) {
+    const { data: convo } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('buyer_id', user.id)
+      .eq('seller_id', delivery.courier_profile.user_id)
+      .maybeSingle();
+    if (convo) {
+      conversationId = convo.id;
+    }
+  }
+
   // Fetch Delivery Status Logs
   const { data: logs } = await supabase
     .from('delivery_status_logs')
@@ -136,10 +150,19 @@ export default async function ServiceTrackingPage({ params }: { params: Promise<
                 <p className="text-[10px] text-slate-400 font-medium mt-0.5">⭐ {Number(delivery.courier_profile?.rating || 5).toFixed(1)} / 5.0 Rating</p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                {conversationId && (
+                  <Link
+                    href={`/messages/${conversationId}`}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-xs text-[10px]"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Chat Kurir</span>
+                  </Link>
+                )}
                 <a 
                   href={`tel:${delivery.courier_profile?.phone}`}
-                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors"
+                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shrink-0"
                 >
                   <Phone className="w-4 h-4" />
                 </a>

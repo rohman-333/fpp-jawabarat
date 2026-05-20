@@ -1,20 +1,62 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, BadgeCheck, Store, Gift, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { getProfileUrl } from '@/lib/routes/profile';
+import { getDisplayRole } from '@/lib/auth/roles';
 
 import { FollowButton } from './FollowButton';
 import { CommentBox } from './CommentBox';
 import { toggleSave, hidePost, deletePost, setReaction, removeReaction } from '@/app/(social)/feed/actions';
-import { getDisplayRole } from '@/lib/auth/roles';
 import { ReportPostDialog } from './ReportPostDialog';
 import { Flag, EyeOff, Link as LinkIcon, X } from 'lucide-react';
 
 export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+
+    // 1. Intersection Observer to play/pause based on viewport visibility
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            videoEl.pause();
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(videoEl);
+
+    // 2. Pause when tab transitions to background
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        videoEl.pause();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // 3. Pause when global modal or editor pops up
+    const handleGlobalPause = () => {
+      videoEl.pause();
+    };
+    window.addEventListener('pause-all-videos', handleGlobalPause);
+    window.addEventListener('popstate', handleGlobalPause); // route transitions fallback
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pause-all-videos', handleGlobalPause);
+      window.removeEventListener('popstate', handleGlobalPause);
+    };
+  }, []);
+
   const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: id });
   
   const currentUserId = currentUser?.id;
@@ -185,7 +227,18 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badge.bg} ${badge.text}`}>
                 {badge.label}
               </span>
-              {currentUserId && currentUserId !== post.author_id && (
+              {post.status === 'sending' && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 animate-pulse flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping shrink-0"></span>
+                  Mengirim...
+                </span>
+              )}
+              {post.status === 'failed' && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 flex items-center gap-1 shrink-0">
+                  ⚠️ Gagal mengirim
+                </span>
+              )}
+              {currentUserId && currentUserId !== post.author_id && post.status !== 'sending' && post.status !== 'failed' && (
                 <div className="hidden sm:block ml-1">
                   <FollowButton targetUserId={post.author_id} isFollowingInitial={post.author_followed} />
                 </div>
@@ -317,7 +370,7 @@ export function FeedCard({ post, currentUser }: { post: any, currentUser?: any }
 
       {post.video_url && (
         <div className="w-full border-t border-b border-slate-100 bg-black flex justify-center">
-          <video src={post.video_url} controls playsInline preload="metadata" className="w-full max-h-[500px] object-contain"></video>
+          <video ref={videoRef} src={post.video_url} controls playsInline preload="metadata" className="w-full max-h-[500px] object-contain"></video>
         </div>
       )}
 

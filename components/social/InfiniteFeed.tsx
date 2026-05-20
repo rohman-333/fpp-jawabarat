@@ -8,18 +8,18 @@ import { Users, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import { SponsoredFeedCard } from './SponsoredFeedCard';
 
-export function InfiniteFeed({ 
-  activeTab, 
-  currentUser, 
-  refreshKey = 0, 
-  targetUserId, 
-  initialPosts 
-}: { 
-  activeTab: string; 
-  currentUser?: any; 
-  refreshKey?: number; 
-  targetUserId?: string; 
-  initialPosts?: any[]; 
+export function InfiniteFeed({
+  activeTab,
+  currentUser,
+  refreshKey = 0,
+  targetUserId,
+  initialPosts
+}: {
+  activeTab: string;
+  currentUser?: any;
+  refreshKey?: number;
+  targetUserId?: string;
+  initialPosts?: any[];
 }) {
   const supabase = createClient();
   const PAGE_SIZE = 10;
@@ -48,12 +48,59 @@ export function InfiniteFeed({
     fetchAds();
   }, [supabase]);
 
+  // Handle Optimistic UI Updates from CreatePostComposer
+  useEffect(() => {
+    const handleOptimisticPost = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const newPost = customEvent.detail;
+      if (newPost) {
+        setPosts(prev => {
+          if (prev.some(p => p.id === newPost.id)) return prev;
+          return [newPost, ...prev];
+        });
+      }
+    };
+
+    const handleOptimisticPostSuccess = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { tempId, post } = customEvent.detail;
+      setPosts(prev => prev.map(p => {
+        if (p.id === tempId) {
+          return {
+            ...p,
+            id: post.id,
+            image_url: post.image_url || p.image_url,
+            video_url: post.video_url || p.video_url,
+            status: 'active'
+          };
+        }
+        return p;
+      }));
+    };
+
+    const handleOptimisticPostFailure = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { tempId } = customEvent.detail;
+      setPosts(prev => prev.filter(p => p.id !== tempId));
+    };
+
+    window.addEventListener('optimistic-post', handleOptimisticPost);
+    window.addEventListener('optimistic-post-success', handleOptimisticPostSuccess);
+    window.addEventListener('optimistic-post-failure', handleOptimisticPostFailure);
+
+    return () => {
+      window.removeEventListener('optimistic-post', handleOptimisticPost);
+      window.removeEventListener('optimistic-post-success', handleOptimisticPostSuccess);
+      window.removeEventListener('optimistic-post-failure', handleOptimisticPostFailure);
+    };
+  }, []);
+
   // Split-up loading states
   const [initialLoading, setInitialLoading] = useState(initialPosts && initialPosts.length > 0 ? false : true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // End of scroll state
   const [hasMore, setHasMore] = useState(initialPosts && initialPosts.length >= PAGE_SIZE ? true : false);
 
@@ -121,7 +168,7 @@ export function InfiniteFeed({
           .from('social_follows')
           .select('following_id')
           .eq('follower_id', currentUser.id);
-          
+
         if (followsData && followsData.length > 0) {
           const followingIds = followsData.map(f => f.following_id);
           query = query.in('author_id', followingIds);
@@ -149,7 +196,7 @@ export function InfiniteFeed({
       }
 
       const { data, error: dbError } = await query;
-      
+
       if (dbError) {
         setError(dbError.message);
         console.error('[FEED_LOAD_MORE_ERROR]', dbError);
@@ -174,10 +221,10 @@ export function InfiniteFeed({
         }
 
         let userInteractions = { likes: new Set(), saves: new Set(), follows: new Set(), reactions: new Map() };
-        
+
         if (currentUser?.id) {
           const postIds = data.map(p => p.id);
-          
+
           const [likesRes, savesRes, followsRes, reactionsRes] = await Promise.all([
             supabase.from('social_likes').select('post_id').in('post_id', postIds).eq('user_id', currentUser.id),
             supabase.from('social_saves').select('post_id').in('post_id', postIds).eq('user_id', currentUser.id),
@@ -216,7 +263,7 @@ export function InfiniteFeed({
             return unique;
           });
         }
-        
+
         // Terminate boundary: if fetched array is smaller than target limit, no more pages exist
         if (data.length < limit) {
           setHasMore(false);
@@ -300,7 +347,7 @@ export function InfiniteFeed({
 
   return (
     <div className="space-y-4 relative pb-10">
-      
+
       {/* Sleek Manual Pull/Refresh Indicator */}
       <div className="flex justify-end pr-1 shrink-0">
         <button
@@ -315,11 +362,11 @@ export function InfiniteFeed({
 
       {posts.length === 0 && !initialLoading && !error && (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
-           <EmptyState 
-              title="Belum ada kabar" 
-              description={activeTab === 'semua' ? "Jadilah yang pertama membagikan kabar atau kegiatan pesantren Anda ke komunitas." : `Belum ada konten untuk kategori ${activeTab}.`}
-              icon={<Users className="w-12 h-12 text-slate-300" />}
-            />
+          <EmptyState
+            title="Belum ada kabar"
+            description={activeTab === 'semua' ? "Jadilah yang pertama membagikan kabar atau kegiatan pesantren Anda ke komunitas." : `Belum ada konten untuk kategori ${activeTab}.`}
+            icon={<Users className="w-12 h-12 text-slate-300" />}
+          />
         </div>
       )}
 
@@ -374,14 +421,14 @@ export function InfiniteFeed({
           return postElement;
         })}
       </div>
-      
+
       {/* Scroll observer target */}
       {hasMore && !error && (
         <div ref={ref} className="py-6 flex justify-center">
           {(loadingMore || refreshing) && <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />}
         </div>
       )}
-      
+
       {!hasMore && posts.length > 0 && (
         <div className="py-8 text-center text-xs font-extrabold text-slate-400 select-none tracking-wide uppercase">
           ✦ Semua postingan sudah ditampilkan ✦
