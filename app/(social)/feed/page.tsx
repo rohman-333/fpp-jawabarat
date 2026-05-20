@@ -30,15 +30,21 @@ export default async function FeedPage() {
       comments_count:social_comments(count)
     `)
     .is('deleted_at', null)
-    .or('status.eq.active,status.eq.published,status.is.null')
+    .or(`status.eq.active,status.eq.published,status.is.null,author_id.eq.${user.id}`)
     .or('visibility.eq.public,visibility.is.null')
     .order('created_at', { ascending: false })
-    .limit(10);
+    .limit(15);
 
   let initialPosts: any[] = [];
+  const filteredRawPosts = (rawPosts || []).filter(p => {
+    if (p.status === 'deleted' || p.status === 'hidden' || p.status === 'upload_failed_hidden') return false;
+    if (p.status === 'active' || p.status === 'published' || p.status === null) return true;
+    if (p.author_id === user.id && (p.status === 'uploading' || p.status === 'upload_failed')) return true;
+    return false;
+  });
   
-  if (rawPosts && rawPosts.length > 0) {
-    const authorIds = Array.from(new Set(rawPosts.map(p => p.author_id).filter(Boolean)));
+  if (filteredRawPosts.length > 0) {
+    const authorIds = Array.from(new Set(filteredRawPosts.map(p => p.author_id).filter(Boolean)));
     let profilesById: Record<string, any> = {};
 
     if (authorIds.length > 0) {
@@ -53,7 +59,7 @@ export default async function FeedPage() {
     }
 
     let userInteractions = { likes: new Set(), saves: new Set(), follows: new Set(), reactions: new Map() };
-    const postIds = rawPosts.map(p => p.id);
+    const postIds = filteredRawPosts.map(p => p.id);
 
     const [likesRes, savesRes, followsRes, reactionsRes] = await Promise.all([
       supabase.from('social_likes').select('post_id').in('post_id', postIds).eq('user_id', user.id),
@@ -67,7 +73,7 @@ export default async function FeedPage() {
     if (followsRes.data) followsRes.data.forEach(f => userInteractions.follows.add(f.following_id));
     if (reactionsRes.data) reactionsRes.data.forEach(r => userInteractions.reactions.set(r.post_id, r.reaction_type));
 
-    initialPosts = rawPosts.map(post => ({
+    initialPosts = filteredRawPosts.map(post => ({
       ...post,
       author: profilesById[post.author_id] || {
         id: post.author_id,

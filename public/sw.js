@@ -45,7 +45,7 @@ self.addEventListener('notificationclick', function(event) {
 });
 
 // CACHE VERSION — increment this on every deploy to force old cache purge
-const CACHE_NAME = 'wibawa-cache-v5';
+const CACHE_NAME = 'wibawa-cache-v7';
 const urlsToCache = [
   '/manifest.webmanifest',
   '/icon.jpg'
@@ -88,8 +88,14 @@ self.addEventListener('fetch', function(event) {
 
   const url = new URL(event.request.url);
 
-  // Bypass service worker entirely for API, auth, and Next.js internal routes
-  if (url.pathname.startsWith('/api') || url.pathname.startsWith('/auth') || url.pathname.includes('_next')) {
+  // Bypass service worker entirely for API, feed, debug feed health, auth, and Next.js internal routes
+  if (
+    url.pathname.startsWith('/api') || 
+    url.pathname.startsWith('/feed') || 
+    url.pathname.startsWith('/debug/feed-health') || 
+    url.pathname.startsWith('/auth') || 
+    url.pathname.includes('_next')
+  ) {
     return;
   }
 

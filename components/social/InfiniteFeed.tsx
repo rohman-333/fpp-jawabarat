@@ -16,7 +16,8 @@ export function InfiniteFeed({
   initialPosts,
   posts: passedPosts,
   setPosts: passedSetPosts,
-  onRetry
+  onRetry,
+  onDeleteDraft
 }: {
   activeTab: string;
   currentUser?: any;
@@ -26,9 +27,11 @@ export function InfiniteFeed({
   posts?: any[];
   setPosts?: React.Dispatch<React.SetStateAction<any[]>>;
   onRetry?: (post: any) => void;
+  onDeleteDraft?: (post: any) => void;
 }) {
   const supabase = createClient();
   const PAGE_SIZE = 10;
+
 
   // Local state fallback for standalone usage (e.g. Profile Page)
   const [localPosts, setLocalPosts] = useState<any[]>(initialPosts || []);
@@ -105,6 +108,11 @@ export function InfiniteFeed({
       const to = from + limit - 1;
       const currentTab = activeTabRef.current;
 
+      let statusQuery = 'status.eq.active,status.eq.published,status.is.null';
+      if (currentUser?.id) {
+        statusQuery = `status.eq.active,status.eq.published,status.is.null,and(author_id.eq.${currentUser.id},status.in.(uploading,upload_failed))`;
+      }
+
       let query = supabase
         .from('social_posts')
         .select(`
@@ -115,7 +123,7 @@ export function InfiniteFeed({
           comments_count:social_comments(count)
         `)
         .is('deleted_at', null)
-        .or('status.eq.active,status.eq.published,status.is.null')
+        .or(statusQuery)
         .or('visibility.eq.public,visibility.is.null')
         .order('created_at', { ascending: false })
         .range(from, to);
@@ -166,8 +174,16 @@ export function InfiniteFeed({
         throw dbError;
       }
 
-      if (data && data.length > 0) {
-        const authorIds = Array.from(new Set(data.map(p => p.author_id).filter(Boolean)));
+      const rawData = data || [];
+      const filteredData = rawData.filter(p => {
+        if (p.status === 'deleted' || p.status === 'hidden' || p.status === 'upload_failed_hidden') return false;
+        if (p.status === 'active' || p.status === 'published' || p.status === null) return true;
+        if (p.author_id === currentUser?.id && (p.status === 'uploading' || p.status === 'upload_failed')) return true;
+        return false;
+      });
+
+      if (filteredData.length > 0) {
+        const authorIds = Array.from(new Set(filteredData.map(p => p.author_id).filter(Boolean)));
         let profilesById: Record<string, any> = {};
 
         if (authorIds.length > 0) {
@@ -186,7 +202,7 @@ export function InfiniteFeed({
         let userInteractions = { likes: new Set(), saves: new Set(), follows: new Set(), reactions: new Map() };
 
         if (currentUser?.id) {
-          const postIds = data.map(p => p.id);
+          const postIds = filteredData.map(p => p.id);
 
           const [likesRes, savesRes, followsRes, reactionsRes] = await Promise.all([
             supabase.from('social_likes').select('post_id').in('post_id', postIds).eq('user_id', currentUser.id),
@@ -201,7 +217,7 @@ export function InfiniteFeed({
           if (reactionsRes.data) reactionsRes.data.forEach(r => userInteractions.reactions.set(r.post_id, r.reaction_type));
         }
 
-        const enrichedData = data.map(post => ({
+        const enrichedData = filteredData.map(post => ({
           ...post,
           author: profilesById[post.author_id] || {
             id: post.author_id,
@@ -219,7 +235,6 @@ export function InfiniteFeed({
         if (isReset) {
           setPosts(enrichedData);
         } else {
-          // APPEND only — never wipe existing posts (including newly-prepended ones)
           setPosts(prev => {
             const existingIds = new Set(prev.map(p => p.id));
             const newOnly = enrichedData.filter(p => !existingIds.has(p.id));
@@ -227,7 +242,7 @@ export function InfiniteFeed({
           });
         }
 
-        if (data.length < limit) {
+        if (rawData.length < limit) {
           setHasMore(false);
         } else {
           setHasMore(true);
@@ -352,7 +367,7 @@ export function InfiniteFeed({
         {posts.map((post, index) => {
           const postElement = (
             <div key={post.id}>
-              <FeedCard post={post} currentUser={currentUser} onRetry={onRetry} />
+              <FeedCard post={post} currentUser={currentUser} onRetry={onRetry} onDeleteDraft={onDeleteDraft} />
             </div>
           );
 

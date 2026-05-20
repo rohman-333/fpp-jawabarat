@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Image as ImageIcon, Send, X, Loader2 } from 'lucide-react';
-import { createPost } from '@/app/(social)/feed/actions';
-import { uploadPostImage } from '@/lib/supabase/storage';
+import { createPostDraft, finalizePostMedia } from '@/app/(social)/feed/actions';
 
 import TextareaAutosize from 'react-textarea-autosize';
 import dynamic from 'next/dynamic';
@@ -12,27 +11,28 @@ const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
   loading: () => <div className="p-4 text-center text-sm text-slate-500">Memuat emoji...</div>
 });
 
-import { uploadSocialVideo } from '@/lib/supabase/storage';
 import { Video, Smile, Camera, ImagePlus, FileVideo, Globe, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { compressImage } from '@/lib/media/compressImage';
 import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
 
 interface CreatePostComposerProps {
   user: any;
   onPostCreated?: (post: any) => void;
+  onPostUpdated?: (idToReplace: string, updatedPost: any) => void;
+  onUploadMediaFlow?: (postId: string, file: File, tempId?: string) => Promise<void>;
 }
 
 export function CreatePostComposer({ 
   user, 
-  onPostCreated 
+  onPostCreated,
+  onPostUpdated,
+  onUploadMediaFlow
 }: CreatePostComposerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [content, setContent] = useState('');
   const [type, setType] = useState('kabar');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCompressing, setIsCompressing] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
@@ -60,13 +60,10 @@ export function CreatePostComposer({
   useEffect(() => {
     if (searchParams && searchParams.get('compose') === 'true') {
       setIsExpanded(true);
-      // Clean query parameter from address bar
       const newUrl = window.location.pathname;
       window.history.replaceState({ ...window.history.state }, '', newUrl);
     }
   }, [searchParams]);
-
-
 
   const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'video' | 'image') => {
     const file = e.target.files?.[0];
@@ -76,20 +73,18 @@ export function CreatePostComposer({
       setOriginalSize(file.size);
 
       if (type === 'video') {
-        if (file.size > 30 * 1024 * 1024) {
-          showError('Ukuran video maksimal 30MB');
+        if (file.size > 50 * 1024 * 1024) {
+          showError('Video terlalu besar. Maksimal 50MB / 60 detik untuk versi awal.');
           setOriginalName(null);
           setOriginalSize(null);
           return;
         }
         
-        setIsCompressing(true);
         const video = document.createElement('video');
         video.preload = 'metadata';
         video.src = URL.createObjectURL(file);
         video.onloadedmetadata = () => {
           URL.revokeObjectURL(video.src);
-          setIsCompressing(false);
           if (video.duration > 60) {
             showError('Durasi video postingan maksimal 60 detik');
             if (videoInputRef.current) videoInputRef.current.value = '';
@@ -103,26 +98,15 @@ export function CreatePostComposer({
           setMediaPreview(URL.createObjectURL(file));
         };
         video.onerror = () => {
-          setIsCompressing(false);
           setMediaFile(file);
           setMediaType('video');
           setMediaPreview(URL.createObjectURL(file));
         };
       } else if (type === 'image') {
-        setIsCompressing(true);
-        try {
-          const compressed = await compressImage(file, { maxWidth: 1600, maxHeight: 1600, quality: 0.75 });
-          setMediaFile(compressed);
-          setMediaType('image');
-          setMediaPreview(URL.createObjectURL(compressed));
-        } catch (err) {
-          console.error('Compression error:', err);
-          setMediaFile(file);
-          setMediaType('image');
-          setMediaPreview(URL.createObjectURL(file));
-        } finally {
-          setIsCompressing(false);
-        }
+        // Instant preview using Object URL without blocking main thread compression
+        setMediaFile(file);
+        setMediaType('image');
+        setMediaPreview(URL.createObjectURL(file));
       }
     }
   };
@@ -143,87 +127,105 @@ export function CreatePostComposer({
     setContent(prev => prev + emojiObject.emoji);
   };
 
-  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
-
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!content.trim() && !mediaFile) return;
     
     setIsSubmitting(true);
     setError(null);
-    setUploadProgress(mediaFile ? 'Menyiapkan media...' : 'Mengirim postingan...');
     console.log('[FEED_POST_SUBMIT_START]');
-    
+
+    // 1. Setup temp post preview
+    let localPreviewUrl = null;
+    let mType: 'image' | 'video' | 'text' = 'text';
+    if (mediaFile) {
+      localPreviewUrl = URL.createObjectURL(mediaFile);
+      mType = mediaType || (mediaFile.type.startsWith('video/') ? 'video' : 'image');
+    }
+
+    const tempId = `temp-${Date.now()}`;
+    const tempPost = {
+      id: tempId,
+      content: content,
+      type: type || 'kabar',
+      media_type: mType,
+      status: 'uploading',
+      progress: 0,
+      localPreviewUrl: localPreviewUrl,
+      created_at: new Date().toISOString(),
+      author: {
+        id: user.id,
+        name: user.user_metadata?.name || 'Pengguna',
+        username: user.user_metadata?.username || 'pengguna',
+        avatar_url: user.user_metadata?.avatar_url || null,
+        role: user.role || 'member'
+      },
+      likes_count: [{ count: 0 }],
+      reactions: [],
+      comments_count: [{ count: 0 }],
+      has_liked: false,
+      has_saved: false,
+      author_followed: false,
+      my_reaction: null
+    };
+
+    if (onPostCreated) {
+      onPostCreated(tempPost); // Prepend it immediately
+    }
+
+    // Save variables to avoid race conditions and clear state immediately
+    const currentContent = content;
+    const currentType = type;
+    const currentMediaFile = mediaFile;
+
+    // Reset composer UI immediately
+    setContent('');
+    removeMedia();
+    setShowEmoji(false);
+    setIsExpanded(false);
+    setIsSubmitting(false);
+
     try {
-      // Step 1: Upload media if present
-      let imageUrl = null;
-      let videoUrl = null;
-      
-      if (mediaFile) {
-        setUploadProgress('Mengunggah...');
-        if (mediaType === 'image') {
-          const { url, error } = await uploadPostImage(mediaFile, user.id);
-          if (error) {
-            console.error('[FEED_UPLOAD_IMAGE_ERROR]', error);
-            showError('Gagal mengunggah gambar. Silakan coba lagi.');
-            setIsSubmitting(false);
-            setUploadProgress(null);
-            return;
+      // 2. Create Post Draft in DB
+      console.log('[POST_DRAFT_CREATED] Creating draft...');
+      const formData = new FormData();
+      formData.append('content', currentContent);
+      formData.append('type', currentType);
+      formData.append('media_type', mType);
+
+      const draftRes = await createPostDraft(formData);
+      if (!draftRes.success || !draftRes.post) {
+        throw new Error(draftRes.error || 'Failed to create draft');
+      }
+
+      const realPost = draftRes.post;
+      console.log('[POST_DRAFT_CREATED] Draft success. Real ID:', realPost.id);
+
+      // Replace temp post with draft post in the state
+      if (onPostUpdated) {
+        onPostUpdated(tempId, { ...realPost, localPreviewUrl, progress: 10 });
+      }
+
+      // 3. Trigger upload flow asynchronously
+      if (currentMediaFile && onUploadMediaFlow) {
+        onUploadMediaFlow(realPost.id, currentMediaFile, tempId);
+      } else {
+        const finalizeRes = await finalizePostMedia(realPost.id, {
+          media_type: 'text'
+        });
+        if (finalizeRes.success && finalizeRes.post) {
+          if (onPostUpdated) {
+            onPostUpdated(tempId, finalizeRes.post);
           }
-          imageUrl = url;
-        } else if (mediaType === 'video') {
-          const { url, error } = await uploadSocialVideo(mediaFile, user.id);
-          if (error) {
-            console.error('[FEED_UPLOAD_VIDEO_ERROR]', error);
-            showError('Gagal mengunggah video. Silakan coba lagi.');
-            setIsSubmitting(false);
-            setUploadProgress(null);
-            return;
-          }
-          videoUrl = url;
+        } else {
+          throw new Error(finalizeRes.error || 'Failed to finalize text post');
         }
       }
-
-      const formData = new FormData();
-      formData.append('content', content);
-      formData.append('type', type);
-      if (imageUrl) {
-        formData.append('image_url', imageUrl);
-        formData.append('media_type', 'image');
-      }
-      if (videoUrl) {
-        formData.append('video_url', videoUrl);
-        formData.append('media_type', 'video');
-      }
-      
-      setUploadProgress('Menyimpan postingan...');
-      const res = await createPost(formData);
-      
-      if (res?.error) {
-        console.error('[FEED_CREATE_POST_ERROR]', res.error);
-        showError('Gagal memposting: ' + res.error);
-        return;
-      }
-
-      // Step 3: SUCCESS — prepend real post to feed, then reset composer
-      console.log('[FEED_POST_CREATED]', res.post?.id);
-      
-      if (onPostCreated && res.post) {
-        onPostCreated(res.post);
-      }
-
-      // Reset composer AFTER the post is in the feed
-      setContent('');
-      removeMedia();
-      setShowEmoji(false);
-      setIsExpanded(false);
-
     } catch (err: any) {
-      console.error('[FEED_CREATE_POST_EXCEPTION]', err);
-      showError('Terjadi kesalahan. Postingan Anda belum dikirim. Silakan coba lagi.');
-    } finally {
-      setIsSubmitting(false);
-      setUploadProgress(null);
+      console.error('[POST_DRAFT_FAILED]', err);
+      if (onPostUpdated) {
+        onPostUpdated(tempId, { ...tempPost, id: tempId, status: 'upload_failed', progress: 0 });
+      }
     }
   };
 
@@ -238,7 +240,6 @@ export function CreatePostComposer({
     { id: 'donasi', label: 'Galang Donasi' },
   ];
 
-  // Prevent background scrolling when composer is full screen on mobile
   useEffect(() => {
     if (isExpanded) {
       const checkMobile = () => {
@@ -259,7 +260,6 @@ export function CreatePostComposer({
     }
   }, [isExpanded]);
 
-  // Render Collapsed State
   if (!isExpanded) {
     return (
       <div 
@@ -294,7 +294,6 @@ export function CreatePostComposer({
       }
       md:relative md:inset-auto md:z-0 md:rounded-2xl md:shadow-sm md:border md:h-auto md:p-4 md:mb-6
     `}>
-      {/* Mobile Fullscreen Header */}
       {isExpanded && (
         <div className="md:hidden flex items-center justify-between border-b border-slate-100 pb-3 mb-4 shrink-0">
           <button 
@@ -308,10 +307,10 @@ export function CreatePostComposer({
           <button
             type="button"
             onClick={() => handleSubmit()}
-            disabled={isSubmitting || isCompressing || (!content.trim() && !mediaFile)}
+            disabled={isSubmitting || (!content.trim() && !mediaFile)}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-1.5 rounded-full text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Posting'}
+            Posting
           </button>
         </div>
       )}
@@ -349,7 +348,6 @@ export function CreatePostComposer({
           </div>
 
           <div className="flex-1 flex flex-col min-h-0 md:block">
-            {/* Scrollable compose body in mobile */}
             <div className="flex-1 overflow-y-auto min-h-0 md:overflow-visible">
               <TextareaAutosize
                 minRows={3}
@@ -359,23 +357,6 @@ export function CreatePostComposer({
                 className="w-full bg-transparent border-0 focus:ring-0 resize-none outline-none text-slate-800 placeholder-slate-400 text-base py-3 px-1 md:px-0"
               />
 
-              {/* Compression Indicator */}
-              {isCompressing && (
-                <div className="mb-3 p-3 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold rounded-xl flex items-center gap-2 animate-pulse">
-                  <Loader2 className="w-4 h-4 shrink-0 animate-spin text-blue-500" />
-                  <span>Sedang mengompres gambar... Harap tunggu.</span>
-                </div>
-              )}
-
-              {/* Uploading/Posting Indicator */}
-              {isSubmitting && (
-                <div className="mb-3 p-3 bg-blue-600 text-white text-xs font-extrabold rounded-xl flex items-center gap-2 shadow-md">
-                  <Loader2 className="w-4 h-4 shrink-0 animate-spin text-white" />
-                  <span>{uploadProgress || 'Mengirim postingan...'} Harap jangan tutup aplikasi.</span>
-                </div>
-              )}
-
-              {/* Large Video Warning */}
               {mediaType === 'video' && mediaFile && mediaFile.size > 10 * 1024 * 1024 && (
                 <div className="mb-3 p-3 bg-amber-50 border border-amber-100 text-amber-700 text-xs font-semibold rounded-xl flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-amber-500" />
@@ -392,16 +373,7 @@ export function CreatePostComposer({
                   )}
                   <div className="p-2.5 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-600 gap-1.5 pr-12">
                     <span className="font-bold truncate max-w-[180px]" title={originalName || mediaFile.name}>{originalName || mediaFile.name}</span>
-                    <div className="flex flex-wrap items-center gap-1.5 font-bold">
-                      {originalSize && originalSize > mediaFile.size ? (
-                        <>
-                          <span className="line-through text-slate-400">{(originalSize / (1024 * 1024)).toFixed(2)} MB</span>
-                          <span className="text-emerald-600 font-extrabold">→ {(mediaFile.size / (1024 * 1024)).toFixed(2)} MB (Terkompresi)</span>
-                        </>
-                      ) : (
-                        <span className="shrink-0 font-medium">{(mediaFile.size / (1024 * 1024)).toFixed(2)} MB</span>
-                      )}
-                    </div>
+                    <span className="shrink-0 font-medium">{(mediaFile.size / (1024 * 1024)).toFixed(2)} MB</span>
                   </div>
                   <button 
                     type="button" 
@@ -429,7 +401,6 @@ export function CreatePostComposer({
               )}
             </div>
             
-            {/* Action Bar (Footer) */}
             <div className="border-t border-slate-100 pt-3 mt-auto md:mt-2 flex items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-1 sm:gap-2">
                 <button 
@@ -450,7 +421,6 @@ export function CreatePostComposer({
                   <Smile className="w-5 h-5" />
                 </button>
 
-                {/* Hidden File Inputs */}
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -483,7 +453,6 @@ export function CreatePostComposer({
                 />
               </div>
 
-              {/* Desktop Submit Button or Close for mobile overlay */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -494,11 +463,11 @@ export function CreatePostComposer({
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting || isCompressing || (!content.trim() && !mediaFile)}
+                  disabled={isSubmitting || (!content.trim() && !mediaFile)}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-full flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                  {(isSubmitting || isCompressing) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                  {isSubmitting ? (mediaType === 'video' ? 'Mengunggah...' : 'Memposting...') : isCompressing ? 'Memproses...' : 'Posting'}
+                  <Send className="w-4 h-4" />
+                  <span>Posting</span>
                 </button>
               </div>
             </div>
@@ -506,7 +475,6 @@ export function CreatePostComposer({
         </div>
       </form>
 
-      {/* Reusable Category Choice bottom sheet */}
       <MobileBottomSheet
         isOpen={isCategorySheetOpen}
         onClose={() => setIsCategorySheetOpen(false)}
@@ -537,7 +505,6 @@ export function CreatePostComposer({
         </div>
       </MobileBottomSheet>
 
-      {/* Reusable Media Choice bottom sheet */}
       <MobileBottomSheet
         isOpen={showMediaOptionsSheet}
         onClose={() => setShowMediaOptionsSheet(false)}
@@ -589,7 +556,7 @@ export function CreatePostComposer({
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-bold text-slate-800">Video dari Galeri</span>
-              <span className="text-[11px] text-slate-400 font-normal mt-0.5">Unggah berkas video (maks. 60 detik / 30MB)</span>
+              <span className="text-[11px] text-slate-400 font-normal mt-0.5">Unggah berkas video (maks. 60 detik / 50MB)</span>
             </div>
           </button>
           <button
@@ -611,7 +578,6 @@ export function CreatePostComposer({
         </div>
       </MobileBottomSheet>
 
-      {/* Floating Custom Error Notification */}
       {error && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-2.5 px-5 py-3.5 rounded-2xl shadow-xl border bg-white border-red-100 text-slate-800 text-xs sm:text-sm font-extrabold animate-bounce">
           <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />

@@ -106,3 +106,73 @@ export async function uploadSocialVideo(file: File, userId: string) {
   if (validationError) return { url: null, error: validationError };
   return uploadFileToBucket('social_videos', file, userId);
 }
+
+export async function uploadFileToBucketWithProgress(
+  bucket: string,
+  file: File,
+  userId: string,
+  onProgress?: (progress: number) => void
+): Promise<{ url: string | null; error: string | null }> {
+  const supabase = createClient();
+  const fileExt = file.name.split('.').pop();
+  const randomStr = Math.random().toString(36).substring(2, 8);
+  const fileName = `${Date.now()}-${randomStr}.${fileExt}`;
+  const filePath = `${userId}/${fileName}`;
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/${bucket}/${filePath}`;
+    
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.setRequestHeader('apikey', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+      xhr.setRequestHeader('Content-Type', file.type);
+      
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable && onProgress) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          onProgress(percent);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const publicUrl = supabase.storage.from(bucket).getPublicUrl(filePath).data.publicUrl;
+          resolve({ url: publicUrl, error: null });
+        } else {
+          console.error('[XHR_UPLOAD_ERROR]', xhr.status, xhr.responseText);
+          resolve({ url: null, error: `Gagal mengunggah (${xhr.status})` });
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error('[XHR_UPLOAD_NETWORK_ERROR]');
+        resolve({ url: null, error: 'Koneksi gagal saat mengunggah' });
+      };
+
+      xhr.send(file);
+    });
+  } catch (err: any) {
+    console.error('[XHR_UPLOAD_EXCEPTION]', err);
+    return { url: null, error: 'Terjadi kesalahan saat mengunggah: ' + err.message };
+  }
+}
+
+export async function uploadPostImageWithProgress(file: File, userId: string, onProgress?: (progress: number) => void) {
+  const validationError = validateImageFile(file, 'post');
+  if (validationError) return { url: null, error: validationError };
+  return uploadFileToBucketWithProgress('post_images', file, userId, onProgress);
+}
+
+export async function uploadSocialVideoWithProgress(file: File, userId: string, onProgress?: (progress: number) => void) {
+  // Max 50MB for video posting
+  if (file.size > 50 * 1024 * 1024) {
+    return { url: null, error: 'Video terlalu besar. Maksimal 50MB / 60 detik untuk versi awal.' };
+  }
+  return uploadFileToBucketWithProgress('social_videos', file, userId, onProgress);
+}
+

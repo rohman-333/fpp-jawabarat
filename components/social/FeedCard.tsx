@@ -17,11 +17,13 @@ import { Flag, EyeOff, Link as LinkIcon, X } from 'lucide-react';
 export function FeedCard({ 
   post, 
   currentUser,
-  onRetry
+  onRetry,
+  onDeleteDraft
 }: { 
   post: any; 
   currentUser?: any;
   onRetry?: (post: any) => void;
+  onDeleteDraft?: (post: any) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -235,14 +237,14 @@ export function FeedCard({
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badge.bg} ${badge.text}`}>
                 {badge.label}
               </span>
-              {post.status === 'sending' && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 animate-pulse flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping shrink-0"></span>
-                  Mengirim...
+              {(post.status === 'uploading' || post.status === 'sending') && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 animate-pulse flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping shrink-0"></span>
+                  Mengirim ({post.progress || 0}%)
                 </span>
               )}
-              {post.status === 'failed' && (
-                <div className="flex items-center gap-1.5 shrink-0">
+              {(post.status === 'upload_failed' || post.status === 'failed') && (
+                <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 flex items-center gap-1">
                     ⚠️ Gagal mengirim
                   </span>
@@ -255,9 +257,18 @@ export function FeedCard({
                       Coba Lagi
                     </button>
                   )}
+                  {onDeleteDraft && (
+                    <button
+                      type="button"
+                      onClick={() => onDeleteDraft(post)}
+                      className="text-[10px] font-extrabold text-red-600 hover:text-red-700 hover:underline px-1.5 py-0.5 bg-red-50 hover:bg-red-100 rounded-md transition-all active:scale-95"
+                    >
+                      Hapus Draft
+                    </button>
+                  )}
                 </div>
               )}
-              {currentUserId && currentUserId !== post.author_id && post.status !== 'sending' && post.status !== 'failed' && (
+              {currentUserId && currentUserId !== post.author_id && post.status !== 'uploading' && post.status !== 'sending' && post.status !== 'upload_failed' && post.status !== 'failed' && (
                 <div className="hidden sm:block ml-1">
                   <FollowButton targetUserId={post.author_id} isFollowingInitial={post.author_followed} />
                 </div>
@@ -380,16 +391,26 @@ export function FeedCard({
         </div>
       )}
 
-      {/* Post Media */}
-      {(post.image_url || (post.media_url && post.media_type === 'image')) && post.media_type !== 'video' && (
-        <div className="w-full border-t border-b border-slate-100 bg-slate-50">
-          <img src={post.media_url || post.image_url} alt="Post Attachment" className="w-full max-h-[500px] object-contain sm:object-cover" loading="lazy" decoding="async" />
+      {/* Post Progress Bar */}
+      {post.status === 'uploading' && (
+        <div className="w-full bg-slate-100 h-1.5 overflow-hidden">
+          <div 
+            className="bg-blue-600 h-full transition-all duration-300" 
+            style={{ width: `${post.progress || 0}%` }}
+          />
         </div>
       )}
 
-      {(post.video_url || (post.media_url && post.media_type === 'video')) && (
+      {/* Post Media */}
+      {(post.localPreviewUrl || post.image_url || (post.media_url && post.media_type === 'image')) && post.media_type !== 'video' && (
+        <div className="w-full border-t border-b border-slate-100 bg-slate-50">
+          <img src={post.localPreviewUrl || post.media_url || post.image_url} alt="Post Attachment" className="w-full max-h-[500px] object-contain sm:object-cover" />
+        </div>
+      )}
+
+      {(post.localPreviewUrl || post.video_url || (post.media_url && post.media_type === 'video')) && post.media_type === 'video' && (
         <div className="w-full border-t border-b border-slate-100 bg-black flex justify-center">
-          <video ref={videoRef} src={post.media_url || post.video_url} controls playsInline preload="metadata" className="w-full max-h-[500px] object-contain"></video>
+          <video ref={videoRef} src={post.localPreviewUrl || post.video_url || post.media_url} controls playsInline preload="metadata" className="w-full max-h-[500px] object-contain"></video>
         </div>
       )}
 

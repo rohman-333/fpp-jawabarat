@@ -1,16 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Plus, X, Camera, Video, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { resolveMediaUrl } from '@/lib/media/resolveMediaUrl';
+import { compressImage } from '@/lib/media/compressImage';
+import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
+import { 
+  createStoryDraft, 
+  finalizeStoryMedia, 
+  markStoryUploadFailed 
+} from '@/app/(social)/feed/actions';
+import { 
+  uploadPostImageWithProgress, 
+  uploadSocialVideoWithProgress 
+} from '@/lib/supabase/storage';
 
 export function StoriesTray({ user }: { user: any }) {
   const [stories, setStories] = useState<any[]>([]);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [activeStory, setActiveStory] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
+  const [retryingStoryId, setRetryingStoryId] = useState<string | null>(null);
+  const retryFileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -27,8 +40,152 @@ export function StoriesTray({ user }: { user: any }) {
       .order('created_at', { ascending: false })
       .limit(15);
     
-    if (data) setStories(data);
+    if (data) {
+      // Owner sees all their drafts, other users only see completed active stories
+      const filtered = data.filter((story: any) => {
+        const isOwner = story.author_id === user?.id;
+        const isReady = story.status === 'active' || story.upload_status === 'completed' || (!story.status && !story.upload_status);
+        return isReady || isOwner;
+      });
+      setStories(filtered);
+    }
     setLoading(false);
+  };
+
+  const uploadStoryMediaFlow = async (storyId: string, file: File, tempId?: string) => {
+    const idToUpdate = tempId || storyId;
+    console.log('[STATUS_MEDIA_UPLOAD_START] story:', storyId, 'file:', file.name);
+
+    // Save to pending files so we can retry if needed
+    setPendingFiles(prev => ({ ...prev, [storyId]: file }));
+
+    try {
+      const isVideo = file.type.startsWith('video/');
+      const mediaType = isVideo ? 'video' : 'image';
+      
+      let imageUrl = null;
+      let videoUrl = null;
+      let uploadRes;
+
+      if (mediaType === 'image') {
+        console.log('[IMAGE_COMPRESS_START] story:', storyId);
+        const compressedFile = await compressImage(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.76 });
+        console.log('[IMAGE_COMPRESS_DONE] story:', storyId);
+
+        uploadRes = await uploadPostImageWithProgress(compressedFile, user.id, (p) => {
+          console.log('[STATUS_MEDIA_UPLOAD_PROGRESS] story:', storyId, p, '%');
+        });
+        imageUrl = uploadRes.url;
+      } else {
+        console.log('[STATUS_MEDIA_UPLOAD_PROGRESS] video no-compress upload start:', storyId);
+        uploadRes = await uploadSocialVideoWithProgress(file, user.id, (p) => {
+          console.log('[STATUS_MEDIA_UPLOAD_PROGRESS] story:', storyId, p, '%');
+        });
+        videoUrl = uploadRes.url;
+      }
+
+      if (uploadRes.error || (!imageUrl && !videoUrl)) {
+        throw new Error(uploadRes.error || 'Upload returned empty URL');
+      }
+
+      console.log('[STATUS_MEDIA_UPLOAD_DONE] story:', storyId);
+
+      const finalRes = await finalizeStoryMedia(storyId, {
+        image_url: imageUrl || undefined,
+        video_url: videoUrl || undefined,
+        media_url: imageUrl || videoUrl || undefined,
+        media_type: mediaType
+      });
+
+      if (!finalRes.success || !finalRes.story) {
+        throw new Error(finalRes.error || 'Failed to finalize story');
+      }
+
+      console.log('[STATUS_FINALIZED] story:', storyId);
+
+      // Success! Update local stories state
+      setStories(prev => prev.map(s => s.id === idToUpdate ? finalRes.story : s));
+
+      // Clear from pending files
+      setPendingFiles(prev => {
+        const copy = { ...prev };
+        delete copy[storyId];
+        return copy;
+      });
+
+    } catch (err) {
+      console.error('[STATUS_UPLOAD_FAILED] story:', storyId, err);
+      await markStoryUploadFailed(storyId);
+      setStories(prev => prev.map(s => s.id === idToUpdate ? { ...s, status: 'upload_failed', upload_status: 'failed' } : s));
+    }
+  };
+
+  const handleStartStoryFlow = async (content: string, file: File | null, duration: number) => {
+    let localPreviewUrl = null;
+    let mediaType = 'text';
+    if (file) {
+      localPreviewUrl = URL.createObjectURL(file);
+      mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+    }
+
+    const tempId = `temp-${Date.now()}`;
+    const tempStory = {
+      id: tempId,
+      author_id: user.id,
+      content: content || '',
+      media_url: localPreviewUrl,
+      media_type: mediaType,
+      expires_at: new Date(Date.now() + duration * 60 * 60 * 1000).toISOString(),
+      status: 'uploading',
+      upload_status: 'uploading',
+      created_at: new Date().toISOString(),
+      author: {
+        name: user.user_metadata?.name || 'Pengguna',
+        username: user.user_metadata?.username || 'pengguna',
+        avatar_url: user.user_metadata?.avatar_url || null
+      }
+    };
+
+    console.log('[STATUS_STATE_PREPENDED] story:', tempId);
+    setStories(prev => [tempStory, ...prev]);
+
+    try {
+      console.log('[STATUS_DRAFT_CREATED] Creating story draft...');
+      const draftRes = await createStoryDraft(content, mediaType, duration);
+      if (!draftRes.success || !draftRes.story) {
+        throw new Error(draftRes.error || 'Failed to create story draft');
+      }
+
+      const realStory = draftRes.story;
+      console.log('[STATUS_DRAFT_CREATED] Story draft success. Real ID:', realStory.id);
+
+      // Replace temp story with real draft story containing preview URL in local state
+      setStories(prev => prev.map(s => s.id === tempId ? { ...realStory, media_url: localPreviewUrl } : s));
+
+      if (file) {
+        uploadStoryMediaFlow(realStory.id, file, tempId);
+      } else {
+        const finalizeRes = await finalizeStoryMedia(realStory.id, {
+          media_type: 'text'
+        });
+        if (finalizeRes.success && finalizeRes.story) {
+          setStories(prev => prev.map(s => s.id === tempId ? finalizeRes.story : s));
+        }
+      }
+    } catch (err) {
+      console.error('[STATUS_DRAFT_FAILED]', err);
+      setStories(prev => prev.map(s => s.id === tempId ? { ...tempStory, status: 'upload_failed', upload_status: 'failed' } : s));
+    }
+  };
+
+  const handleRetryStory = async (story: any) => {
+    const file = pendingFiles[story.id];
+    if (file) {
+      uploadStoryMediaFlow(story.id, file);
+    } else {
+      setRetryingStoryId(story.id);
+      retryFileInputRef.current?.click();
+    }
   };
 
   return (
@@ -44,30 +201,59 @@ export function StoriesTray({ user }: { user: any }) {
           <span className="text-xs font-bold text-slate-700">Buat Status</span>
         </div>
 
-        {stories.map(story => (
-          <div key={story.id} className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer" onClick={() => setActiveStory(story)}>
-            <div className="w-16 h-16 rounded-full border-2 border-blue-500 p-0.5 mb-1.5 relative overflow-hidden">
-              <div className="w-full h-full rounded-full overflow-hidden bg-slate-100">
-                {story.author?.avatar_url ? (
-                  <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500 font-bold uppercase">{story.author?.name?.charAt(0) || '?'}</div>
+        {stories.map(story => {
+          const isUploading = story.upload_status === 'uploading' || story.status === 'uploading';
+          const isFailed = story.upload_status === 'failed' || story.status === 'upload_failed';
+
+          return (
+            <div key={story.id} className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer relative" onClick={() => setActiveStory(story)}>
+              <div className={`w-16 h-16 rounded-full border-2 p-0.5 mb-1.5 relative overflow-hidden ${isFailed ? 'border-red-500 bg-red-50' : isUploading ? 'border-amber-400 animate-pulse bg-amber-50' : 'border-blue-500'}`}>
+                <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
+                  {story.author?.avatar_url ? (
+                    <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500 font-bold uppercase">{story.author?.name?.charAt(0) || '?'}</div>
+                  )}
+                </div>
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  </div>
                 )}
               </div>
+              <span className="text-[10px] sm:text-xs font-medium text-slate-700 truncate w-full text-center">
+                {isUploading ? 'Mengunggah...' : isFailed ? 'Gagal upload' : (story.author?.name?.split(' ')[0] || 'User')}
+              </span>
             </div>
-            <span className="text-[10px] sm:text-xs font-medium text-slate-700 truncate w-full text-center">{story.author?.name?.split(' ')[0] || 'User'}</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      <input
+        type="file"
+        accept="image/*,video/*"
+        ref={retryFileInputRef}
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (file && retryingStoryId) {
+            if (file.type.startsWith('video/')) {
+              if (file.size > 50 * 1024 * 1024) {
+                alert('Video terlalu besar. Maksimal 50MB.');
+                return;
+              }
+            }
+            uploadStoryMediaFlow(retryingStoryId, file);
+            setRetryingStoryId(null);
+          }
+        }}
+      />
 
       {isComposerOpen && (
         <StoryComposerModal 
           user={user} 
           onClose={() => setIsComposerOpen(false)} 
-          onSuccess={() => {
-            setIsComposerOpen(false);
-            fetchStories();
-          }} 
+          onStartStoryFlow={handleStartStoryFlow}
         />
       )}
 
@@ -81,20 +267,35 @@ export function StoriesTray({ user }: { user: any }) {
             setActiveStory(null);
             fetchStories();
           }}
+          onRetryStory={handleRetryStory}
         />
       )}
     </div>
   );
 }
 
-function StoryViewerModal({ story, user, onClose, onDelete }: { story: any, user: any, onClose: () => void, onDelete: () => void }) {
+function StoryViewerModal({ 
+  story, 
+  user, 
+  onClose, 
+  onDelete, 
+  onRetryStory 
+}: { 
+  story: any; 
+  user: any; 
+  onClose: () => void; 
+  onDelete: () => void; 
+  onRetryStory: (story: any) => void;
+}) {
   const [deleting, setDeleting] = useState(false);
   const isOwner = user?.id === story.author_id;
+  const isFailed = story.upload_status === 'failed' || story.status === 'upload_failed';
+  const isUploading = story.upload_status === 'uploading' || story.status === 'uploading';
   const supabase = createClient();
   
   const getMediaSrc = (path: string) => {
     if (!path) return undefined;
-    if (path.startsWith('http')) return path;
+    if (path.startsWith('blob:') || path.startsWith('http')) return path;
     return supabase.storage.from('posts').getPublicUrl(path).data.publicUrl;
   };
 
@@ -133,19 +334,60 @@ function StoryViewerModal({ story, user, onClose, onDelete }: { story: any, user
         </div>
       </div>
       
-      <div className="flex-1 flex items-center justify-center p-4 min-h-0">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 min-h-0">
         <div className="w-full max-w-lg max-h-full flex flex-col items-center justify-center gap-6">
-          {story.media_url && (
+          {isFailed && isOwner && (
+            <div className="p-5 bg-slate-800/90 rounded-3xl border border-red-500/30 flex flex-col items-center gap-4 w-full max-w-sm">
+              <span className="text-white text-sm font-bold text-center">Gagal Mengunggah Media Status</span>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    onClose();
+                    onRetryStory(story);
+                  }}
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-full transition-colors"
+                >
+                  Coba Lagi
+                </button>
+                <button
+                  onClick={async () => {
+                    setDeleting(true);
+                    await onDelete();
+                  }}
+                  disabled={deleting}
+                  className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-full transition-colors disabled:opacity-50"
+                >
+                  Hapus Draft
+                </button>
+              </div>
+            </div>
+          )}
+
+          {isUploading && isOwner && (
+            <div className="p-5 bg-slate-800/80 rounded-3xl flex flex-col items-center gap-3 w-full max-w-sm text-center">
+              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              <span className="text-white text-sm font-bold">Sedang mengunggah media status...</span>
+              <span className="text-white/60 text-xs">Status akan otomatis aktif setelah upload selesai.</span>
+            </div>
+          )}
+
+          {story.media_url && !isFailed && (
             <div className="w-full max-h-[70vh] rounded-2xl overflow-hidden flex items-center justify-center bg-black/50">
               {story.media_type === 'video' ? (
-                <video src={getMediaSrc(story.media_url)} controls preload="metadata" playsInline className="max-w-full max-h-full object-contain" />
+                <video 
+                  src={getMediaSrc(story.media_url)} 
+                  controls 
+                  preload="metadata" 
+                  playsInline 
+                  className="max-w-full max-h-full object-contain" 
+                />
               ) : (
                 <img src={getMediaSrc(story.media_url)} alt="" className="max-w-full max-h-full object-contain" />
               )}
             </div>
           )}
           
-          {story.content && (
+          {story.content && !isFailed && (
             <div className={`w-full p-6 text-center text-white ${!story.media_url ? 'text-2xl sm:text-4xl font-bold px-8' : 'text-lg'}`}>
               {story.content}
             </div>
@@ -156,93 +398,53 @@ function StoryViewerModal({ story, user, onClose, onDelete }: { story: any, user
   );
 }
 
-import { compressImage } from '@/lib/media/compressImage';
-import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
-
-function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: () => void, onSuccess: () => void }) {
+function StoryComposerModal({ 
+  user, 
+  onClose, 
+  onStartStoryFlow 
+}: { 
+  user: any; 
+  onClose: () => void; 
+  onStartStoryFlow: (content: string, file: File | null, duration: number) => void;
+}) {
   const [content, setContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [duration, setDuration] = useState(24);
-  const [submitting, setSubmitting] = useState(false);
-  const [isCompressing, setIsCompressing] = useState(false);
   const [isDurationSheetOpen, setIsDurationSheetOpen] = useState(false);
-  const supabase = createClient();
 
   const handleFileChange = async (selectedFile: File) => {
     if (!selectedFile) return;
     
     if (selectedFile.type.startsWith('video/')) {
-      if (selectedFile.size > 30 * 1024 * 1024) {
-        alert('Ukuran video maksimal 30MB');
+      if (selectedFile.size > 50 * 1024 * 1024) {
+        alert('Video terlalu besar. Maksimal 50MB / 60 detik untuk versi awal.');
         return;
       }
       
-      setIsCompressing(true);
       const video = document.createElement('video');
       video.preload = 'metadata';
       video.src = URL.createObjectURL(selectedFile);
       video.onloadedmetadata = () => {
         URL.revokeObjectURL(video.src);
-        setIsCompressing(false);
-        if (video.duration > 30) {
-          alert('Durasi video story maksimal 30 detik');
+        if (video.duration > 60) {
+          alert('Durasi video status maksimal 60 detik');
           return;
         }
         setFile(selectedFile);
       };
       video.onerror = () => {
-        setIsCompressing(false);
         setFile(selectedFile);
       };
     } else if (selectedFile.type.startsWith('image/')) {
-      setIsCompressing(true);
-      try {
-        const compressed = await compressImage(selectedFile, { maxWidth: 1600, maxHeight: 1600, quality: 0.75 });
-        setFile(compressed);
-      } catch (err) {
-        setFile(selectedFile);
-      } finally {
-        setIsCompressing(false);
-      }
+      // Local preview immediately - no blocking browser compression
+      setFile(selectedFile);
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!content && !file) return;
-    setSubmitting(true);
-    
-    let mediaUrl = null;
-    let mediaType = 'text';
-
-    if (file) {
-      const isVideo = file.type.startsWith('video/');
-      mediaType = isVideo ? 'video' : 'image';
-      
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
-      const { data, error } = await supabase.storage
-        .from('posts') // using existing posts bucket for stories MVP
-        .upload(fileName, file);
-        
-      if (data) {
-        mediaUrl = data.path;
-      }
-    }
-
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + duration);
-
-    await supabase.from('social_stories').insert({
-      author_id: user.id,
-      content,
-      media_url: mediaUrl,
-      media_type: mediaType,
-      expires_at: expiresAt.toISOString()
-    });
-
-    setSubmitting(false);
-    onSuccess();
+    onStartStoryFlow(content, file, duration);
+    onClose();
   };
 
   const durations = [
@@ -270,9 +472,16 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
           
           {file && (
             <div className="relative flex flex-col bg-slate-100 rounded-xl overflow-hidden mt-4 mb-4 border border-slate-200">
-              <div className="relative h-40 w-full overflow-hidden">
+              <div className="relative h-40 w-full overflow-hidden bg-black flex items-center justify-center">
                 {file.type.startsWith('video/') ? (
-                  <video src={URL.createObjectURL(file)} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+                  <video 
+                    src={URL.createObjectURL(file)} 
+                    muted 
+                    playsInline 
+                    preload="metadata" 
+                    controls 
+                    className="w-full h-full object-contain" 
+                  />
                 ) : (
                   <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
                 )}
@@ -310,13 +519,12 @@ function StoryComposerModal({ user, onClose, onSuccess }: { user: any, onClose: 
               onClick={() => setIsDurationSheetOpen(true)}
               className="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold px-3 py-2 rounded-full border border-slate-200 transition-all flex items-center gap-1 active:scale-95"
             >
-              <span>Aktif: {durations.find(d => d.value === duration)?.label}</span>
+              <span>Masa Aktif: {durations.find(d => d.value === duration)?.label}</span>
               <span className="text-[7px] opacity-60">▼</span>
             </button>
             
-            <Button onClick={handleSubmit} disabled={submitting || isCompressing || (!content && !file)} className="bg-blue-600 hover:bg-blue-700 font-bold rounded-full px-6">
-              {(submitting || isCompressing) ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {submitting ? 'Membagikan...' : isCompressing ? 'Memproses...' : 'Bagikan'}
+            <Button onClick={handleSubmit} disabled={(!content && !file)} className="bg-blue-600 hover:bg-blue-700 font-bold rounded-full px-6">
+              Bagikan
             </Button>
           </div>
         </div>
