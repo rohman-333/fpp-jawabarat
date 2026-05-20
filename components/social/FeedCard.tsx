@@ -381,15 +381,15 @@ export function FeedCard({
       )}
 
       {/* Post Media */}
-      {post.image_url && post.media_type !== 'video' && (
+      {(post.image_url || (post.media_url && post.media_type === 'image')) && post.media_type !== 'video' && (
         <div className="w-full border-t border-b border-slate-100 bg-slate-50">
-          <img src={post.image_url} alt="Post Attachment" className="w-full max-h-[500px] object-contain sm:object-cover" loading="lazy" decoding="async" />
+          <img src={post.media_url || post.image_url} alt="Post Attachment" className="w-full max-h-[500px] object-contain sm:object-cover" loading="lazy" decoding="async" />
         </div>
       )}
 
-      {post.video_url && (
+      {(post.video_url || (post.media_url && post.media_type === 'video')) && (
         <div className="w-full border-t border-b border-slate-100 bg-black flex justify-center">
-          <video ref={videoRef} src={post.video_url} controls playsInline preload="metadata" className="w-full max-h-[500px] object-contain"></video>
+          <video ref={videoRef} src={post.media_url || post.video_url} controls playsInline preload="metadata" className="w-full max-h-[500px] object-contain"></video>
         </div>
       )}
 

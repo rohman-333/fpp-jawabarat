@@ -21,26 +21,58 @@ export async function createPost(formData: FormData) {
 
     if (!user) return { success: false, error: 'Anda belum login. Silakan login kembali.', debugCode: 'FEED_NOT_AUTHENTICATED' };
 
-    const { data: post, error } = await supabase
-      .from('social_posts')
-      .insert([{
-        author_id: user.id,
-        content,
-        type: type || 'kabar',
-        image_url: image_url || null,
-        video_url: video_url || null,
-        media_type: media_type || 'text',
-        status: 'active',
-        visibility: 'public'
-      }])
-      .select(`
-        id, content, type, image_url, video_url, media_type, author_id, product_id,
-        visibility, status, created_at, updated_at
-      `)
-      .single();
+    const basePayload = {
+      author_id: user.id,
+      content,
+      type: type || 'kabar',
+      image_url: image_url || null,
+      video_url: video_url || null,
+      media_type: media_type || 'text',
+      status: 'active',
+      visibility: 'public'
+    };
 
-    if (error) {
-      console.error('[FEED_CREATE_POST_ERROR]', error.message, error.code);
+    let post: any = null;
+    let dbError: any = null;
+
+    try {
+      // First, try inserting with media_url column (if 052 migration is applied)
+      const { data, error } = await supabase
+        .from('social_posts')
+        .insert([{
+          ...basePayload,
+          media_url: image_url || video_url || null
+        }])
+        .select(`
+          id, content, type, image_url, video_url, media_type, media_url, author_id, product_id,
+          visibility, status, created_at, updated_at
+        `)
+        .single();
+      
+      post = data;
+      dbError = error;
+    } catch (e: any) {
+      dbError = e;
+    }
+
+    // Fallback: If insertion failed due to missing media_url column, insert without it
+    if (dbError && (dbError.message?.includes('media_url') || dbError.code === '42703')) {
+      console.log('[FEED_CREATE_POST_FALLBACK] media_url column not present, inserting legacy columns only.');
+      const { data, error } = await supabase
+        .from('social_posts')
+        .insert([basePayload])
+        .select(`
+          id, content, type, image_url, video_url, media_type, author_id, product_id,
+          visibility, status, created_at, updated_at
+        `)
+        .single();
+      
+      post = data;
+      dbError = error;
+    }
+
+    if (dbError || !post) {
+      console.error('[FEED_CREATE_POST_ERROR]', dbError?.message || 'No post data returned', dbError?.code);
       return { success: false, error: 'Gagal menyimpan postingan. Silakan coba lagi.', debugCode: 'FEED_INSERT_FAILED' };
     }
 

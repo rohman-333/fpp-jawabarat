@@ -184,17 +184,19 @@ export function CreatePostComposer({
         }
       }
 
-      // Step 2: Insert post via server action
-      setUploadProgress('Menyimpan postingan...');
       const formData = new FormData();
       formData.append('content', content);
       formData.append('type', type);
-      if (imageUrl) formData.append('image_url', imageUrl);
+      if (imageUrl) {
+        formData.append('image_url', imageUrl);
+        formData.append('media_type', 'image');
+      }
       if (videoUrl) {
         formData.append('video_url', videoUrl);
         formData.append('media_type', 'video');
       }
       
+      setUploadProgress('Menyimpan postingan...');
       const res = await createPost(formData);
       
       if (res?.error) {
