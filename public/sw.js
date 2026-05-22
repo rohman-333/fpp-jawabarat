@@ -5,8 +5,8 @@ self.addEventListener('push', function(event) {
       
       const options = {
         body: data.body,
-        icon: data.icon || '/icon.jpg',
-        badge: '/icon.jpg',
+        icon: data.icon || '/icons/icon-192.png',
+        badge: '/icons/icon-192.png',
         vibrate: [100, 50, 100],
         data: {
           dateOfArrival: Date.now(),
@@ -49,7 +49,7 @@ self.addEventListener('notificationclick', function(event) {
 const CACHE_NAME = 'wibawa-cache-v9';
 const urlsToCache = [
   '/manifest.webmanifest',
-  '/icon.jpg'
+  '/icons/icon-192.png'
 ];
 
 self.addEventListener('install', function(event) {

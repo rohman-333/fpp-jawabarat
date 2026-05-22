@@ -54,7 +54,7 @@ export function LogisticsClient({
 
   // Forms states
   const [showZoneModal, setShowZoneModal] = useState(false);
-  const [newZone, setNewZone] = useState({ name: '', province: 'Jawa Barat', city: '', district: '', postal_code: '' });
+  const [newZone, setNewZone] = useState({ name: '', province: '', city: '', district: '', postal_code: '' });
   const [showFareModal, setShowFareModal] = useState(false);
   const [newFare, setNewFare] = useState({ service_type_id: '', zone_id: '', base_fare: 5000, per_km_fare: 2500, minimum_fare: 7000, platform_fee: 1000 });
 
@@ -110,7 +110,7 @@ export function LogisticsClient({
       if (error) throw error;
       if (data) setZones(prev => [...prev, data[0]]);
       setShowZoneModal(false);
-      setNewZone({ name: '', province: 'Jawa Barat', city: '', district: '', postal_code: '' });
+      setNewZone({ name: '', province: '', city: '', district: '', postal_code: '' });
       triggerToast('Zona pengiriman baru berhasil ditambahkan!');
     } catch (err: any) {
       triggerToast(err.message, 'error');

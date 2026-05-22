@@ -40,10 +40,10 @@ export function RightRail({ currentUserId }: { currentUserId?: string }) {
         </h3>
         <div className="space-y-4">
           {[
-            { tag: 'KemandirianPesantren', count: '1.2k post' },
+            { tag: 'WIBAWANusantara', count: '1.5k post' },
+            { tag: 'KomunitasWIBAWA', count: '1.2k post' },
             { tag: 'OPOPNusantara', count: '856 post' },
-            { tag: 'DigitalisasiPesantren', count: '432 post' },
-            { tag: 'NgajiBareng', count: '210 post' }
+            { tag: 'DigitalisasiPesantren', count: '432 post' }
           ].map((item, i) => (
             <div key={i} className="group cursor-pointer">
               <p className="font-bold text-slate-700 text-sm group-hover:text-blue-600 transition-colors">#{item.tag}</p>

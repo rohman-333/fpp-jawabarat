@@ -111,7 +111,7 @@ export async function createNotification({
             title,
             body,
             href: href || '/notifications',
-            icon: '/icon.jpg',
+            icon: '/icons/icon-192.png',
             notificationId: notification?.id || null,
           };
 

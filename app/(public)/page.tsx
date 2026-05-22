@@ -130,7 +130,7 @@ export default function LandingPage() {
                       </div>
 
                       <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
-                        Alhamdulillah, program pemberdayaan ekonomi pesantren di Jawa Barat berjalan lancar. Mari dukung produk lokal! 🚀
+                        Alhamdulillah, program pemberdayaan ekonomi pesantren di Nusantara berjalan lancar. Mari dukung produk lokal! 🚀
                       </p>
 
                       <div className="h-24 bg-gradient-to-br from-blue-100 to-indigo-50 rounded-lg border border-slate-100 flex items-center justify-center text-[10px] text-slate-400 font-bold overflow-hidden">

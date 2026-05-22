@@ -22,7 +22,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const sellerName = product?.seller?.name || product?.pesantren?.name || 'Seller WIBAWA NUSANTARA';
-  const location = product?.seller?.location || product?.pesantren?.city || 'Jawa Barat';
+  const location = product?.seller?.location || product?.pesantren?.city || 'Nusantara';
   const isVerified = product?.seller?.is_verified || false;
   const stock = product?.stock ?? 0;
 

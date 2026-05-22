@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Plus, X, Camera, Video, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Plus, X, Camera, Video, Image as ImageIcon, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { compressImage } from '@/lib/media/compressImage';
 import { MobileBottomSheet } from '@/components/shared/MobileBottomSheet';
@@ -50,7 +50,8 @@ const getStageText = (stage: string, progress: number) => {
 export function StoriesTray({ user }: { user: any }) {
   const [stories, setStories] = useState<any[]>([]);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
-  const [activeStory, setActiveStory] = useState<any | null>(null);
+  const [activeGroup, setActiveGroup] = useState<any | null>(null);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
   const [retryingStoryId, setRetryingStoryId] = useState<string | null>(null);
@@ -94,17 +95,16 @@ export function StoriesTray({ user }: { user: any }) {
       )
     );
 
-    setActiveStory((prev: any) => {
-      if (prev && prev.id === storyId) {
-        return {
-          ...prev,
-          progress,
-          upload_stage: stage,
-          status: progress === 100 ? 'active' : 'uploading',
-          upload_status: progress === 100 ? 'completed' : 'uploading'
-        };
+    setActiveGroup((prevGroup: any) => {
+      if (prevGroup) {
+        const updatedStories = prevGroup.stories.map((s: any) =>
+          s.id === storyId
+            ? { ...s, progress, upload_stage: stage, status: progress === 100 ? 'active' : 'uploading', upload_status: progress === 100 ? 'completed' : 'uploading' }
+            : s
+        );
+        return { ...prevGroup, stories: updatedStories };
       }
-      return prev;
+      return prevGroup;
     });
   }, []);
 
@@ -180,7 +180,13 @@ export function StoriesTray({ user }: { user: any }) {
       };
 
       setStories(prev => prev.map(s => s.id === idToUpdate ? finalStoryObj : s));
-      setActiveStory((prev: any) => prev && prev.id === idToUpdate ? finalStoryObj : prev);
+      setActiveGroup((prevGroup: any) => {
+        if (prevGroup) {
+          const updatedStories = prevGroup.stories.map((s: any) => s.id === idToUpdate ? finalStoryObj : s);
+          return { ...prevGroup, stories: updatedStories };
+        }
+        return prevGroup;
+      });
 
       // Clear from pending files
       setPendingFiles(prev => {
@@ -199,7 +205,13 @@ export function StoriesTray({ user }: { user: any }) {
         upload_stage: 'failed'
       };
       setStories(prev => prev.map(s => s.id === idToUpdate ? { ...s, ...failedStoryObj } : s));
-      setActiveStory((prev: any) => prev && prev.id === idToUpdate ? { ...prev, ...failedStoryObj } : prev);
+      setActiveGroup((prevGroup: any) => {
+        if (prevGroup) {
+          const updatedStories = prevGroup.stories.map((s: any) => s.id === idToUpdate ? { ...s, ...failedStoryObj } : s);
+          return { ...prevGroup, stories: updatedStories };
+        }
+        return prevGroup;
+      });
     }
   };
 
@@ -273,6 +285,46 @@ export function StoriesTray({ user }: { user: any }) {
     }
   };
 
+  // Group stories by author_id
+  const groupStories = (flatStories: any[]) => {
+    const groups: Record<string, any> = {};
+    flatStories.forEach((story) => {
+      const authorId = story.author_id;
+      const isUploading = story.upload_status === 'uploading' || story.status === 'uploading';
+      const isFailed = story.upload_status === 'failed' || story.status === 'upload_failed';
+
+      if (!groups[authorId]) {
+        groups[authorId] = {
+          author_id: authorId,
+          author: story.author || {
+            name: 'Pengguna',
+            username: 'pengguna',
+            avatar_url: null
+          },
+          stories: [],
+          hasUploading: false,
+          hasFailed: false,
+          latestCreatedAt: story.created_at,
+        };
+      }
+
+      groups[authorId].stories.push(story);
+      if (isUploading) groups[authorId].hasUploading = true;
+      if (isFailed) groups[authorId].hasFailed = true;
+      if (new Date(story.created_at) > new Date(groups[authorId].latestCreatedAt)) {
+        groups[authorId].latestCreatedAt = story.created_at;
+      }
+    });
+
+    Object.values(groups).forEach((group: any) => {
+      group.stories.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    });
+
+    return Object.values(groups).sort((a: any, b: any) => new Date(b.latestCreatedAt).getTime() - new Date(a.latestCreatedAt).getTime());
+  };
+
+  const groupedStories = groupStories(stories);
+
   return (
     <div className="mb-6">
       <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 snap-x snap-mandatory">
@@ -286,32 +338,47 @@ export function StoriesTray({ user }: { user: any }) {
           <span className="text-xs font-bold text-slate-700">Buat Status</span>
         </div>
 
-        {stories.map(story => {
-          const isUploading = story.upload_status === 'uploading' || story.status === 'uploading';
-          const isFailed = story.upload_status === 'failed' || story.status === 'upload_failed';
+        {groupedStories.map(group => {
+          const isUploading = group.hasUploading;
+          const isFailed = group.hasFailed;
+          const authorName = group.author?.name || 'Pengguna';
+          const avatarUrl = group.author?.avatar_url;
 
           return (
-            <div key={story.id} className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer relative" onClick={() => setActiveStory(story)}>
-              <div className={`w-16 h-16 rounded-full border-2 p-0.5 mb-1.5 relative overflow-hidden ${isFailed ? 'border-red-500 bg-red-50' : isUploading ? 'border-blue-400 animate-pulse bg-blue-50' : 'border-blue-500'}`}>
+            <div 
+              key={group.author_id} 
+              className="snap-center shrink-0 w-24 flex flex-col items-center cursor-pointer relative" 
+              onClick={() => {
+                setActiveGroup(group);
+                setCurrentStoryIndex(0);
+              }}
+            >
+              <div className={`w-16 h-16 rounded-full border-2 p-0.5 mb-1.5 relative overflow-hidden ${
+                isFailed ? 'border-red-500 bg-red-50' : 
+                isUploading ? 'border-blue-400 animate-pulse bg-blue-50' : 
+                'border-blue-500'
+              }`}>
                 <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
-                  {story.author?.avatar_url ? (
-                    <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500 font-bold uppercase">{story.author?.name?.charAt(0) || '?'}</div>
+                    <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500 font-bold uppercase">
+                      {authorName.charAt(0)}
+                    </div>
                   )}
                 </div>
                 {isUploading && (
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center flex-col">
-                    <span className="text-[10px] text-white font-extrabold">{story.progress || 10}%</span>
+                    <span className="text-[10px] text-white font-extrabold">...</span>
                   </div>
                 )}
               </div>
               <span className="text-[10px] sm:text-xs font-medium text-slate-700 truncate w-full text-center">
                 {isUploading 
-                  ? getStageText(story.upload_stage || 'draft_created', story.progress || 10) 
+                  ? 'Mengunggah...' 
                   : isFailed 
                     ? 'Gagal upload' 
-                    : (story.author?.name?.split(' ')[0] || 'User')
+                    : authorName.split(' ')[0]
                 }
               </span>
             </div>
@@ -347,14 +414,15 @@ export function StoriesTray({ user }: { user: any }) {
         />
       )}
 
-      {activeStory && (
+      {activeGroup && (
         <StoryViewerModal 
-          story={activeStory}
+          group={activeGroup}
+          initialIndex={currentStoryIndex}
           user={user}
-          onClose={() => setActiveStory(null)}
-          onDelete={async () => {
-            await supabase.from('social_stories').delete().eq('id', activeStory.id);
-            setActiveStory(null);
+          onClose={() => setActiveGroup(null)}
+          onDelete={async (storyId) => {
+            await supabase.from('social_stories').delete().eq('id', storyId);
+            setActiveGroup(null);
             fetchStories();
           }}
           onRetryStory={handleRetryStory}
@@ -365,44 +433,87 @@ export function StoriesTray({ user }: { user: any }) {
 }
 
 function StoryViewerModal({ 
-  story, 
+  group, 
+  initialIndex = 0,
   user, 
   onClose, 
   onDelete, 
   onRetryStory 
 }: { 
-  story: any; 
+  group: any; 
+  initialIndex?: number;
   user: any; 
   onClose: () => void; 
-  onDelete: () => void; 
+  onDelete: (storyId: string) => void; 
   onRetryStory: (story: any) => void;
 }) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [deleting, setDeleting] = useState(false);
+  const supabase = createClient();
+
+  useEffect(() => {
+    setCurrentIndex(initialIndex);
+  }, [group, initialIndex]);
+
+  const stories = group.stories || [];
+  const story = stories[currentIndex];
+
+  if (!story) return null;
+
   const isOwner = user?.id === story.author_id;
   const isFailed = story.upload_status === 'failed' || story.status === 'upload_failed';
   const isUploading = story.upload_status === 'uploading' || story.status === 'uploading';
-  const supabase = createClient();
-  
+
   const getMediaSrc = (path: string) => {
     if (!path) return undefined;
     if (path.startsWith('blob:') || path.startsWith('http')) return path;
     return supabase.storage.from('posts').getPublicUrl(path).data.publicUrl;
   };
 
+  const handleNext = () => {
+    if (currentIndex < stories.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else {
+      onClose();
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex flex-col">
-      <div className="p-4 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent">
+      {/* Stories progress indicators */}
+      <div className="absolute top-3 left-4 right-4 flex gap-1 z-[110] px-2">
+        {stories.map((s: any, idx: number) => (
+          <div 
+            key={s.id} 
+            className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+              idx === currentIndex ? 'bg-blue-500 shadow-sm' : idx < currentIndex ? 'bg-blue-600/60' : 'bg-white/30'
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="p-4 pt-8 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent z-[105]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
-            {story.author?.avatar_url ? (
-              <img src={story.author.avatar_url} alt="" className="w-full h-full object-cover" />
+            {group.author?.avatar_url ? (
+              <img src={group.author.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 font-bold uppercase">{story.author?.name?.charAt(0) || '?'}</div>
+              <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 font-bold uppercase">
+                {group.author?.name?.charAt(0) || '?'}
+              </div>
             )}
           </div>
           <div>
-            <div className="text-white font-bold text-sm">{story.author?.name || 'Pengguna'}</div>
-            <div className="text-white/60 text-xs">{new Date(story.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+            <div className="text-white font-bold text-sm">{group.author?.name || 'Pengguna'}</div>
+            <div className="text-white/60 text-xs">
+              {new Date(story.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -410,22 +521,46 @@ function StoryViewerModal({
             <button 
               onClick={async () => {
                 setDeleting(true);
-                await onDelete();
+                await onDelete(story.id);
+                setDeleting(false);
               }} 
               disabled={deleting}
-              className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-full disabled:opacity-50"
+              className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-full disabled:opacity-50 transition-colors z-[110]"
             >
               {deleting ? 'Menghapus...' : 'Hapus'}
             </button>
           )}
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10">
+          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors z-[110]">
             <X className="w-6 h-6 text-white"/>
           </button>
         </div>
       </div>
       
-      <div className="flex-1 flex flex-col items-center justify-center p-4 min-h-0">
-        <div className="w-full max-w-lg max-h-full flex flex-col items-center justify-center gap-6">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 min-h-0 relative select-none">
+        {/* Navigation arrows overlay */}
+        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none z-[101]">
+          {currentIndex > 0 ? (
+            <button 
+              onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+              className="w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center pointer-events-auto transition-all text-white border border-white/10 hover:scale-105 active:scale-95"
+              title="Sebelumnya"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          ) : (
+            <div className="w-12" />
+          )}
+
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleNext(); }}
+            className="w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center pointer-events-auto transition-all text-white border border-white/10 hover:scale-105 active:scale-95"
+            title={currentIndex < stories.length - 1 ? "Selanjutnya" : "Tutup"}
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="w-full max-w-lg max-h-full flex flex-col items-center justify-center gap-6 z-[100]">
           {isFailed && isOwner && (
             <div className="p-5 bg-slate-800/90 rounded-3xl border border-red-500/30 flex flex-col items-center gap-4 w-full max-w-sm">
               <span className="text-white text-sm font-bold text-center">Gagal Mengunggah Media Status</span>
@@ -442,7 +577,8 @@ function StoryViewerModal({
                 <button
                   onClick={async () => {
                     setDeleting(true);
-                    await onDelete();
+                    await onDelete(story.id);
+                    setDeleting(false);
                   }}
                   disabled={deleting}
                   className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-full transition-colors disabled:opacity-50"

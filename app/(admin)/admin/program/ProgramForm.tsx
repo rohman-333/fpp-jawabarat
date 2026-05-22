@@ -98,7 +98,7 @@ export function ProgramForm({ initialData = null }: { initialData?: any }) {
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Lokasi (Opsional)</label>
-                <input type="text" name="location" defaultValue={initialData?.location} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Jawa Barat" />
+                <input type="text" name="location" defaultValue={initialData?.location} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nusantara" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Status *</label>

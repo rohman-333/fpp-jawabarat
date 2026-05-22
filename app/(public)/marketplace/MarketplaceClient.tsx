@@ -75,7 +75,7 @@ export function MarketplaceClient({ initialProducts }: { initialProducts: any[] 
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
         <div className="max-w-3xl mx-auto relative z-10 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold mb-3">Marketplace Pesantren</h1>
-          <p className="text-blue-100 mb-8 max-w-xl mx-auto text-sm sm:text-base">Dukung kemandirian ekonomi pesantren Jawa Barat dengan membeli produk-produk berkualitas langsung dari santri dan pengasuh.</p>
+          <p className="text-blue-100 mb-8 max-w-xl mx-auto text-sm sm:text-base">Dukung kemandirian ekonomi pesantren Nusantara dengan membeli produk-produk berkualitas langsung dari santri dan pengasuh.</p>
           
           <div className="relative max-w-2xl mx-auto flex items-center bg-white rounded-full p-1.5 shadow-xl">
             <div className="pl-4 text-slate-400">

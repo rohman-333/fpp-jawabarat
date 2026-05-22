@@ -51,7 +51,7 @@ export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] })
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Direktori Pesantren</h1>
-          <p className="text-slate-500 text-sm mt-1">Kelola data dan verifikasi pendaftaran pesantren di Jawa Barat.</p>
+          <p className="text-slate-500 text-sm mt-1">Kelola data dan verifikasi pendaftaran pesantren di Nusantara.</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3">

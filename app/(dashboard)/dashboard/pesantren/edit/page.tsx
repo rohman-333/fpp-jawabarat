@@ -31,7 +31,7 @@ export default async function EditPesantrenPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <DashboardSidebar 
-        isAdmin={false} 
+        isAdmin={profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'team'} 
         userName={profile?.name || 'User'} 
         avatarUrl={profile?.avatar_url}
       />

@@ -22,7 +22,7 @@ export default async function MemberProgramPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex pb-20 md:pb-0">
       <DashboardSidebar 
-        isAdmin={false} 
+        isAdmin={profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'team'} 
         userName={profile?.name || 'Member'} 
         avatarUrl={profile?.avatar_url}
       />

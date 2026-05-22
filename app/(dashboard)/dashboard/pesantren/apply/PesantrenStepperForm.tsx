@@ -232,7 +232,7 @@ export function PesantrenStepperForm({ userId, initialData }: { userId: string, 
             </div>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">Harapan terhadap Pemda dan Forum Pondok Pesantren</label>
-              <textarea name="harapan_pemda_forum" value={formData.harapan_pemda_forum} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Harapan besar Anda untuk kemajuan pendidikan pesantren di Jawa Barat..." />
+              <textarea name="harapan_pemda_forum" value={formData.harapan_pemda_forum} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" placeholder="Harapan besar Anda untuk kemajuan pendidikan pesantren di Nusantara..." />
             </div>
           </div>
         </div>

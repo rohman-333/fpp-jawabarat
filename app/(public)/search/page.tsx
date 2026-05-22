@@ -381,7 +381,7 @@ export default function SearchPage() {
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-slate-800 text-sm truncate">{p.name}</p>
                         <p className="text-blue-600 font-extrabold text-xs mt-0.5">Rp {p.price?.toLocaleString('id-ID')}</p>
-                        <p className="text-[10px] text-slate-400 mt-1">{p.pesantren?.name || 'Pesantren Jawa Barat'}</p>
+                        <p className="text-[10px] text-slate-400 mt-1">{p.pesantren?.name || 'Pesantren Nusantara'}</p>
                       </div>
                     </Link>
                   ))

@@ -1,4 +1,4 @@
-export type ProfileRole = 'superadmin' | 'admin' | 'team' | 'user';
+export type ProfileRole = 'superadmin' | 'admin' | 'operator' | 'team' | 'user';
 
 export interface ProfileRoles {
   role?: ProfileRole;
@@ -19,7 +19,7 @@ export function isAdmin(profile?: ProfileRoles | null): boolean {
 }
 
 export function isTeam(profile?: ProfileRoles | null): boolean {
-  return profile?.role === 'team' || isAdmin(profile);
+  return profile?.role === 'team' || profile?.role === 'operator' || isAdmin(profile);
 }
 
 export function isUser(profile?: ProfileRoles | null): boolean {
@@ -27,7 +27,7 @@ export function isUser(profile?: ProfileRoles | null): boolean {
 }
 
 export function canAccessAdmin(profile?: ProfileRoles | null): boolean {
-  return isAdmin(profile) || profile?.role === 'team';
+  return isAdmin(profile) || profile?.role === 'team' || profile?.role === 'operator';
 }
 
 export function canManageMarketplace(profile?: ProfileRoles | null): boolean {

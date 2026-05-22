@@ -23,7 +23,7 @@ export function SocialSidebar({ profile }: { profile: any }) {
   ];
 
   const role = profile?.role || 'user';
-  const isAdmin = role === 'admin' || role === 'superadmin';
+  const isAdmin = role === 'admin' || role === 'superadmin' || role === 'operator';
   const isTeam = role === 'team';
   const hasPesantren = !!profile?.pesantren_id || profile?.has_pesantren;
   const isSeller = profile?.is_seller && profile?.seller_status === 'approved';

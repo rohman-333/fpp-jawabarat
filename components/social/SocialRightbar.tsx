@@ -23,7 +23,8 @@ export function SocialRightbar() {
         </h3>
         <div className="space-y-4">
           {[
-            { tag: 'KemandirianPesantren', count: '1.2k post' },
+            { tag: 'WIBAWANusantara', count: '1.5k post' },
+            { tag: 'KomunitasWIBAWA', count: '1.2k post' },
             { tag: 'OPOPNusantara', count: '856 post' },
             { tag: 'DigitalisasiPesantren', count: '432 post' },
           ].map((item, i) => (
