@@ -23,12 +23,18 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     .eq('id', user.id)
     .single();
 
-  const { data: product } = await supabase
+  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'team';
+
+  let productQuery = supabase
     .from('products')
     .select('*')
-    .eq('id', id)
-    .eq('seller_id', user.id)
-    .single();
+    .eq('id', id);
+
+  if (!isAdmin) {
+    productQuery = productQuery.eq('seller_id', user.id);
+  }
+
+  const { data: product } = await productQuery.maybeSingle();
 
   if (!product) {
     redirect('/dashboard/products');

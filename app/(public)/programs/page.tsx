@@ -21,7 +21,7 @@ export default async function ProgramsPage() {
       icon: Shield,
       color: 'bg-blue-500',
       tag: 'Sosial & Budaya',
-      href: '/dashboard/program'
+      href: '/programs/pemberdayaan-komunitas'
     },
     {
       title: 'Digitalisasi Pesantren',
@@ -29,7 +29,7 @@ export default async function ProgramsPage() {
       icon: Cpu,
       color: 'bg-indigo-500',
       tag: 'Teknologi',
-      href: '/dashboard/pesantren/apply'
+      href: '/programs/digitalisasi-pesantren'
     },
     {
       title: 'Marketplace Lokal',
@@ -37,7 +37,7 @@ export default async function ProgramsPage() {
       icon: Store,
       color: 'bg-emerald-500',
       tag: 'Ekonomi Mikro',
-      href: '/dashboard/products/new'
+      href: '/programs/marketplace-lokal'
     },
     {
       title: 'Kurir dan Layanan Lokal',
@@ -45,7 +45,7 @@ export default async function ProgramsPage() {
       icon: Truck,
       color: 'bg-amber-500',
       tag: 'Logistik',
-      href: '/dashboard/courier/apply'
+      href: '/programs/kurir-layanan-lokal'
     }
   ];
 

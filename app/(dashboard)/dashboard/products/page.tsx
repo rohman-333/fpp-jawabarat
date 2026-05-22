@@ -37,8 +37,8 @@ export default async function ProductsPage() {
     profileErrorMsg = err?.message || 'Gagal memuat profil pengguna.';
   }
 
-  // 2. Logic Akses: Admin/Superadmin/Team
-  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'team';
+  // 2. Logic Akses: Admin/Superadmin/Team/Operator
+  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'team';
 
   // 3. Logic Akses: Bukan Seller
   const isApprovedSeller = profile?.is_seller && profile?.seller_status === 'approved';
@@ -48,20 +48,61 @@ export default async function ProductsPage() {
 
   // 4. Safe Products Query
   let products: any[] = [];
-  let productsError = null;
+  let productsError: any = null;
+  let queryStepFailed = '';
 
   if (canManageProducts && profile) {
-    const res = await supabase
-      .from('products')
-      .select('id, name, slug, description, price, stock, category, category_id, image_url, status, seller_id, created_at')
-      .eq('seller_id', user.id)
-      .order('created_at', { ascending: false });
-    
-    products = res.data || [];
-    productsError = res.error;
-    
-    if (productsError) {
-      console.error('[SELLER_PRODUCTS_PAGE_ERROR] Products fetch failed:', productsError);
+    try {
+      queryStepFailed = 'primary_query';
+      let dbQuery = supabase
+        .from('products')
+        .select('id, name, slug, description, price, stock, category, category_id, image_url, status, seller_id, created_at')
+        .order('created_at', { ascending: false });
+
+      if (!isAdmin) {
+        dbQuery = dbQuery.eq('seller_id', user.id);
+      }
+
+      const { data, error } = await dbQuery;
+
+      if (error) {
+        throw error;
+      }
+      products = data || [];
+    } catch (primaryErr: any) {
+      console.error('[SELLER_PRODUCTS_PAGE_ERROR_DETAIL] Primary query failed. Attempting fallback query.', {
+        message: primaryErr?.message,
+        code: primaryErr?.code,
+        details: primaryErr?.details,
+        queryStep: queryStepFailed
+      });
+
+      try {
+        queryStepFailed = 'fallback_query';
+        let dbQuery = supabase
+          .from('products')
+          .select('id, name, price, created_at')
+          .order('created_at', { ascending: false });
+
+        if (!isAdmin) {
+          dbQuery = dbQuery.eq('seller_id', user.id);
+        }
+
+        const { data, error } = await dbQuery;
+
+        if (error) {
+          throw error;
+        }
+        products = data || [];
+      } catch (fallbackErr: any) {
+        productsError = fallbackErr;
+        console.error('[SELLER_PRODUCTS_PAGE_ERROR_DETAIL] Fallback query failed:', {
+          message: fallbackErr?.message,
+          code: fallbackErr?.code,
+          details: fallbackErr?.details,
+          queryStep: queryStepFailed
+        });
+      }
     }
   }
 
@@ -113,8 +154,12 @@ export default async function ProductsPage() {
                   <AlertCircle className="w-6 h-6 text-red-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-red-900 mb-1">Gagal memuat produk</h2>
-                  <p className="text-red-700/80 text-sm">{productsError.message}</p>
+                  <h2 className="text-lg font-bold text-red-900 mb-1">Produk belum dapat dimuat</h2>
+                  {isAdmin && (
+                    <p className="text-red-700/85 text-xs font-mono mt-1 whitespace-pre-wrap">
+                      Error: {productsError.message || JSON.stringify(productsError)}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -205,7 +250,7 @@ export default async function ProductsPage() {
                                   </div>
                                   <div>
                                     <p className="font-bold text-slate-800 text-sm line-clamp-1">{product.name}</p>
-                                    <p className="text-xs text-slate-500 mt-0.5">/{product.slug}</p>
+                                    <p className="text-xs text-slate-500 mt-0.5">/{product.slug || product.id}</p>
                                   </div>
                                 </div>
                               </td>
@@ -219,13 +264,13 @@ export default async function ProductsPage() {
                                 {product.stock || 0}
                               </td>
                               <td className="py-4 px-6">
-                                {product.status === 'active' && <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider border border-blue-200">Aktif</span>}
+                                {(product.status === 'active' || !product.status) && <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider border border-blue-200">Aktif</span>}
                                 {product.status === 'pending' && <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 uppercase tracking-wider border border-amber-200">Pending</span>}
                                 {product.status === 'hidden' && <span className="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 uppercase tracking-wider border border-slate-200">Hidden</span>}
                               </td>
                               <td className="py-4 px-6 text-right">
                                 <div className="flex items-center justify-end gap-2">
-                                  <Link href={`/marketplace/${product.slug}`} target="_blank">
+                                  <Link href={`/marketplace/${product.slug || product.id}`} target="_blank">
                                     <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat Publik">
                                       <Eye className="w-4 h-4" />
                                     </button>

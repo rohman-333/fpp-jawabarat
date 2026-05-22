@@ -35,7 +35,7 @@ export async function saveProduct(formData: FormData) {
   }
   
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin';
+  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'team';
   const defaultStatus = isAdmin ? 'active' : 'pending';
 
   const payload = {
@@ -54,11 +54,11 @@ export async function saveProduct(formData: FormData) {
 
   try {
     if (id) {
-      const { error } = await supabase
-        .from('products')
-        .update(payload)
-        .eq('id', id)
-        .eq('seller_id', user.id); // Protect RLS
+      let updateQuery = supabase.from('products').update(payload).eq('id', id);
+      if (!isAdmin) {
+        updateQuery = updateQuery.eq('seller_id', user.id); // Protect RLS for normal sellers
+      }
+      const { error } = await updateQuery;
       if (error) {
         console.error('[UPDATE_PRODUCT_ERROR]', error);
         throw new Error(error.message);
@@ -93,12 +93,15 @@ export async function deleteProduct(formData: FormData) {
   const id = formData.get('id') as string;
 
   if (id) {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id)
-      .eq('seller_id', user.id); // Protect RLS
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'team';
+
+    let deleteQuery = supabase.from('products').delete().eq('id', id);
+    if (!isAdmin) {
+      deleteQuery = deleteQuery.eq('seller_id', user.id); // Protect RLS
+    }
     
+    const { error } = await deleteQuery;
     if (error) throw new Error(error.message);
   }
 
