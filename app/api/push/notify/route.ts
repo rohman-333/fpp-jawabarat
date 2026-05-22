@@ -12,6 +12,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Verify administrative privileges (admin, superadmin, operator)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || !['admin', 'superadmin', 'operator'].includes(profile.role)) {
+      return NextResponse.json({ error: 'Forbidden: Admins only' }, { status: 403 });
+    }
+
     const payload = await req.json();
     const { userId, title, body, href, type, metadata } = payload;
 

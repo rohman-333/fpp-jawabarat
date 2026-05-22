@@ -68,41 +68,76 @@ export async function createNotification({
   // 2. Try Web Push (only if sendPush is true and VAPID is configured)
   if (sendPush) {
     try {
-      const { data: subs } = await supabase
-        .from('push_subscriptions')
+      // Fetch recipient's notification preferences
+      const { data: pref } = await supabase
+        .from('notification_preferences')
         .select('*')
         .eq('user_id', userId)
-        .eq('is_active', true);
+        .maybeSingle();
 
-      if (subs && subs.length > 0) {
-        const pushPayload = {
-          title,
-          body,
-          href: href || '/notifications',
-          icon: '/icon.jpg',
-          notificationId: notification?.id || null,
-        };
+      let isPushAllowed = true;
+      if (pref) {
+        if (pref.enable_push === false) {
+          isPushAllowed = false;
+        } else {
+          const typeToPrefKey: Record<string, string> = {
+            like: 'enable_likes',
+            reaction: 'enable_likes',
+            comment: 'enable_comments',
+            mention: 'enable_comments',
+            follow: 'enable_follows',
+            chat_message: 'enable_chats',
+            order_update: 'enable_orders',
+            order_created: 'enable_orders',
+            payment_confirmed: 'enable_orders',
+          };
 
-        for (const sub of subs) {
-          try {
-            const result = await sendWebPush(sub, pushPayload);
-            if (result.success) {
-              pushSent++;
-            } else if (result.expired) {
-              // Mark subscription as inactive instead of deleting
-              await supabase
-                .from('push_subscriptions')
-                .update({ is_active: false, updated_at: new Date().toISOString() })
-                .eq('id', sub.id);
-              pushFailed++;
-            } else {
-              pushFailed++;
-            }
-          } catch (pushErr) {
-            console.error('[WEB_PUSH_SINGLE_ERROR]', pushErr);
-            pushFailed++;
+          const prefKey = typeToPrefKey[type];
+          if (prefKey && pref[prefKey] === false) {
+            isPushAllowed = false;
           }
         }
+      }
+
+      if (isPushAllowed) {
+        const { data: subs } = await supabase
+          .from('push_subscriptions')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('is_active', true);
+
+        if (subs && subs.length > 0) {
+          const pushPayload = {
+            title,
+            body,
+            href: href || '/notifications',
+            icon: '/icon.jpg',
+            notificationId: notification?.id || null,
+          };
+
+          for (const sub of subs) {
+            try {
+              const result = await sendWebPush(sub, pushPayload);
+              if (result.success) {
+                pushSent++;
+              } else if (result.expired) {
+                // Mark subscription as inactive instead of deleting
+                await supabase
+                  .from('push_subscriptions')
+                  .update({ is_active: false, updated_at: new Date().toISOString() })
+                  .eq('id', sub.id);
+                pushFailed++;
+              } else {
+                pushFailed++;
+              }
+            } catch (pushErr) {
+              console.error('[WEB_PUSH_SINGLE_ERROR]', pushErr);
+              pushFailed++;
+            }
+          }
+        }
+      } else {
+        console.log('[PUSH_SKIPPED_PREFERENCE]', 'type=', type, 'user=', userId);
       }
     } catch (pushErr) {
       console.error('[WEB_PUSH_SEND_ERROR]', pushErr);

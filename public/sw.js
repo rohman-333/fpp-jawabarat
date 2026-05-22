@@ -46,7 +46,7 @@ self.addEventListener('notificationclick', function(event) {
 });
 
 // CACHE VERSION — increment this on every deploy to force old cache purge
-const CACHE_NAME = 'wibawa-cache-v8';
+const CACHE_NAME = 'wibawa-cache-v9';
 const urlsToCache = [
   '/manifest.webmanifest',
   '/icon.jpg'
