@@ -69,6 +69,7 @@ export function PushPermissionPrompt() {
           scope: '/',
           updateViaCache: 'none'
         });
+        console.log("SW registered");
 
         await navigator.serviceWorker.ready;
 
@@ -77,13 +78,21 @@ export function PushPermissionPrompt() {
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
         });
+        console.log("Push subscription created");
 
+        console.log("Sending subscription to API");
         // Send to server
-        await fetch('/api/push/subscribe', {
+        const res = await fetch('/api/push/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sub.toJSON())
         });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || `HTTP ${res.status}: Gagal menyimpan subscription ke server.`);
+        }
+        console.log("Subscription saved");
 
         setShow(false);
       } else if (permission === 'denied') {
@@ -92,6 +101,7 @@ export function PushPermissionPrompt() {
       }
     } catch (err) {
       console.error('[PUSH_PROMPT_ERROR]', err);
+      alert(err instanceof Error ? err.message : 'Gagal mengaktifkan notifikasi. Silakan periksa koneksi atau konsol.');
       setShow(false);
     }
   };

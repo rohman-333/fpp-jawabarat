@@ -29,6 +29,7 @@ export function PushNotificationManager() {
         scope: '/',
         updateViaCache: 'none',
       });
+      console.log("SW registered");
       const sub = await registration.pushManager.getSubscription();
       setSubscription(sub);
     } catch (err) {
@@ -74,9 +75,11 @@ export function PushNotificationManager() {
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
       });
+      console.log("Push subscription created");
 
       setSubscription(sub);
 
+      console.log("Sending subscription to API");
       // Send to server via API route (not directly to Supabase)
       const res = await fetch('/api/push/subscribe', {
         method: 'POST',
@@ -86,11 +89,12 @@ export function PushNotificationManager() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Gagal menyimpan subscription ke server.');
+        throw new Error(err.error || `HTTP ${res.status}: Gagal menyimpan subscription ke server.`);
       }
+      console.log("Subscription saved");
 
     } catch (err: any) {
-      console.error(err);
+      console.error('[PUSH_SUBSCRIBE_ERROR]', err);
       setError(err.message || 'Gagal mengaktifkan notifikasi.');
     } finally {
       setSaving(false);

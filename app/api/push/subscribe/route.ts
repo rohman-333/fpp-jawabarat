@@ -4,16 +4,24 @@ import { createClient } from '@/lib/supabase/server';
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError) {
+      console.error('[PUSH_SUBSCRIBE_AUTH_ERROR]', authError);
+      return NextResponse.json({ error: `Unauthorized: ${authError.message}` }, { status: 401 });
+    }
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.warn('[PUSH_SUBSCRIBE_NO_USER] User session not found');
+      return NextResponse.json({ error: 'Unauthorized: User session not found. Please log in again.' }, { status: 401 });
     }
 
     const subscription = await req.json();
+    console.log('[PUSH_SUBSCRIBE_PAYLOAD]', { userId: user.id, subscription });
 
     if (!subscription || !subscription.endpoint) {
-      return NextResponse.json({ error: 'Invalid subscription' }, { status: 400 });
+      console.warn('[PUSH_SUBSCRIBE_INVALID_PAYLOAD] Missing endpoint');
+      return NextResponse.json({ error: 'Invalid subscription: Missing subscription endpoint' }, { status: 400 });
     }
 
     const p256dh = subscription.keys?.p256dh;
@@ -21,7 +29,7 @@ export async function POST(req: Request) {
     const userAgent = req.headers.get('user-agent') || 'Unknown';
 
     // Upsert subscription — mark as active on re-subscribe
-    const { error } = await supabase
+    const { error: dbError } = await supabase
       .from('push_subscriptions')
       .upsert({
         user_id: user.id,
@@ -35,15 +43,15 @@ export async function POST(req: Request) {
         onConflict: 'user_id,endpoint'
       });
 
-    if (error) {
-      console.error('[PUSH_SUBSCRIBE_DB_ERROR]', error);
-      return NextResponse.json({ error: 'Failed to save subscription' }, { status: 500 });
+    if (dbError) {
+      console.error('[PUSH_SUBSCRIBE_DB_ERROR]', dbError);
+      return NextResponse.json({ error: `Failed to save subscription to database: ${dbError.message} (Code: ${dbError.code})` }, { status: 500 });
     }
 
-    console.log('[PUSH_SUBSCRIBED]', user.id, subscription.endpoint.slice(-20));
+    console.log('[PUSH_SUBSCRIBED_SUCCESS]', user.id, subscription.endpoint.slice(-20));
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error('[PUSH_SUBSCRIBE_ERROR]', err);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('[PUSH_SUBSCRIBE_EXCEPTION]', err);
+    return NextResponse.json({ error: `Internal Server Error: ${err.message || err}` }, { status: 500 });
   }
 }
