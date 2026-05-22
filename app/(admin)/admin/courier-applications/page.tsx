@@ -29,7 +29,7 @@ export default async function AdminCourierApplicationsPage() {
     .from('courier_applications')
     .select(`
       *,
-      profiles:user_id(name, email)
+      profiles:user_id(name)
     `)
     .order('created_at', { ascending: false });
 

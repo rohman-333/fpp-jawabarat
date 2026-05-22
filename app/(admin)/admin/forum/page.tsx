@@ -3,9 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { DashboardSidebar } from '@/components/shared/DashboardSidebar';
 import { DashboardTopbar } from '@/components/shared/DashboardTopbar';
-import { EmptyState } from '@/components/shared/EmptyState';
-import { MessageSquare } from 'lucide-react';
-import Link from 'next/link';
+import { AdminForumClient } from './AdminForumClient';
 
 export default async function AdminForumPage() {
   const supabase = await createClient();
@@ -25,10 +23,47 @@ export default async function AdminForumPage() {
     redirect('/dashboard');
   }
 
+  // Try forum_posts first (primary table from migration 001)
+  let posts: any[] = [];
+  const { data: forumPosts, error: forumPostsError } = await supabase
+    .from('forum_posts')
+    .select('*, profiles:author_id(name, avatar_url, role)')
+    .order('created_at', { ascending: false });
+
+  if (!forumPostsError && forumPosts && forumPosts.length > 0) {
+    posts = forumPosts;
+  } else {
+    // Fallback: try forum_discussions table
+    const { data: discussions } = await supabase
+      .from('forum_discussions')
+      .select('*, profiles:user_id(name, avatar_url, role)')
+      .order('created_at', { ascending: false });
+    
+    if (discussions && discussions.length > 0) {
+      // Map forum_discussions fields to match forum_posts interface
+      posts = discussions.map((d: any) => ({
+        id: d.id,
+        title: d.title,
+        content: d.content,
+        author_id: d.user_id,
+        status: d.status || 'active',
+        is_hidden: d.is_hidden || false,
+        is_pinned: d.is_pinned || false,
+        created_at: d.created_at,
+        updated_at: d.updated_at,
+        profiles: d.profiles,
+        _source: 'forum_discussions' // Track source table for client operations
+      }));
+    }
+  }
+
+  const role = profile?.role || 'user';
+  const isAdmin = role === 'superadmin' || role === 'admin' || role === 'operator' || role === 'team';
+
   return (
     <div className="min-h-screen bg-slate-50 flex pb-20 md:pb-0">
       <DashboardSidebar 
-        isAdmin={true} 
+        isAdmin={isAdmin} 
         userName={profile?.name || 'Admin'} 
         avatarUrl={profile?.avatar_url}
       />
@@ -37,18 +72,7 @@ export default async function AdminForumPage() {
         <DashboardTopbar title="Manajemen Forum" userName={profile?.name || 'Admin'} avatarUrl={profile?.avatar_url} />
 
         <main className="p-4 md:p-8 max-w-7xl mx-auto w-full">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-slate-800">Forum Musyawarah</h1>
-            <p className="text-slate-500 text-sm mt-1">Kelola topik diskusi dan laporan moderasi forum.</p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12">
-            <EmptyState 
-              title="Modul Segera Hadir" 
-              description="Fitur manajemen forum sedang dalam tahap pengembangan dan akan segera tersedia pada pembaruan sistem berikutnya." 
-              icon={<MessageSquare className="w-12 h-12 text-slate-300" />}
-            />
-          </div>
+          <AdminForumClient posts={posts} />
         </main>
       </div>
     </div>

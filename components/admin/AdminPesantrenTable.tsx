@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Landmark, Search, Filter, CheckCircle, Clock, XCircle, MapPin, Loader2 } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { setPesantrenStatus } from '@/app/(admin)/admin/pesantren/actions';
+import { resolveMediaUrl } from '@/lib/media/resolveMediaUrl';
 
 export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] }) {
   const router = useRouter();
@@ -119,7 +120,7 @@ export function AdminPesantrenTable({ pesantrenList }: { pesantrenList: any[] })
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
                           {p.logo_url ? (
-                            <img src={p.logo_url} alt={p.name} className="w-full h-full object-cover" />
+                            <img src={resolveMediaUrl(p.logo_url) || '/branding/logo-square.png'} alt={p.name} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/branding/logo-square.png'; }} />
                           ) : (
                             <Landmark className="w-5 h-5 text-slate-400" />
                           )}

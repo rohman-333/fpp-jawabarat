@@ -30,7 +30,7 @@ export default async function AdminPesantrenDetailPage({ params }: { params: Pro
     .from('pesantren')
     .select(`
       *,
-      profiles:profile_id(name, email, phone)
+      profiles:profile_id(name, phone)
     `)
     .eq('id', id)
     .single();

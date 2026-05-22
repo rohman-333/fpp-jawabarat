@@ -75,26 +75,28 @@ export function ProfileForm({ profile: initialProfile, userEmail, userId }: { pr
         </div>
         
         <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-8">
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Photo Uploaders */}
-            <div className="w-full md:w-1/3 space-y-6">
-              <div>
-                <h3 className="text-sm font-bold text-slate-700 mb-3">Foto Sampul / Cover</h3>
-                <div className="aspect-[21/9] w-full max-w-full mx-auto bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
-                  <ImageUploader 
-                    name="cover_url"
-                    label=""
-                    defaultValue={profile?.cover_url}
-                    type="photo"
-                    userId={userId}
-                    bucket="covers"
-                  />
-                </div>
-              </div>
+          {/* Foto Sampul / Cover - Full Width */}
+          <div className="w-full">
+            <h3 className="text-sm font-bold text-slate-700 mb-3">Foto Sampul / Cover</h3>
+            <div className="w-full bg-slate-100 rounded-2xl overflow-hidden border border-slate-200" style={{ minHeight: '160px', height: '220px' }}>
+              <ImageUploader 
+                name="cover_url"
+                label=""
+                defaultValue={profile?.cover_url}
+                type="photo"
+                userId={userId}
+                bucket="covers"
+              />
+            </div>
+            <p className="text-xs text-slate-400 mt-2">Ukuran ideal: 1200x400px. Tampil di profil publik.</p>
+          </div>
 
-              <div>
-                <h3 className="text-sm font-bold text-slate-700 mb-3">Foto Profil</h3>
-                <div className="aspect-square w-full max-w-[150px] mx-auto bg-slate-100 rounded-2xl overflow-hidden border border-slate-200">
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Foto Profil Uploader */}
+            <div className="w-full md:w-1/3 space-y-6 flex flex-col items-center">
+              <div className="w-full">
+                <h3 className="text-sm font-bold text-slate-700 mb-3 text-center md:text-left">Foto Profil</h3>
+                <div className="aspect-square w-full max-w-[150px] mx-auto md:mx-0 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200">
                   <ImageUploader 
                     name="avatar_url"
                     label=""

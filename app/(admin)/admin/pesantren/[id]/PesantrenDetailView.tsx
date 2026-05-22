@@ -44,7 +44,7 @@ export function PesantrenDetailView({ pesantren }: { pesantren: any }) {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-              {resolveMediaUrl(pesantren.logo_url) ? <img src={resolveMediaUrl(pesantren.logo_url)!} alt="Logo" className="w-full h-full object-cover" /> : <Building2 className="w-8 h-8 text-slate-400" />}
+              {resolveMediaUrl(pesantren.logo_url) ? <img src={resolveMediaUrl(pesantren.logo_url)!} alt="Logo" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/branding/logo-square.png'; }} /> : <Building2 className="w-8 h-8 text-slate-400" />}
             </div>
             <div>
               <h2 className="text-2xl font-bold text-slate-800">{pesantren.name}</h2>
@@ -251,7 +251,7 @@ export function PesantrenDetailView({ pesantren }: { pesantren: any }) {
                 <h3 className="font-bold text-slate-800">Foto Fasilitas</h3>
               </div>
               <div className="p-4">
-                <img src={resolveMediaUrl(pesantren.foto_url)!} alt="Fasilitas" className="w-full h-auto rounded-xl" />
+                <img src={resolveMediaUrl(pesantren.foto_url)!} alt="Fasilitas" className="w-full h-auto rounded-xl" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/branding/logo.png'; }} />
               </div>
             </div>
           )}

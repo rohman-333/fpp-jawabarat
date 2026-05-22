@@ -73,23 +73,28 @@ export function ImageUploader({ name, label, defaultValue, type, userId, bucket 
   };
 
   const isAvatar = type === 'avatar';
-  const containerShape = isAvatar ? 'aspect-square rounded-full' : 'aspect-video rounded-xl';
+  const isPhoto = type === 'photo';
+  const containerShape = isAvatar 
+    ? 'aspect-square rounded-full' 
+    : isPhoto 
+      ? 'w-full h-full rounded-xl' 
+      : 'aspect-video rounded-xl';
 
   return (
-    <div className="space-y-2 flex flex-col items-center">
+    <div className={`space-y-2 flex flex-col items-center ${isPhoto ? 'w-full h-full' : ''}`}>
       {label && <label className="text-sm font-semibold text-slate-700 w-full text-left">{label}</label>}
       
       {/* Hidden input for Server Action to read the final URL */}
       <input type="hidden" name={name} value={uploadedUrl || ''} />
 
-      <div className={`relative border-2 border-dashed border-slate-300 bg-slate-50 overflow-hidden transition-all hover:bg-slate-100 group w-full ${containerShape}`}>
+      <div className={`relative border-2 border-dashed border-slate-300 bg-slate-50 overflow-hidden transition-all hover:bg-slate-100 group w-full ${isPhoto ? 'h-full' : ''} ${containerShape}`}>
         
         {preview ? (
           <div className="relative w-full h-full flex items-center justify-center bg-black/5">
             <img 
               src={preview} 
               alt="Preview" 
-              className={`w-full h-full ${isAvatar ? 'object-cover' : 'object-contain'} ${type === 'logo' ? 'p-4' : ''}`}
+              className={`w-full h-full ${isAvatar || isPhoto ? 'object-cover' : 'object-contain'} ${type === 'logo' ? 'p-4' : ''}`}
             />
             {isUploading ? (
               <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center">

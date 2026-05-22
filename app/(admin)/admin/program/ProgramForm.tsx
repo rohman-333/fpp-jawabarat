@@ -3,15 +3,28 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, AlertCircle, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+
+// Valid statuses matching database constraint programs_status_check
+const VALID_PROGRAM_STATUSES = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published' },
+  { value: 'archived', label: 'Archived' },
+] as const;
 
 export function ProgramForm({ initialData = null }: { initialData?: any }) {
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
   const isEditing = !!initialData;
+
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 6000);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,6 +38,14 @@ export function ProgramForm({ initialData = null }: { initialData?: any }) {
     const category = formData.get('category') as string;
     const location = formData.get('location') as string;
     const status = formData.get('status') as string;
+
+    // Validate status client-side before sending
+    const validStatuses = VALID_PROGRAM_STATUSES.map(s => s.value) as string[];
+    if (!validStatuses.includes(status)) {
+      showToast('error', `Status "${status}" tidak valid. Pilih salah satu: ${validStatuses.join(', ')}`);
+      setLoading(false);
+      return;
+    }
 
     const programData = {
       title, slug, description, image_url, category, location, status
@@ -41,7 +62,15 @@ export function ProgramForm({ initialData = null }: { initialData?: any }) {
     }
 
     if (error) {
-      alert('Gagal menyimpan program: ' + error.message);
+      let msg = error.message;
+      if (error.code === '23514') {
+        msg = `Constraint violation pada tabel programs: Status "${status}" tidak diterima database. Status yang valid: draft, published, archived. Detail: ${error.message}`;
+      } else if (error.code === '23505') {
+        msg = `Data duplikat: Slug "${slug}" sudah dipakai program lain. Gunakan slug berbeda. Detail: ${error.message}`;
+      } else if (error.code === '23503') {
+        msg = `Referensi tidak valid: ${error.message}`;
+      }
+      showToast('error', msg);
       setLoading(false);
     } else {
       router.push('/admin/program');
@@ -51,6 +80,22 @@ export function ProgramForm({ initialData = null }: { initialData?: any }) {
 
   return (
     <div className="max-w-3xl mx-auto">
+      {/* Toast notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-[200] max-w-md px-5 py-3.5 rounded-2xl shadow-xl border flex items-start gap-3 animate-in slide-in-from-right duration-300
+          ${toast.type === 'success' 
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+            : 'bg-red-50 border-red-200 text-red-800'
+          }`}
+        >
+          {toast.type === 'success' 
+            ? <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            : <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          }
+          <span className="text-sm font-semibold leading-relaxed">{toast.message}</span>
+        </div>
+      )}
+
       <div className="flex items-center gap-4 mb-6">
         <Link href="/admin/program" className="p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
           <ArrowLeft className="w-5 h-5 text-slate-600" />
@@ -103,9 +148,9 @@ export function ProgramForm({ initialData = null }: { initialData?: any }) {
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Status *</label>
                 <select name="status" required defaultValue={initialData?.status || 'draft'} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                  <option value="published">Published</option>
-                  <option value="draft">Draft</option>
-                  <option value="archived">Archived</option>
+                  {VALID_PROGRAM_STATUSES.map(s => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -125,3 +170,4 @@ export function ProgramForm({ initialData = null }: { initialData?: any }) {
     </div>
   );
 }
+

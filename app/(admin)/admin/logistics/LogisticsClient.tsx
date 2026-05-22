@@ -106,14 +106,18 @@ export function LogisticsClient({
     if (!newZone.name || !newZone.city) return;
     setActionLoading(true);
     try {
-      const { data, error } = await supabase.from('delivery_zones').insert([newZone]).select();
+      const slug = newZone.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const { data, error } = await supabase.from('delivery_zones').insert([{ ...newZone, slug }]).select();
       if (error) throw error;
       if (data) setZones(prev => [...prev, data[0]]);
       setShowZoneModal(false);
       setNewZone({ name: '', province: '', city: '', district: '', postal_code: '' });
       triggerToast('Zona pengiriman baru berhasil ditambahkan!');
     } catch (err: any) {
-      triggerToast(err.message, 'error');
+      const msg = err.code === '23505' 
+        ? 'Zona dengan nama/slug ini sudah ada. Gunakan nama lain.'
+        : `Gagal menambah zona: ${err.message || 'Unknown error'}`;
+      triggerToast(msg, 'error');
     } finally {
       setActionLoading(false);
     }
@@ -125,13 +129,29 @@ export function LogisticsClient({
     if (!newFare.service_type_id || !newFare.zone_id) return;
     setActionLoading(true);
     try {
-      const { data, error } = await supabase.from('delivery_fare_rules').insert([newFare]).select('*, service_types(name), delivery_zones(name)');
+      const { data, error } = await supabase
+        .from('delivery_fare_rules')
+        .upsert([newFare], { onConflict: 'service_type_id, zone_id' })
+        .select('*, service_types(name), delivery_zones(name)');
       if (error) throw error;
-      if (data) setFares(prev => [...prev, data[0]]);
+      if (data) {
+        setFares(prev => {
+          const existingIdx = prev.findIndex((f: any) => f.service_type_id === newFare.service_type_id && f.zone_id === newFare.zone_id);
+          if (existingIdx >= 0) {
+            const updated = [...prev];
+            updated[existingIdx] = data[0];
+            return updated;
+          }
+          return [...prev, data[0]];
+        });
+      }
       setShowFareModal(false);
-      triggerToast('Aturan tarif ongkir berhasil ditambahkan!');
+      triggerToast('Aturan tarif ongkir berhasil disimpan!');
     } catch (err: any) {
-      triggerToast(err.message, 'error');
+      const msg = err.code === '23514'
+        ? `Validasi gagal: ${err.message}`
+        : `Gagal menyimpan tarif: ${err.message || 'Unknown error'}`;
+      triggerToast(msg, 'error');
     } finally {
       setActionLoading(false);
     }
@@ -213,7 +233,7 @@ export function LogisticsClient({
         <div className={`fixed top-4 right-4 z-50 p-4 rounded-xl border flex items-center gap-3 shadow-lg transition-all ${
           toastMsg.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'
         }`}>
-          <CheckCircle className="w-5 h-5 shrink-0" />
+          {toastMsg.type === 'success' ? <CheckCircle className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
           <span className="text-sm font-bold">{toastMsg.text}</span>
         </div>
       )}

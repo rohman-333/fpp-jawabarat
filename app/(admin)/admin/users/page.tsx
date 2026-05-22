@@ -1,11 +1,10 @@
 import { canAccessAdmin } from '@/lib/auth/roles';
 import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import { DashboardSidebar } from '@/components/shared/DashboardSidebar';
 import { DashboardTopbar } from '@/components/shared/DashboardTopbar';
-import { EmptyState } from '@/components/shared/EmptyState';
-import { Users } from 'lucide-react';
-import Link from 'next/link';
+import { AdminUsersClient } from './AdminUsersClient';
 
 export default async function AdminUsersPage() {
   const supabase = await createClient();
@@ -25,10 +24,41 @@ export default async function AdminUsersPage() {
     redirect('/dashboard');
   }
 
+  // Fetch all profiles
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, name, username, avatar_url, role, created_at, profile_completed, is_seller, is_courier')
+    .order('created_at', { ascending: false });
+
+  // Securely fetch emails from auth.users via service role (server-side only)
+  let emailMap: Record<string, string> = {};
+  const adminClient = getSupabaseAdmin();
+  if (adminClient) {
+    try {
+      const { data: authUsersData } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
+      if (authUsersData?.users) {
+        authUsersData.users.forEach((au: any) => {
+          emailMap[au.id] = au.email || '';
+        });
+      }
+    } catch (err) {
+      console.error('[ADMIN_USERS] Failed to fetch auth users:', err);
+    }
+  }
+
+  // Merge email into profiles
+  const usersWithEmail = (profiles || []).map(p => ({
+    ...p,
+    email: emailMap[p.id] || '',
+  }));
+
+  const role = profile?.role || 'user';
+  const isAdmin = role === 'superadmin' || role === 'admin' || role === 'operator' || role === 'team';
+
   return (
     <div className="min-h-screen bg-slate-50 flex pb-20 md:pb-0">
       <DashboardSidebar 
-        isAdmin={true} 
+        isAdmin={isAdmin} 
         userName={profile?.name || 'Admin'} 
         avatarUrl={profile?.avatar_url}
       />
@@ -37,18 +67,7 @@ export default async function AdminUsersPage() {
         <DashboardTopbar title="Manajemen Pengguna" userName={profile?.name || 'Admin'} avatarUrl={profile?.avatar_url} />
 
         <main className="p-4 md:p-8 max-w-7xl mx-auto w-full">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-slate-800">Daftar Pengguna</h1>
-            <p className="text-slate-500 text-sm mt-1">Kelola akses dan otorisasi pengguna platform.</p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12">
-            <EmptyState 
-              title="Modul Segera Hadir" 
-              description="Fitur manajemen pengguna dan role sedang dalam tahap pengembangan dan akan segera tersedia pada pembaruan sistem berikutnya." 
-              icon={<Users className="w-12 h-12 text-slate-300" />}
-            />
-          </div>
+          <AdminUsersClient users={usersWithEmail} currentUserId={user.id} />
         </main>
       </div>
     </div>

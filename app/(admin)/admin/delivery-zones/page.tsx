@@ -19,7 +19,7 @@ export default async function Page() {
     supabase.from('delivery_zones').select('*').order('name', { ascending: true }),
     supabase.from('delivery_fare_rules').select('*, service_types(name), delivery_zones(name)'),
     supabase.from('shipping_methods').select('*').order('sort_order', { ascending: true }),
-    supabase.from('courier_profiles').select('*, user:user_id(name, email, phone)'),
+    supabase.from('courier_profiles').select('*, user:user_id(name, phone)'),
     supabase.from('deliveries').select('*, service_types(name), courier:courier_id(name)').order('created_at', { ascending: false }).limit(20),
     supabase.from('courier_payouts').select('*, courier:courier_id(name)').order('created_at', { ascending: false }),
     supabase.from('logistics_settings').select('*')

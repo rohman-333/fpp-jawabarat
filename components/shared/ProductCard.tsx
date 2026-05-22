@@ -30,7 +30,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
     <Link href={`/marketplace/${product.slug}`} className="group bg-white rounded-xl shadow-sm hover:shadow-lg border border-slate-100 overflow-hidden transition-all duration-300 flex flex-col h-full block">
       <div className="aspect-square bg-slate-50 relative overflow-hidden shrink-0">
         {product.image_url ? (
-          <img src={product.image_url} alt={product.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
+          <img src={product.image_url} alt={product.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/branding/logo-square.png'; }} />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-slate-300">
             <ShoppingBag className="w-8 h-8 opacity-50" />
