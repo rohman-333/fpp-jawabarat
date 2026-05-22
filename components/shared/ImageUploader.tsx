@@ -5,6 +5,7 @@ import { UploadCloud, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { uploadPesantrenLogo, uploadPesantrenPhoto, uploadAvatar, uploadProductImage } from '@/lib/supabase/storage';
 import { createClient } from '@/lib/supabase/client';
 import { compressImage } from '@/lib/media/compressImage';
+import { resolveMediaUrlWithFallback } from '@/lib/media/resolveMediaUrl';
 
 interface ImageUploaderProps {
   name: string;
@@ -16,7 +17,7 @@ interface ImageUploaderProps {
 }
 
 export function ImageUploader({ name, label, defaultValue, type, userId, bucket }: ImageUploaderProps) {
-  const [preview, setPreview] = useState<string | null>(defaultValue || null);
+  const [preview, setPreview] = useState<string | null>(defaultValue ? resolveMediaUrlWithFallback(defaultValue) : null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(defaultValue || null);

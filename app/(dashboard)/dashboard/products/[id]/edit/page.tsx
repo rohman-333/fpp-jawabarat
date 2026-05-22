@@ -8,7 +8,8 @@ import { ImageUploader } from '@/components/shared/ImageUploader';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -25,7 +26,7 @@ export default async function EditProductPage({ params }: { params: { id: string
   const { data: product } = await supabase
     .from('products')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('seller_id', user.id)
     .single();
 

@@ -20,28 +20,32 @@ export default async function ProgramsPage() {
       desc: 'Membangun jejaring sosial dan kolaborasi aktif antar elemen masyarakat untuk memajukan potensi kearifan lokal.',
       icon: Shield,
       color: 'bg-blue-500',
-      tag: 'Sosial & Budaya'
+      tag: 'Sosial & Budaya',
+      href: '/dashboard/program'
     },
     {
       title: 'Digitalisasi Pesantren',
       desc: 'Modernisasi administrasi, sistem e-learning santri, dan tata kelola informasi pondok pesantren berbasis cloud.',
       icon: Cpu,
       color: 'bg-indigo-500',
-      tag: 'Teknologi'
+      tag: 'Teknologi',
+      href: '/dashboard/pesantren/apply'
     },
     {
       title: 'Marketplace Lokal',
       desc: 'Mendorong hilirisasi produk hasil karya santri dan UMKM ke pasar nasional secara langsung tanpa perantara.',
       icon: Store,
       color: 'bg-emerald-500',
-      tag: 'Ekonomi Mikro'
+      tag: 'Ekonomi Mikro',
+      href: '/dashboard/products/new'
     },
     {
       title: 'Kurir dan Layanan Lokal',
       desc: 'Penyediaan armada pengiriman lokal mandiri guna menekan biaya logistik dan membuka lapangan kerja santri.',
       icon: Truck,
       color: 'bg-amber-500',
-      tag: 'Logistik'
+      tag: 'Logistik',
+      href: '/dashboard/courier/apply'
     }
   ];
 
@@ -86,7 +90,7 @@ export default async function ProgramsPage() {
                   </span>
                   <h3 className="font-extrabold text-slate-800 text-base mb-2 group-hover:text-blue-600 transition-colors">{p.title}</h3>
                   <p className="text-slate-500 text-xs md:text-sm leading-relaxed mb-6 font-medium">{p.desc}</p>
-                  <Link href="/register" className="mt-auto text-blue-600 text-xs font-bold flex items-center gap-1.5 hover:underline group-hover:gap-2.5 transition-all">
+                  <Link href={p.href} className="mt-auto text-blue-600 text-xs font-bold flex items-center gap-1.5 hover:underline group-hover:gap-2.5 transition-all">
                     Daftar Sekarang <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>

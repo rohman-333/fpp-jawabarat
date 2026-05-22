@@ -37,10 +37,14 @@ export default async function NewProductPage() {
     ? fetchedCategories
     : [{ id: '', name: 'Lainnya', slug: 'lainnya' }];
 
+  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'team';
+  const isApprovedSeller = profile?.is_seller && profile?.seller_status === 'approved';
+  const canManageProducts = isApprovedSeller || isAdmin;
+
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <DashboardSidebar 
-        isAdmin={profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'operator' || profile?.role === 'team'} 
+        isAdmin={isAdmin} 
         userName={profile?.name || 'User'} 
         avatarUrl={profile?.avatar_url}
       />
@@ -48,25 +52,7 @@ export default async function NewProductPage() {
       <div className="flex-1 flex flex-col min-w-0">
         <DashboardTopbar title="Tambah Produk" userName={profile?.name || 'User'} avatarUrl={profile?.avatar_url} />
 
-        {!profile?.is_seller && (profile?.role === 'superadmin' || profile?.role === 'admin') ? (
-          <main className="p-4 md:p-8 flex-1 flex items-center justify-center">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 text-center max-w-md w-full">
-              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </div>
-              <h2 className="text-xl font-bold text-slate-800 mb-2">Akses Administrator</h2>
-              <p className="text-slate-500 mb-6">Akun Anda belum terdaftar sebagai Seller, namun Anda memiliki hak akses Administrator untuk mengelola seluruh Marketplace.</p>
-              <div className="space-y-3">
-                <Link href="/admin/marketplace/products/new" className="block w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
-                  Tambah Produk dari Admin
-                </Link>
-                <Link href="/admin/marketplace" className="block w-full bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors">
-                  Kelola Marketplace
-                </Link>
-              </div>
-            </div>
-          </main>
-        ) : !profile?.is_seller ? (
+        {!canManageProducts ? (
           <main className="p-4 md:p-8 flex-1 flex items-center justify-center">
             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 text-center max-w-md w-full">
               <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -87,6 +73,17 @@ export default async function NewProductPage() {
         ) : (
           <main className="p-4 md:p-8">
           <div className="max-w-3xl mx-auto">
+            {isAdmin && !isApprovedSeller && (
+              <div className="bg-blue-50 border border-blue-200 p-6 rounded-2xl mb-6 flex items-start gap-4 shadow-sm">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-blue-900">Akses Administrator</h4>
+                  <p className="text-xs text-blue-700/80 mt-0.5">Anda membuat produk ini sebagai administrator. Produk akan langsung aktif dan ditautkan ke akun pengelola Anda.</p>
+                </div>
+              </div>
+            )}
             <Link href="/dashboard/products" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-blue-600 mb-6 transition-colors">
               <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Katalog
             </Link>

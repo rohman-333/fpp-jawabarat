@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingBag, Plus, Edit, Trash2, Eye, ShieldCheck, Store, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { deleteProduct } from './actions';
+import { resolveMediaUrlWithFallback } from '@/lib/media/resolveMediaUrl';
 
 export default async function ProductsPage() {
   const supabase = await createClient();
@@ -17,15 +18,23 @@ export default async function ProductsPage() {
   }
 
   // 1. Safe Profile Query
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, name, role, is_seller, seller_status, has_pesantren, pesantren_id, avatar_url')
-    .eq('id', user.id)
-    .single();
+  let profile: any = null;
+  let profileErrorMsg: string | null = null;
 
-  if (profileError) {
-    console.error('[SELLER_PRODUCTS_PAGE_ERROR] Profile fetch failed:', profileError);
-    throw new Error(`Gagal memuat profil pengguna: ${profileError.message}`);
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, role, is_seller, seller_status, has_pesantren, pesantren_id, avatar_url')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      profileErrorMsg = error.message;
+    } else {
+      profile = data;
+    }
+  } catch (err: any) {
+    profileErrorMsg = err?.message || 'Gagal memuat profil pengguna.';
   }
 
   // 2. Logic Akses: Admin/Superadmin/Team
@@ -34,11 +43,14 @@ export default async function ProductsPage() {
   // 3. Logic Akses: Bukan Seller
   const isApprovedSeller = profile?.is_seller && profile?.seller_status === 'approved';
 
+  // Can manage products if approved seller OR admin
+  const canManageProducts = isApprovedSeller || isAdmin;
+
   // 4. Safe Products Query
   let products: any[] = [];
   let productsError = null;
 
-  if (isApprovedSeller) {
+  if (canManageProducts && profile) {
     const res = await supabase
       .from('products')
       .select('id, name, slug, description, price, stock, category, category_id, image_url, status, seller_id, created_at')
@@ -72,7 +84,7 @@ export default async function ProductsPage() {
                 <h1 className="text-2xl font-bold text-slate-800">Katalog Produk</h1>
                 <p className="text-sm text-slate-500 mt-1">Kelola barang dan produk toko Anda</p>
               </div>
-              {isApprovedSeller && (
+              {canManageProducts && (
                 <Link href="/dashboard/products/new">
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold">
                     <Plus className="w-4 h-4 mr-2" /> Tambah Produk
@@ -80,6 +92,19 @@ export default async function ProductsPage() {
                 </Link>
               )}
             </div>
+
+            {/* Error state for profile fetch */}
+            {profileErrorMsg && (
+              <div className="bg-red-50 border border-red-200 p-6 rounded-2xl mb-8 shadow-sm flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-red-900 mb-1">Gagal memuat profil</h2>
+                  <p className="text-red-700/80 text-sm">{profileErrorMsg}</p>
+                </div>
+              </div>
+            )}
 
             {/* Error state for products fetch */}
             {productsError && (
@@ -95,24 +120,7 @@ export default async function ProductsPage() {
             )}
 
             {/* Akses Logic UI */}
-            {isAdmin && !isApprovedSeller ? (
-               <div className="bg-blue-50 border border-blue-200 p-8 rounded-3xl mb-8 shadow-sm text-center flex flex-col items-center">
-                 <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                   <ShieldCheck className="w-8 h-8 text-blue-600" />
-                 </div>
-                 <h2 className="text-xl font-bold text-blue-950 mb-2">Akses Administrator</h2>
-                 <p className="text-blue-700/80 text-sm mb-6 max-w-md">
-                   Anda masuk sebagai tim internal. Kelola produk melalui Admin Marketplace alih-alih melalui dashboard member biasa.
-                 </p>
-                 <div className="flex gap-3">
-                   <Link href="/admin/marketplace">
-                     <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 px-6 rounded-xl">
-                       Admin Marketplace
-                     </Button>
-                   </Link>
-                 </div>
-               </div>
-            ) : !isApprovedSeller ? (
+            {!canManageProducts ? (
               <div className="bg-amber-50 border border-amber-200 p-8 rounded-3xl mb-8 shadow-sm text-center flex flex-col items-center">
                 <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4">
                   <Store className="w-8 h-8 text-amber-600" />
@@ -128,8 +136,30 @@ export default async function ProductsPage() {
                 </Link>
               </div>
             ) : (
-              /* Approved Seller View */
+              /* Approved Seller / Admin View */
               <>
+                {isAdmin && !isApprovedSeller && (
+                  <div className="bg-blue-50 border border-blue-200 p-6 rounded-3xl mb-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 text-left">
+                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-base font-bold text-blue-950">Akses Administrator</h2>
+                        <p className="text-blue-700/80 text-xs mt-0.5">
+                          Anda masuk sebagai administrator. Anda dapat membuat produk Anda sendiri langsung dari sini.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Link href="/admin/marketplace">
+                        <Button variant="outline" className="text-blue-700 border-blue-200 hover:bg-blue-50 font-bold px-4 py-2 rounded-xl text-xs">
+                          Admin Marketplace
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                )}
                 {products.length === 0 ? (
                   <div className="mt-10">
                     <EmptyState 
@@ -166,7 +196,7 @@ export default async function ProductsPage() {
                                 <div className="flex items-center gap-4">
                                   <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
                                     {product.image_url ? (
-                                      <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                                      <img src={resolveMediaUrlWithFallback(product.image_url)} alt={product.name} className="w-full h-full object-cover" />
                                     ) : (
                                       <div className="w-full h-full flex items-center justify-center text-slate-400">
                                         <ShoppingBag className="w-5 h-5" />
