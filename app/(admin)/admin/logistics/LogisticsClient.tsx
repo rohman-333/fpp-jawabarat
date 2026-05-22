@@ -132,7 +132,7 @@ export function LogisticsClient({
       const { data, error } = await supabase
         .from('delivery_fare_rules')
         .upsert([newFare], { onConflict: 'service_type_id, zone_id' })
-        .select('*, service_types(name), delivery_zones(name)');
+        .select('*, service_types(name), delivery_zones!zone_id(name)');
       if (error) throw error;
       if (data) {
         setFares(prev => {

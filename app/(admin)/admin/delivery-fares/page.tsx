@@ -17,7 +17,7 @@ export default async function Page() {
   const [servicesRes, zonesRes, faresRes, methodsRes, couriersRes, deliveriesRes, payoutsRes, settingsRes] = await Promise.all([
     supabase.from('service_types').select('*').order('sort_order', { ascending: true }),
     supabase.from('delivery_zones').select('*').order('name', { ascending: true }),
-    supabase.from('delivery_fare_rules').select('*, service_types(name), delivery_zones(name)'),
+    supabase.from('delivery_fare_rules').select('*, service_types(name), delivery_zones!zone_id(name)'),
     supabase.from('shipping_methods').select('*').order('sort_order', { ascending: true }),
     supabase.from('courier_profiles').select('*, user:user_id(name, phone)'),
     supabase.from('deliveries').select('*, service_types(name), courier:courier_id(name)').order('created_at', { ascending: false }).limit(20),

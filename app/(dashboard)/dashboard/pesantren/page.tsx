@@ -69,7 +69,7 @@ export default async function PesantrenDashboardPage() {
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="h-48 bg-blue-900 relative">
                   {resolveMediaUrl(pesantren.foto_url) ? (
-                    <img src={resolveMediaUrl(pesantren.foto_url)!} alt="Foto Pesantren" className="w-full h-full object-cover opacity-80" />
+                    <img src={resolveMediaUrl(pesantren.foto_url)!} alt="Foto Pesantren" className="w-full h-full object-cover opacity-80" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/branding/logo.png'; }} />
                   ) : (
                     <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')] mix-blend-overlay"></div>
                   )}
@@ -78,7 +78,7 @@ export default async function PesantrenDashboardPage() {
                 <div className="px-8 pb-8 relative">
                   <div className="w-24 h-24 bg-white rounded-xl shadow-md border-4 border-white flex items-center justify-center text-4xl font-bold text-blue-600 -mt-12 mb-4 overflow-hidden z-10 relative">
                     {resolveMediaUrl(pesantren.logo_url) ? (
-                      <img src={resolveMediaUrl(pesantren.logo_url)!} alt="" className="w-full h-full object-cover" />
+                      <img src={resolveMediaUrl(pesantren.logo_url)!} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/branding/logo-square.png'; }} />
                     ) : pesantren.name.charAt(0)}
                   </div>
 

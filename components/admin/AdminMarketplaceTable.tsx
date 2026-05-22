@@ -54,7 +54,7 @@ export function AdminMarketplaceTable({ products }: { products: any[] }) {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded bg-slate-100 overflow-hidden shrink-0">
-                          {product.image_url && <img src={product.image_url} alt="" className="w-full h-full object-cover" />}
+                          {product.image_url && <img src={product.image_url} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/branding/logo-square.png'; }} />}
                         </div>
                         <div>
                           <p className="font-bold text-slate-800 text-sm line-clamp-1">{product.name}</p>

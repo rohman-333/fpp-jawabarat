@@ -20,12 +20,28 @@ export const FALLBACK_COVER = '/branding/logo.png';
 // Common Supabase Storage buckets to try for bare filenames
 const STORAGE_BUCKETS = ['media', 'pesantren', 'avatars', 'covers', 'products', 'uploads'];
 
+/**
+ * Check if the filename matches legacy bare filename pattern:
+ * e.g. file_xxx.png, file_xxx.jpg, etc. without folder/bucket prefix.
+ */
+export function isLegacyBareFilename(value: string | null | undefined): boolean {
+  if (!value) return false;
+  const clean = value.trim();
+  if (clean.includes('/')) return false;
+  return /^file_.+\.(png|jpg|jpeg|webp)$/i.test(clean);
+}
+
 export function resolveMediaUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   
   // Clean up any accidental whitespace
   const cleanUrl = url.trim();
   if (!cleanUrl) return null;
+
+  // Check for legacy bare filename and return fallback image directly
+  if (isLegacyBareFilename(cleanUrl)) {
+    return FALLBACK_IMAGE;
+  }
   
   // Already a full URL
   if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
@@ -79,6 +95,10 @@ export function getMediaCandidates(url: string | null | undefined): string[] {
   const cleanUrl = url.trim();
   if (!cleanUrl) return [FALLBACK_IMAGE];
   
+  if (isLegacyBareFilename(cleanUrl)) {
+    return [FALLBACK_IMAGE];
+  }
+
   // If already a full URL or local path, just return it + fallback
   if (cleanUrl.startsWith('http') || cleanUrl.startsWith('/')) {
     return [cleanUrl, FALLBACK_IMAGE];

@@ -95,6 +95,7 @@ export function ImageUploader({ name, label, defaultValue, type, userId, bucket 
               src={preview} 
               alt="Preview" 
               className={`w-full h-full ${isAvatar || isPhoto ? 'object-cover' : 'object-contain'} ${type === 'logo' ? 'p-4' : ''}`}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/branding/logo-square.png'; }}
             />
             {isUploading ? (
               <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center">
