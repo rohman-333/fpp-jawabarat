@@ -108,7 +108,7 @@ export default async function OrdersPage() {
                     <div className="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div>
                         <div className="font-extrabold text-slate-800 text-xs sm:text-sm">Segera lakukan Pembayaran Manual</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">Transfer ke Bank Mandiri 1310022345678 atau BSI 7110023456 a.n FPP Jabar</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">Transfer ke Bank Mandiri 1310022345678 atau BSI 7110023456 a.n Wibawa Nusantara</div>
                         {order.payment_status === 'rejected' && (
                           <div className="text-rose-600 font-bold text-xs mt-1">⚠ Bukti bayar sebelumnya ditolak. Silakan unggah ulang bukti transfer yang valid.</div>
                         )}

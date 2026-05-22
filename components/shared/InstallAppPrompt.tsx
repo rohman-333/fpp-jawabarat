@@ -15,7 +15,7 @@ export function InstallAppPrompt() {
     }
     
     // Check if user dismissed it recently
-    if (localStorage.getItem('fpp_pwa_dismissed')) {
+    if (localStorage.getItem('wibawa_pwa_dismissed')) {
       return;
     }
 
@@ -49,7 +49,7 @@ export function InstallAppPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('fpp_pwa_dismissed', 'true');
+    localStorage.setItem('wibawa_pwa_dismissed', 'true');
   };
 
   if (!showPrompt) return null;

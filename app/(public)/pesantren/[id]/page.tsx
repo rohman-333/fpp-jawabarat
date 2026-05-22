@@ -80,7 +80,7 @@ export default async function PesantrenPublicProfilePage({ params }: { params: P
               <div className="flex-1 min-w-0 pt-4 md:pt-0">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 backdrop-blur-sm uppercase tracking-wider">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Terverifikasi FPP
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Terverifikasi WIBAWA NUSANTARA
                   </span>
                   {pesantren.nspp && (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white/90 border border-white/20 backdrop-blur-sm uppercase tracking-wider">
@@ -151,7 +151,7 @@ export default async function PesantrenPublicProfilePage({ params }: { params: P
                 </div>
                 
                 <div className="mt-8 pt-8 border-t border-slate-100">
-                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-3">Saran & Harapan (Sinergi Pemda & FPP)</span>
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-3">Saran & Harapan (Sinergi Pemda & WIBAWA NUSANTARA)</span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
                       <h4 className="font-bold text-slate-700 text-sm mb-2">Saran Pemda</h4>

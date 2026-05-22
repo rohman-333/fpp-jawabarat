@@ -72,8 +72,8 @@ export async function updateSellerApplicationStatus(applicationId: string, newSt
       .from('seller_applications')
       .insert({
         user_id: targetUserId,
-        shop_name: 'Toko FPP',
-        store_name: 'Toko FPP',
+        shop_name: 'Toko WIBAWA',
+        store_name: 'Toko WIBAWA',
         applicant_email: null,
         status: newStatus,
         reviewed_by: user.id,

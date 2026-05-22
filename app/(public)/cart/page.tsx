@@ -75,7 +75,7 @@ export default async function CartPage() {
                 <div key={group.seller?.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                   <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
                     <Store className="w-4 h-4 text-blue-600" />
-                    <span className="font-bold text-slate-700">{group.seller?.name || 'Toko FPP'}</span>
+                    <span className="font-bold text-slate-700">{group.seller?.name || 'Toko WIBAWA'}</span>
                   </div>
                   <div className="divide-y divide-slate-100">
                     {group.items.map((item: any) => (

@@ -41,7 +41,7 @@ export function RightRail({ currentUserId }: { currentUserId?: string }) {
         <div className="space-y-4">
           {[
             { tag: 'KemandirianPesantren', count: '1.2k post' },
-            { tag: 'OPOPJabar', count: '856 post' },
+            { tag: 'OPOPNusantara', count: '856 post' },
             { tag: 'DigitalisasiPesantren', count: '432 post' },
             { tag: 'NgajiBareng', count: '210 post' }
           ].map((item, i) => (

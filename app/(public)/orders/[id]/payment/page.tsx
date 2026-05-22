@@ -393,7 +393,7 @@ export default function OrderPaymentPage() {
                   <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col relative group">
                     <span className="text-xs font-bold text-slate-400 mb-1">BANK MANDIRI</span>
                     <span className="font-extrabold text-slate-800 text-sm sm:text-base mb-1 select-all">131-00-2234567-8</span>
-                    <span className="text-xs text-slate-500 mb-3">a.n FPP Jabar</span>
+                    <span className="text-xs text-slate-500 mb-3">a.n Wibawa Nusantara</span>
                     <button 
                       onClick={() => copyToClipboard('1310022345678', 'mandiri')}
                       className="mt-auto self-start text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 active:scale-95 transition-transform"
@@ -406,7 +406,7 @@ export default function OrderPaymentPage() {
                   <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col relative group">
                     <span className="text-xs font-bold text-slate-400 mb-1">BANK BSI</span>
                     <span className="font-extrabold text-slate-800 text-sm sm:text-base mb-1 select-all">711-00-2345-6</span>
-                    <span className="text-xs text-slate-500 mb-3">a.n FPP Jabar</span>
+                    <span className="text-xs text-slate-500 mb-3">a.n Wibawa Nusantara</span>
                     <button 
                       onClick={() => copyToClipboard('7110023456', 'bsi')}
                       className="mt-auto self-start text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 active:scale-95 transition-transform"

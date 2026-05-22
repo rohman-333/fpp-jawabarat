@@ -63,7 +63,7 @@ export function getDisplayRole(profile?: ProfileRoles | null): string {
   
   if (profile.role === 'superadmin') return 'Superadmin';
   if (profile.role === 'admin') return 'Admin';
-  if (profile.role === 'team') return `Team FPP${profile.team_division ? ` - ${profile.team_division}` : ''}`;
+  if (profile.role === 'team') return `Team WIBAWA${profile.team_division ? ` - ${profile.team_division}` : ''}`;
   
   const tags = [];
   if (profile.has_pesantren) tags.push('Pengelola Pesantren');

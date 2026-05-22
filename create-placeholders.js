@@ -15,7 +15,7 @@ const placeholders = [
   { route: '(public)/documents/page.tsx', title: 'Dokumen & Regulasi' },
   { route: '(public)/library/page.tsx', title: 'Perpustakaan Digital' },
   { route: '(public)/articles/page.tsx', title: 'Artikel & Dakwah' },
-  { route: '(public)/news/page.tsx', title: 'Kabar FPP JAWABARAT' },
+  { route: '(public)/news/page.tsx', title: 'Kabar WIBAWA NUSANTARA' },
   { route: '(public)/donations/page.tsx', title: 'Donasi & Kebaikan' },
   { route: '(public)/ai/page.tsx', title: 'Ruang AI' },
   { route: '(public)/assistance/page.tsx', title: 'Bantuan & Layanan' },

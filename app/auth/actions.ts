@@ -49,7 +49,13 @@ export async function activateLegacyAccount(email: string) {
     if (userExistsInAuth) {
       // Send reset password email via public client
       const supabase = await createClient();
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail);
+      const siteUrl =
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        process.env.NEXT_PUBLIC_APP_URL ||
+        "https://www.wibawa-nusantara.com";
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail, {
+        redirectTo: `${siteUrl}/auth/reset-password`
+      });
       if (error) {
         console.error('[ACTIVATE_RESET_PASSWORD_ERROR]', error);
         return { success: false, error: 'Gagal mengirim email aktivasi: ' + error.message };
@@ -88,7 +94,13 @@ export async function forgotPassword(email: string) {
     }
 
     const supabase = await createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail);
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://www.wibawa-nusantara.com";
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail, {
+      redirectTo: `${siteUrl}/auth/reset-password`
+    });
     
     if (error) {
       console.error('[FORGOT_PASSWORD_ERROR]', error);

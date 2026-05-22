@@ -21,7 +21,7 @@ export default async function TeamPage() {
       <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
         <ShieldAlert className="w-16 h-16 text-red-500 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-slate-800 mb-2">Akses Ditolak</h2>
-        <p className="text-slate-600">Hanya Superadmin yang dapat mengakses manajemen Team FPP.</p>
+        <p className="text-slate-600">Hanya Superadmin yang dapat mengakses manajemen Tim WIBAWA NUSANTARA.</p>
       </div>
     );
   }

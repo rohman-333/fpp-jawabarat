@@ -20,7 +20,7 @@ export default async function AdminSellerApplicationsPage() {
       <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
         <ShieldAlert className="w-16 h-16 text-red-500 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-slate-800 mb-2">Akses Ditolak</h2>
-        <p className="text-slate-600">Hanya Admin atau Tim FPP yang dapat mengakses halaman ini.</p>
+        <p className="text-slate-600">Hanya Admin atau Tim WIBAWA NUSANTARA yang dapat mengakses halaman ini.</p>
       </div>
     );
   }

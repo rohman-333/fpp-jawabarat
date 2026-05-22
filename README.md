@@ -1,6 +1,6 @@
-# FPP JAWABARAT - Platform Digital Pesantren Jawa Barat
+# WIBAWA NUSANTARA - Platform Digital Sosial & Komunitas Nusantara
 
-Platform digital untuk pendataan, sinergi program, forum komunitas, dan marketplace pesantren di seluruh Jawa Barat. Dibangun menggunakan Next.js (App Router), Tailwind CSS, shadcn/ui, dan Supabase.
+Platform digital untuk pendataan, sinergi program, forum komunitas, dan marketplace di seluruh Nusantara. Dibangun menggunakan Next.js (App Router), Tailwind CSS, shadcn/ui, dan Supabase.
 
 ## Supabase Database Setup
 
@@ -53,17 +53,17 @@ Pertama, simpan seluruh kode Anda ke repository GitHub:
 ```bash
 git init
 git add .
-git commit -m "Initial commit FPP JAWABARAT production ready"
+git commit -m "Initial commit WIBAWA NUSANTARA production ready"
 git branch -M main
 # Ganti URL di bawah dengan URL repository GitHub Anda
-git remote add origin https://github.com/username/fpp-jawabarat.git
+git remote add origin https://github.com/username/wibawa-nusantara.git
 git push -u origin main
 ```
 
 ### 2. Deploy ke Vercel
 1. Buka [Vercel](https://vercel.com) dan login dengan akun GitHub Anda.
 2. Klik **Add New...** > **Project**.
-3. Import repository `fpp-jawabarat` yang baru saja Anda push.
+3. Import repository `wibawa-nusantara` yang baru saja Anda push.
 4. Di bagian **Environment Variables**, tambahkan ketiga variabel dari `.env.example`:
    - `NEXT_PUBLIC_SUPABASE_URL` = (URL Supabase Anda)
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = (Anon Key Supabase Anda)
@@ -79,4 +79,4 @@ Setelah Vercel memberikan URL/domain (contoh: `https://wibawa-nusantara.com`), A
    - `https://wibawa-nusantara.com/auth/callback`
    - `https://wibawa-nusantara.com/**` (opsional untuk wildcard)
 4. Update juga environment variable `NEXT_PUBLIC_SITE_URL` di Vercel dengan domain tersebut.
-5. Selesai! Platform FPP JAWABARAT sudah *live* dan siap digunakan.
+5. Selesai! Platform WIBAWA NUSANTARA sudah *live* dan siap digunakan.

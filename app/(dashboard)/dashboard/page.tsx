@@ -168,7 +168,7 @@ export default async function DashboardPage() {
                       <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-blue-500 hover:shadow-md transition-all">
                         <Landmark className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                         <h3 className="font-bold text-slate-800 mb-1">Punya Pesantren?</h3>
-                        <p className="text-xs text-slate-500 mb-4 line-clamp-2">Daftarkan pesantren Anda ke direktori FPP.</p>
+                        <p className="text-xs text-slate-500 mb-4 line-clamp-2">Daftarkan pesantren Anda ke direktori WIBAWA NUSANTARA.</p>
                         <Link href="/dashboard/pesantren/apply" className="block w-full py-2 bg-slate-100 hover:bg-blue-50 text-blue-700 font-semibold rounded-lg text-sm transition-colors">
                           Ajukan Pesantren
                         </Link>
