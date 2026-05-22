@@ -5,7 +5,7 @@ import { Bell, Loader2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 
-export function PushNotificationManager() {
+export function PushNotificationManager({ hideIfSubscribed = false }: { hideIfSubscribed?: boolean } = {}) {
   const [isSupported, setIsSupported] = useState(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,6 +56,7 @@ export function PushNotificationManager() {
 
   const subscribeToPush = async () => {
     try {
+      console.log("Push button clicked");
       setSaving(true);
       setError(null);
 
@@ -69,7 +70,13 @@ export function PushNotificationManager() {
         throw new Error('Izin notifikasi ditolak oleh browser.');
       }
 
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
+        updateViaCache: 'none',
+      });
+      console.log("SW registered");
+
+      await navigator.serviceWorker.ready;
 
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -125,6 +132,7 @@ export function PushNotificationManager() {
   };
 
   if (!isSupported) {
+    if (hideIfSubscribed) return null;
     return (
       <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
         <Info className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
@@ -137,7 +145,12 @@ export function PushNotificationManager() {
   }
 
   if (loading) {
+    if (hideIfSubscribed) return null;
     return <div className="h-20 animate-pulse bg-slate-100 rounded-xl"></div>;
+  }
+
+  if (hideIfSubscribed && subscription) {
+    return null;
   }
 
   return (

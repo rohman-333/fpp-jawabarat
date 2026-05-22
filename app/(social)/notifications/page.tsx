@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { MarkAllReadButton } from './MarkAllReadButton';
+import { PushNotificationManager } from '@/components/dashboard/PushNotificationManager';
 
 export const metadata = {
   title: 'Notifikasi - WIBAWA NUSANTARA',
@@ -57,7 +58,9 @@ export default async function NotificationsPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full pt-20 md:pt-8 px-4 md:px-0">
+    <div className="max-w-2xl mx-auto w-full pt-20 md:pt-8 px-4 md:px-0 space-y-6">
+      <PushNotificationManager hideIfSubscribed={true} />
+
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-blue-50/30">
           <div className="flex items-center gap-3">

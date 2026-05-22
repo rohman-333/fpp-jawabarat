@@ -61,6 +61,7 @@ export function PushPermissionPrompt() {
 
   const handleEnable = async () => {
     try {
+      console.log("Push button clicked");
       const permission = await Notification.requestPermission();
       
       if (permission === 'granted') {

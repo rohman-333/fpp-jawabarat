@@ -5,8 +5,9 @@ import { DashboardTopbar } from '@/components/shared/DashboardTopbar';
 import { StatCard } from '@/components/shared/StatCard';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, Star, MessageSquare, Landmark, PenSquare, Eye } from 'lucide-react';
-import Link from 'next/link';
 import { LegacyPasswordBanner } from '@/components/shared/LegacyPasswordBanner';
+import { PushNotificationManager } from '@/components/dashboard/PushNotificationManager';
+import Link from 'next/link';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -75,6 +76,11 @@ export default async function DashboardPage() {
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Push Notification Manager */}
+            <div className="mb-8">
+              <PushNotificationManager hideIfSubscribed={true} />
             </div>
 
             {pesantren && pesantren.status === 'pending' && (
