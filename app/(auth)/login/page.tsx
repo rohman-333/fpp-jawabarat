@@ -50,7 +50,9 @@ export default async function LoginPage({
 
         {message && (
           <div className="bg-blue-500/10 border border-blue-500/50 text-blue-300 p-3 rounded-xl mb-4 text-sm text-center">
-            {message}
+            {message === 'password_updated' 
+              ? 'Password Anda berhasil diperbarui. Silakan login dengan password baru Anda.' 
+              : message}
           </div>
         )}
 

@@ -7,18 +7,8 @@ export async function GET(request: Request) {
   const searchParams = requestUrl.searchParams
   const code = searchParams.get('code')
   
-  const type = searchParams.get('type')
-  
-  // if "next" is in param, use it as the redirect URL
-  // if type is recovery, default to /auth/reset-password
-  let next = searchParams.get('next')
-  if (!next) {
-    if (type === 'recovery') {
-      next = '/auth/reset-password'
-    } else {
-      next = '/'
-    }
-  }
+  // if "next" is in param, use it as the redirect URL, default to /auth/reset-password
+  const next = searchParams.get('next') || '/auth/reset-password'
 
   if (code) {
     const supabase = await createClient()
@@ -26,11 +16,11 @@ export async function GET(request: Request) {
     
     if (!error) {
       // If next is /auth/reset-password, skip checking profile and redirect there directly
-      if (next === '/auth/reset-password') {
-        return NextResponse.redirect(`${origin}/auth/reset-password`)
+      if (next === '/auth/reset-password' || next.startsWith('/auth/reset-password')) {
+        return NextResponse.redirect(`${origin}${next}`)
       }
 
-      // Fetch user profile to determine role and redirect accordingly
+      // Fetch user profile to determine role and redirect accordingly (for other flows)
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const { data: profile } = await supabase
@@ -52,6 +42,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/login?error=Could not authenticate user`)
+  // If there's an error or no code, redirect to forgot-password with token_invalid error
+  return NextResponse.redirect(`${origin}/auth/forgot-password?error=token_invalid`)
 }

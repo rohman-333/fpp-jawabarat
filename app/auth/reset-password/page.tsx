@@ -10,7 +10,6 @@ import { Key, ArrowLeft, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-rea
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,58 +23,25 @@ function ResetPasswordForm() {
 
   useEffect(() => {
     const checkSession = async () => {
-      // 1. If there's a code query parameter, exchange it for a session
-      const code = searchParams.get('code');
-      if (code) {
-        try {
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-          if (exchangeError) {
-            console.error('Error exchanging code:', exchangeError);
-            setError('Token reset password tidak valid atau telah kedaluwarsa.');
-            setSessionValid(false);
-            setCheckingSession(false);
-            return;
-          }
-          
-          // Clear query params to clean URL
-          const url = new URL(window.location.href);
-          url.searchParams.delete('code');
-          window.history.replaceState({}, '', url.pathname + url.search);
-        } catch (e) {
-          console.error('Exception exchanging code:', e);
-        }
-      }
-
-      // 2. Check if we have an active session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        // Check if there is an access_token in the URL hash (Implicit flow)
-        if (window.location.hash.includes('access_token=')) {
-          // Wait for Supabase client to parse the hash fragment
-          setTimeout(async () => {
-            const { data: { session: retrySession } } = await supabase.auth.getSession();
-            if (retrySession) {
-              setSessionValid(true);
-            } else {
-              setError('Sesi reset password tidak valid atau telah kedaluwarsa.');
-              setSessionValid(false);
-            }
-            setCheckingSession(false);
-          }, 800);
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (session && !sessionError) {
+          setSessionValid(true);
         } else {
-          setError('Sesi reset password tidak ditemukan. Silakan minta tautan baru.');
-          setSessionValid(false);
-          setCheckingSession(false);
+          // Arahkan ke /auth/forgot-password jika token/session invalid
+          router.push('/auth/forgot-password?error=token_invalid');
         }
-      } else {
-        setSessionValid(true);
+      } catch (e) {
+        console.error('Exception checking session:', e);
+        router.push('/auth/forgot-password?error=token_invalid');
+      } finally {
         setCheckingSession(false);
       }
     };
 
     checkSession();
-  }, [searchParams, supabase.auth]);
+  }, [router, supabase.auth]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,10 +71,8 @@ function ResetPasswordForm() {
         setPassword('');
         setConfirmPassword('');
         
-        // Wait a short moment to let the user see the success message, then redirect
-        setTimeout(() => {
-          router.push('/auth/login?message=Password%20berhasil%20diperbarui%2C%20silakan%20login');
-        }, 1500);
+        // Setelah sukses redirect ke /auth/login?message=password_updated
+        router.push('/auth/login?message=password_updated');
       }
     } catch (err) {
       setError('Terjadi kesalahan saat memproses permintaan.');
@@ -134,7 +98,7 @@ function ResetPasswordForm() {
         </div>
         <h1 className="text-2xl font-bold text-white mb-2">Reset Password</h1>
         <p className="text-blue-200/60 text-center text-sm">
-          {sessionValid ? 'Masukkan password baru Anda untuk mengamankan akun.' : 'Tautan tidak valid atau kedaluwarsa.'}
+          {sessionValid ? 'Masukkan password baru Anda untuk mengamankan akun.' : 'Mengalihkan ke halaman pemulihan...'}
         </p>
       </div>
 
@@ -155,20 +119,6 @@ function ResetPasswordForm() {
             <p className="font-bold mb-1">{message}</p>
             <p className="text-xs text-emerald-400/80">Mengalihkan ke halaman login...</p>
           </div>
-        </div>
-      )}
-
-      {!sessionValid && !checkingSession && (
-        <div className="space-y-4">
-          <p className="text-sm text-blue-200/70 text-center mb-6">
-            Sesi reset password Anda tidak ditemukan, tidak valid, atau sudah kedaluwarsa. Silakan kirim ulang tautan reset baru ke email Anda.
-          </p>
-          <Button
-            onClick={() => router.push('/auth/forgot-password')}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold h-12 rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-98 flex items-center justify-center gap-2"
-          >
-            Kirim Ulang Link Reset
-          </Button>
         </div>
       )}
 
