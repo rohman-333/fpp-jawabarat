@@ -39,9 +39,45 @@ export async function GET(request: Request) {
 
       // fallback
       return NextResponse.redirect(`${origin}${next}`)
+    } else {
+      console.error('[AUTH_CALLBACK_EXCHANGE_FAILED]', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        next,
+        hasCode: Boolean(code)
+      })
+      return NextResponse.redirect(`${origin}/auth/forgot-password?error=token_invalid`)
     }
   }
 
-  // If there's an error or no code, redirect to forgot-password with token_invalid error
-  return NextResponse.redirect(`${origin}/auth/forgot-password?error=token_invalid`)
+  // Support implicit/hash flow when type=recovery (which exists only on client hash)
+  return new NextResponse(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Authenticating...</title>
+    </head>
+    <body>
+      <script>
+        if (window.location.hash) {
+          const hash = window.location.hash;
+          const params = new URLSearchParams(hash.slice(1));
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+          const type = params.get('type');
+          if (accessToken && refreshToken && type === 'recovery') {
+            window.location.replace('${origin}/auth/reset-password' + hash);
+          } else {
+            window.location.replace('${origin}/auth/forgot-password?error=token_invalid');
+          }
+        } else {
+          window.location.replace('${origin}/auth/forgot-password?error=token_invalid');
+        }
+      </script>
+    </body>
+    </html>
+  `, {
+    headers: { 'Content-Type': 'text/html' }
+  })
 }

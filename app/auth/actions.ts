@@ -53,8 +53,10 @@ export async function activateLegacyAccount(email: string) {
         process.env.NEXT_PUBLIC_SITE_URL ||
         process.env.NEXT_PUBLIC_APP_URL ||
         "https://www.wibawa-nusantara.com";
+      const callbackUrl = new URL('/auth/callback', siteUrl);
+      callbackUrl.searchParams.set('next', '/auth/reset-password');
       const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail, {
-        redirectTo: `${siteUrl}/auth/callback?next=/auth/reset-password`
+        redirectTo: callbackUrl.toString()
       });
       if (error) {
         console.error('[ACTIVATE_RESET_PASSWORD_ERROR]', error);
@@ -98,8 +100,10 @@ export async function forgotPassword(email: string) {
       process.env.NEXT_PUBLIC_SITE_URL ||
       process.env.NEXT_PUBLIC_APP_URL ||
       "https://www.wibawa-nusantara.com";
+    const callbackUrl = new URL('/auth/callback', siteUrl);
+    callbackUrl.searchParams.set('next', '/auth/reset-password');
     const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail, {
-      redirectTo: `${siteUrl}/auth/callback?next=/auth/reset-password`
+      redirectTo: callbackUrl.toString()
     });
     
     if (error) {

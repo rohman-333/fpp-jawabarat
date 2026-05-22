@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BrandLogo } from '@/components/shared/BrandLogo';
@@ -9,6 +9,7 @@ import { forgotPassword } from '../actions';
 import { Mail, ArrowLeft, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 function ForgotPasswordForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,8 +20,9 @@ function ForgotPasswordForm() {
     const errorParam = searchParams.get('error');
     if (errorParam === 'token_invalid') {
       setError('Token reset password tidak valid atau telah kedaluwarsa. Silakan minta tautan baru.');
+      router.replace('/auth/forgot-password');
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +84,10 @@ function ForgotPasswordForm() {
             required
             disabled={isSubmitting}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (error) setError(null);
+            }}
             className="w-full bg-slate-950/60 border border-blue-800/40 rounded-xl px-4 py-3 text-white placeholder-blue-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all disabled:opacity-50"
             placeholder="nama@email.com"
           />

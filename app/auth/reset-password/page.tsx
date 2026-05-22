@@ -24,9 +24,40 @@ function ResetPasswordForm() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (session && !sessionError) {
+        let currentSession = null;
+
+        // 1. Check client-side hash first (Implicit Flow / Forwarded Hash)
+        if (typeof window !== 'undefined' && window.location.hash) {
+          const hashParams = new URLSearchParams(window.location.hash.slice(1));
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
+          const type = hashParams.get('type');
+
+          if (accessToken && refreshToken && type === 'recovery') {
+            const { data: setSessionData, error: setSessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+
+            if (!setSessionError) {
+              currentSession = setSessionData.session;
+              // Clear the hash from browser's URL bar safely without triggering reload
+              router.replace('/auth/reset-password');
+            } else {
+              console.error('[RESET_PASSWORD_HASH_SESSION_ERROR]', setSessionError);
+            }
+          }
+        }
+
+        // 2. Fallback to existing session (PKCE flow or already established session)
+        if (!currentSession) {
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          if (session && !sessionError) {
+            currentSession = session;
+          }
+        }
+
+        if (currentSession) {
           setSessionValid(true);
         } else {
           // Arahkan ke /auth/forgot-password jika token/session invalid
