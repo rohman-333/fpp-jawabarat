@@ -264,6 +264,7 @@ export function CheckoutClient({ items, currentUserId, profile }: { items: any[]
             destination_name: profile?.name || 'Buyer',
             destination_phone: phone,
             destination_address: address,
+            destination_zone_id: actualZoneId,
             item_description: sellerItems.map((item: any) => `${item.product.name} (x${item.quantity})`).join(', '),
             item_weight: sellerItems.reduce((acc: number, item: any) => acc + (item.quantity * (item.product.weight || 1)), 0),
             distance_km: fareResult.distanceKm,

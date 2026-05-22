@@ -61,7 +61,9 @@ export default async function OrdersPage() {
                     </div>
                     <div>
                       <div className="text-xs text-slate-500 mb-1">No. Invoice</div>
-                      <div className="font-bold text-blue-700">{order.invoice_number}</div>
+                      <Link href={`/orders/${order.id}`} className="font-bold text-blue-700 hover:underline">
+                        {order.invoice_number}
+                      </Link>
                     </div>
                     <div>
                       <div className="text-xs text-slate-500 mb-1">Total Belanja</div>

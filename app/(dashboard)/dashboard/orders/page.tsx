@@ -52,7 +52,9 @@ export default async function DashboardOrdersPage() {
             <div key={order.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex flex-wrap gap-4 items-center justify-between">
                 <div>
-                  <div className="font-bold text-slate-800 text-sm mb-0.5">{order.invoice_number}</div>
+                  <Link href={`/dashboard/orders/${order.id}`} className="font-bold text-blue-700 hover:underline text-sm mb-0.5 block">
+                    {order.invoice_number}
+                  </Link>
                   <div className="text-xs text-slate-500">{new Date(order.created_at).toLocaleString('id-ID')}</div>
                 </div>
                 <div className="flex items-center gap-3">

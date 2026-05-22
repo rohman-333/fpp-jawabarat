@@ -376,3 +376,106 @@ export async function createOrder(formData: FormData) {
   revalidatePath('/orders');
   redirect('/orders');
 }
+
+export async function updateOrderStatus(orderId: string, newStatus: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'Unauthorized' };
+  }
+
+  // 1. Get order details to check permissions
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .select('id, invoice_number, buyer_id, seller_id, status, payment_status')
+    .eq('id', orderId)
+    .maybeSingle();
+
+  if (orderError || !order) {
+    return { error: 'Pesanan tidak ditemukan atau terjadi kesalahan database.' };
+  }
+
+  // Check user role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const role = profile?.role || 'member';
+  const isAdmin = ['admin', 'superadmin', 'operator', 'team'].includes(role);
+  const isSeller = order.seller_id === user.id;
+  const isBuyer = order.buyer_id === user.id;
+
+  if (!isAdmin && !isSeller && !isBuyer) {
+    return { error: 'Anda tidak memiliki hak akses untuk mengubah status pesanan ini.' };
+  }
+
+  // Business logic validations
+  if (isBuyer && !isAdmin && !isSeller) {
+    // Buyer can only cancel order if it is pending and unpaid
+    if (newStatus !== 'cancelled') {
+      return { error: 'Sebagai pembeli, Anda hanya dapat membatalkan pesanan.' };
+    }
+    if (order.status !== 'pending') {
+      return { error: 'Pesanan tidak dapat dibatalkan karena sudah diproses.' };
+    }
+    if (order.payment_status === 'paid') {
+      return { error: 'Pesanan tidak dapat dibatalkan karena sudah lunas. Hubungi penjual untuk pengembalian dana.' };
+    }
+  }
+
+  // 2. Perform the update
+  const { error: updateError } = await supabase
+    .from('orders')
+    .update({ status: newStatus })
+    .eq('id', orderId);
+
+  if (updateError) {
+    return { error: 'Gagal memperbarui status: ' + updateError.message };
+  }
+
+  // 3. Create log entry
+  try {
+    await supabase.from('order_status_logs').insert({
+      order_id: orderId,
+      status: newStatus,
+      notes: `Status diubah menjadi ${newStatus} oleh ${role}`,
+      created_by: user.id
+    });
+  } catch (logErr) {
+    console.error('Failed to log order status change:', logErr);
+  }
+
+  // 4. Send Notifications
+  // Notify Buyer if someone else changed it
+  if (user.id !== order.buyer_id) {
+    await createNotification({
+      userId: order.buyer_id,
+      type: 'order_status',
+      title: 'Update Status Pesanan',
+      body: `Status pesanan Anda ${order.invoice_number} telah diubah menjadi: ${newStatus.toUpperCase()}`,
+      href: `/orders`
+    }).catch(err => console.error('Failed to notify buyer:', err));
+  }
+
+  // Notify Seller if someone else changed it (e.g. Buyer cancels or Admin modifies)
+  if (user.id !== order.seller_id) {
+    await createNotification({
+      userId: order.seller_id,
+      type: 'order_status',
+      title: 'Update Status Pesanan',
+      body: `Status pesanan ${order.invoice_number} telah diubah menjadi: ${newStatus.toUpperCase()}`,
+      href: `/dashboard/orders`
+    }).catch(err => console.error('Failed to notify seller:', err));
+  }
+
+  revalidatePath('/orders');
+  revalidatePath('/dashboard/orders');
+  revalidatePath(`/orders/${orderId}`);
+  revalidatePath(`/dashboard/orders/${orderId}`);
+  revalidatePath('/admin/orders');
+
+  return { success: true };
+}

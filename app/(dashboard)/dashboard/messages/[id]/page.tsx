@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import { ChatClient } from '@/components/shared/ChatClient';
 import Link from 'next/link';
-import { ArrowLeft, User, Store } from 'lucide-react';
+import { ArrowLeft, User, Store, Package } from 'lucide-react';
 
 export const metadata = {
   title: 'Diskusi Chat - Dashboard WIBAWA NUSANTARA',
@@ -23,7 +23,8 @@ export default async function DashboardMessageDetailPage({ params }: { params: P
       id, buyer_id, seller_id,
       buyer:buyer_id(name, avatar_url),
       seller:seller_id(name, avatar_url),
-      product:product_id(id, name, price, image_url, slug)
+      product:product_id(id, name, price, image_url, slug),
+      order:order_id(id, invoice_number, total_amount, status, payment_status)
     `)
     .eq('id', id)
     .single();
@@ -87,6 +88,32 @@ export default async function DashboardMessageDetailPage({ params }: { params: P
                 <div className="text-[10px] text-slate-600 font-bold mt-0.5">
                   Rp {(prod.price || 0).toLocaleString('id-ID')}
                 </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Order Context Banner */}
+        {conversation.order && (() => {
+          const ord = conversation.order as any;
+          return (
+            <div className="p-3 bg-emerald-50 border-b border-emerald-100 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="bg-emerald-100 p-1.5 rounded-lg text-emerald-800 shrink-0">
+                  <Package className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Terkait Pesanan Toko</div>
+                  <Link href={`/dashboard/orders/${ord.id}`} className="font-extrabold text-emerald-800 hover:underline">
+                    {ord.invoice_number}
+                  </Link>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-slate-700">Rp {ord.total_amount.toLocaleString('id-ID')}</span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  {ord.status}
+                </span>
               </div>
             </div>
           );
