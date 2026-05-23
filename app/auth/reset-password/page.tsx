@@ -1,18 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BrandLogo } from '@/components/shared/BrandLogo';
-import { resetPassword } from '../actions';
+import { createClient } from '@/lib/supabase/client';
 import { Key, ArrowLeft, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function ResetPasswordPage() {
+  const router = useRouter();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [sessionValid, setSessionValid] = useState(false);
+
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (session && !sessionError) {
+          setSessionValid(true);
+        } else {
+          setError('Sesi pemulihan password tidak valid atau telah kedaluwarsa. Silakan minta tautan baru.');
+        }
+      } catch (e) {
+        console.error('Exception checking session:', e);
+        setError('Gagal memverifikasi sesi reset password.');
+      } finally {
+        setCheckingSession(false);
+      }
+    };
+
+    checkSession();
+  }, [supabase.auth]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,13 +61,18 @@ export default function ResetPasswordPage() {
     setMessage(null);
 
     try {
-      const res = await resetPassword(password);
-      if (res.success) {
-        setMessage(res.message || 'Password Anda berhasil diperbarui.');
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      
+      if (updateError) {
+        setError(updateError.message || 'Gagal memperbarui password.');
+      } else {
+        setMessage('Password Anda berhasil diperbarui.');
         setPassword('');
         setConfirmPassword('');
-      } else {
-        setError(res.error || 'Gagal memperbarui password.');
+        
+        setTimeout(() => {
+          router.push('/auth/login?message=password_updated');
+        }, 1500);
       }
     } catch (err) {
       setError('Terjadi kesalahan saat memproses permintaan.');
@@ -47,6 +80,17 @@ export default function ResetPasswordPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center p-4">
+        <div className="relative w-full max-w-md bg-white/5 border border-blue-800/30 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl flex flex-col items-center justify-center py-12">
+          <RefreshCw className="w-8 h-8 text-blue-500 animate-spin mb-4" />
+          <p className="text-blue-200/60 text-sm">Memverifikasi sesi reset password...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center p-4">
@@ -86,7 +130,7 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        {!message && (
+        {!message && sessionValid && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-blue-100 flex items-center gap-2">
