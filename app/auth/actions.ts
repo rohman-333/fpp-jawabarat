@@ -49,15 +49,7 @@ export async function activateLegacyAccount(email: string) {
     if (userExistsInAuth) {
       // Send reset password email via public client
       const supabase = await createClient();
-      const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL ||
-        process.env.NEXT_PUBLIC_APP_URL ||
-        "https://www.wibawa-nusantara.com";
-      const callbackUrl = new URL('/auth/callback', siteUrl);
-      callbackUrl.searchParams.set('next', '/auth/reset-password');
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail, {
-        redirectTo: callbackUrl.toString()
-      });
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail);
       if (error) {
         console.error('[ACTIVATE_RESET_PASSWORD_ERROR]', error);
         return { success: false, error: 'Gagal mengirim email aktivasi: ' + error.message };
@@ -96,15 +88,7 @@ export async function forgotPassword(email: string) {
     }
 
     const supabase = await createClient();
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://www.wibawa-nusantara.com";
-    const callbackUrl = new URL('/auth/callback', siteUrl);
-    callbackUrl.searchParams.set('next', '/auth/reset-password');
-    const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail, {
-      redirectTo: callbackUrl.toString()
-    });
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanedEmail);
     
     if (error) {
       console.error('[FORGOT_PASSWORD_ERROR]', error);
