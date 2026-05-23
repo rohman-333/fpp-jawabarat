@@ -79,7 +79,7 @@ export async function saveProduct(formData: FormData) {
 
   revalidatePath('/dashboard/products');
   revalidatePath('/marketplace');
-  redirect('/dashboard/products');
+  redirect('/dashboard/products?created=1');
 }
 
 export async function deleteProduct(formData: FormData) {

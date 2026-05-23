@@ -9,7 +9,10 @@ import Link from 'next/link';
 import { deleteProduct } from './actions';
 import { resolveMediaUrlWithFallback } from '@/lib/media/resolveMediaUrl';
 
-export default async function ProductsPage() {
+export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ created?: string }> }) {
+  const params = await searchParams;
+  const isCreated = params?.created === '1';
+
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -56,7 +59,7 @@ export default async function ProductsPage() {
       queryStepFailed = 'primary_query';
       let dbQuery = supabase
         .from('products')
-        .select('id, name, slug, description, price, stock, category, category_id, image_url, status, seller_id, created_at')
+        .select('id, name, description, price, stock, image_url, status, created_at, seller_id')
         .order('created_at', { ascending: false });
 
       if (!isAdmin) {
@@ -134,6 +137,18 @@ export default async function ProductsPage() {
               )}
             </div>
 
+            {/* Banner Sukses Tambah Produk */}
+            {isCreated && (
+              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl mb-6 shadow-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-emerald-900">Produk berhasil ditambahkan.</p>
+                </div>
+              </div>
+            )}
+
             {/* Error state for profile fetch */}
             {profileErrorMsg && (
               <div className="bg-red-50 border border-red-200 p-6 rounded-2xl mb-8 shadow-sm flex items-start gap-4">
@@ -147,25 +162,37 @@ export default async function ProductsPage() {
               </div>
             )}
 
-            {/* Error state for products fetch */}
-            {productsError && (
-              <div className="bg-red-50 border border-red-200 p-6 rounded-2xl mb-8 shadow-sm flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                  <AlertCircle className="w-6 h-6 text-red-600" />
+            {/* Render Custom Fallback UI if products query fails */}
+            {productsError ? (
+              <div className="bg-amber-50 border border-amber-200 p-8 rounded-3xl mb-8 shadow-sm text-center flex flex-col items-center">
+                <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4">
+                  <AlertCircle className="w-8 h-8 text-amber-600" />
                 </div>
-                <div>
-                  <h2 className="text-lg font-bold text-red-900 mb-1">Produk belum dapat dimuat</h2>
-                  {isAdmin && (
-                    <p className="text-red-700/85 text-xs font-mono mt-1 whitespace-pre-wrap">
-                      Error: {productsError.message || JSON.stringify(productsError)}
-                    </p>
-                  )}
+                <h2 className="text-xl font-bold text-amber-950 mb-2">
+                  Produk berhasil disimpan, tetapi daftar dashboard belum dapat dimuat.
+                </h2>
+                <p className="text-amber-700/80 text-sm mb-6 max-w-md">
+                  Koneksi ke data katalog produk di dashboard mengalami kendala sementara. Produk Anda tetap aktif di marketplace publik.
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center">
+                  <Link href="/dashboard/products/new">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 px-6 rounded-xl">
+                      Tambah Produk
+                    </Button>
+                  </Link>
+                  <Link href="/marketplace" target="_blank">
+                    <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-50 font-bold h-11 px-6 rounded-xl">
+                      Lihat Marketplace
+                    </Button>
+                  </Link>
+                  <Link href="/dashboard/products">
+                    <Button variant="outline" className="border-amber-300 text-amber-800 hover:bg-amber-100 font-bold h-11 px-6 rounded-xl">
+                      Refresh Halaman
+                    </Button>
+                  </Link>
                 </div>
               </div>
-            )}
-
-            {/* Akses Logic UI */}
-            {!canManageProducts ? (
+            ) : !canManageProducts ? (
               <div className="bg-amber-50 border border-amber-200 p-8 rounded-3xl mb-8 shadow-sm text-center flex flex-col items-center">
                 <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4">
                   <Store className="w-8 h-8 text-amber-600" />
